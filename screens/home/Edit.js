@@ -49,10 +49,12 @@ import { useNavigation } from "@react-navigation/native";
 //import loading screen
 import Loading from "../animations/Loading";
 //image picker of expo
-import * as ImagePicker from "expo-image-picker";
 //FileSystem
-import * as FileSystem from 'expo-file-system';
 import { KeyboardAvoidingView } from "react-native";
+//Import react native image picker
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import moment from "moment";
+import { getFormatedDate } from "react-native-modern-datepicker";
 
 const Edit = () => {
   const [isSelected, setSelection] = useState(false);
@@ -78,6 +80,32 @@ const Edit = () => {
   const [addressPlaceholder, setAddressPlaceholder] = useState("");
   const [profilePicPlaceholder, setProfilePicPlaceholder] = useState("");
   const uid = id.toString;
+  //date
+  const today = new Date();
+  const dateNow = getFormatedDate(
+    today.setDate(today.getDate()),
+    "YYYY/MM/DD"
+  );
+
+  //camera
+  const [pickedImage, setPickedImage] = useState(null);
+  const showGallery = () => {
+    let options = {
+      cancelButtonTitle: 'Cancel',
+      mediaType: 'photo',
+
+    };
+
+    launchImageLibrary(options => {
+      if (error) {
+        console.log('Image picker error: ', error);
+      } else {
+        setPickedImage(uri);
+        console.log(uri)
+      }
+    });
+
+  };
 
   const [loading, setLoading] = useState(false);
 
@@ -97,6 +125,7 @@ const Edit = () => {
       const docRef = doc(database, "userData", uid);
       onSnapshot(docRef, (doc) => {
         const data = doc.data();
+        setProfilePic(image);
         setFnamePlaceholder(data.userFname);
         setMnamePlaceholder(data.userMname);
         setLnamePlaceholder(data.userLname);
@@ -111,8 +140,8 @@ const Edit = () => {
     }
   }
 
-  function sendData() {
-    
+  function update(){
+    var time = moment().utcOffset('+08:00').format('hh:mm a');
     if(!lname||!mname||!lname||!email||!number||!address){
       if(!lname){
         setFname(fnamePlaceholder);
@@ -132,53 +161,24 @@ const Edit = () => {
       if(!number){
         setNumber(numberPlaceholder);
       }
-      update();
-    }
-    else{
-      update();
+    }else{
+      addDoc(collection(database,'log'),{
+        uid: id,
+        type: "edit",
+        timeMade: time,
+        dateMade: dateNow,
+        activity: "Made changes to profile."
+      })
+      updateDoc(doc(database, "userData", id), {
+        userFname: fname,
+        userMname: mname,
+        userLname: lname,
+        userEmail: email,
+        userNumber: number,
+      }).then(alert("Changes successful."));
+      nav.navigate("Profile")
     }
   }
-  function update(){
-    updateDoc(doc(database, "userData", id), {
-      userFname: fname,
-      userMname: mname,
-      userLname: lname,
-      userEmail: email,
-      userBirthdate: dob,
-      userNumber: number,
-    }).then(alert("Changes successful."));
-    nav.navigate("Profile")
-  }
-
-  //change profile picture
-  const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    console.log(result);
-
-    if (!result.canceled) {
-      setImage(result.uri);
-      const filename = result.uri
-      const imageUri = result.uri;
-      const imageInfo = await FileSystem.getInfoAsync(imageUri);
-      const base64Image = await FileSystem.readAsStringAsync(imageUri, { encoding: 'base64' });
-      const savedImageUri = `${FileSystem.documentDirectory,filename}.jpg`;
-        await FileSystem.writeAsStringAsync(savedImageUri, base64Image, { encoding: 'base64' });
-        setProfilePic(savedImageUri);
-        updateDoc(doc(database, "userData", id), {
-          userPic: profilePic
-        }).then(alert("Profile photo updated successfuly."));
-        console.log('Image saved', 'The image has been saved to local storage.');
-  
-    }
-  };
-
   const nav = useNavigation();
 
   return (
@@ -199,7 +199,7 @@ const Edit = () => {
               }}
             ></View>
             <View style={{alignItems:'center',justifyContent:'center'}}>
-              <TouchableOpacity onPress={() => pickImage()}>
+              <TouchableOpacity onPress={() => showGallery()}>
                   {
                     !profilePicPlaceholder?
                     <Image
@@ -207,12 +207,12 @@ const Edit = () => {
                     source={require('../../assets/usertemplate.png')}/>
                   :
                   <Image
-                    style={style.pic}
-                    source={{uri:profilePicPlaceholder}}/>
+                  style={style.pic}
+                  source={require('../../assets/usertemplate.png')}/>
                   }
               </TouchableOpacity>
               <View style={{width:30,height:30,borderRadius:30,marginTop:-30,marginLeft:70,backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
-                  <TouchableOpacity onPress={() => pickImage()}>
+                  <TouchableOpacity onPress={() => showGallery()}>
                     <FontAwesomeIcon icon={faCamera} color="skyblue" size={20}/>
                   </TouchableOpacity>
               </View>
@@ -287,7 +287,7 @@ const Edit = () => {
                       <TextInput placeholder={numberPlaceholder} style={{}} onChangeText={(text)=> setNumber(text)}/>
                     </View>
                   </View>
-                  <TouchableOpacity onPress={()=> sendData()} style={{width:120,height:40,backgroundColor:'navy',alignSelf:'center',borderRadius:20,alignItems:'center',justifyContent:'center'}}>
+                  <TouchableOpacity onPress={()=> update()} style={{width:120,height:40,backgroundColor:'navy',alignSelf:'center',borderRadius:20,alignItems:'center',justifyContent:'center'}}>
                     <Text style={{color:'white',fontSize:18,fontWeight:700}}>Save</Text>
                   </TouchableOpacity>
                 </KeyboardAvoidingView>

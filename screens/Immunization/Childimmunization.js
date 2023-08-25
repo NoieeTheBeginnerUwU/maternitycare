@@ -4,7 +4,7 @@ import { SafeAreaView, StyleSheet, View, Text, Image, FlatList } from "react-nat
 import { getFormatedDate } from "react-native-modern-datepicker";
 import { TouchableOpacity } from "react-native";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faPerson, faPlusCircle } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faPerson, faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 //import useNavigaton to navigate between pages
 import { useNavigation } from "@react-navigation/native";
 //import firebase
@@ -17,7 +17,7 @@ import { ScrollView } from "react-native-gesture-handler";
 //Import images
 import { images } from "../../style";
 //FontAwesome icon
-import { faCalendar, faWeightScale, faRuler, faTransgender} from "@fortawesome/free-solid-svg-icons";
+import { faCalendar, faWeightScale, faRuler, faTransgender } from "@fortawesome/free-solid-svg-icons";
 //Import moment js
 
 export default Childimmunization = () => {
@@ -41,7 +41,9 @@ export default Childimmunization = () => {
     var child  = 1;
     const data = querySnapshot.forEach(doc=>{
       const today2 = moment(doc.data().childDob, "YYYY/MM/DD");
-      const weeksDifference = today1.diff(today2, "days");
+      const monthsDifference = today1.diff(today2, "months");
+      const weeksDifference = today1.diff(today2, "weeks");
+      const daysDifference = today1.diff(today2, "days");
       userData.push({childNo: child++, id:doc.id, height:doc.data().height,weight:doc.data().weight,Motheruid:doc.data().Motheruid, age:weeksDifference,dateRegistered:doc.data().dateRegistered, childAddress:doc.data().childAddress, childDob:doc.data().childDob, childFname:doc.data().childFname, childLname:doc.data().childLname,childGender:doc.data().childGender,childPlaceOfBirth:doc.data().childPlaceOfBirth,father:doc.data().father});
     })
     setDocuments(userData);
@@ -96,7 +98,8 @@ export default Childimmunization = () => {
   }
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity onPress={()=> [setSelectedId(item.id),setToggled(!toggled)]}>
+    <>
+      <TouchableOpacity onPress={()=> [setSelectedId(item.id),setToggled(!toggled)]}>
       {
         toggled && selectedId==item.id?
           <View style={{width:'100%',height:600,flexDirection:'column',marginTop:1,marginBottom:10,overflow:'hidden'}}>
@@ -111,8 +114,9 @@ export default Childimmunization = () => {
                           <FontAwesomeIcon icon={faCalendar} size={20} color="white"/>
                         </View>
                         <View style={{width:50,height:'100%',alignItems:'center',justifyContent:'center'}}>
-                          <Text style={{fontSize:14,fontWeight:300}}>Age</Text>
-                          <Text style={{fontSize:12,fontWeight:500}}>{item.age} days</Text>
+                          <Text style={{fontSize:14,fontWeight:300,}}>Age</Text>
+                          <Text style={{fontSize:12,fontWeight:500}}>{item.age}</Text>
+                          <Text style={{fontSize:12,fontWeight:500}}>months</Text>
                         </View>
                       </View>
                       <View style={{width:'50%',height:'33%',backgroundColor:'white',flexDirection:'row',alignItems:'center',justifyContent:'center',marginTop:0}}>
@@ -173,60 +177,70 @@ export default Childimmunization = () => {
           </View>
           :
           <>
-            <View style={{width:'100%',height:200,flexDirection:'column',marginTop:1,marginBottom:10}}>
-            <View style={{width:'100%',height:200,flexDirection:'row',borderRadius:20,borderColor:'navy',borderBottomWidth:5,borderLeftWidth:1,borderRightWidth:1,borderTopWidth:.5}}>
-              <View style={{width:'35%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center',borderTopLeftRadius:20,borderBottomLeftRadius:12}}>
-                <View style={{width:100,height:100,borderRadius:50,backgroundColor:'white',overflow:'hidden',flexDirection:'column'}}>
-                  <Image source={images.imageTemp} style={{width:'100%',height:'100%',}}/>            
+            <>
+              {
+                toggled?
+                null
+                :
+                <View style={{width:'100%',height:200,flexDirection:'column',marginTop:1,marginBottom:10}}>
+                  <View style={{width:'100%',height:200,flexDirection:'row',borderRadius:20,borderColor:'navy',borderBottomWidth:5,borderLeftWidth:1,borderRightWidth:1,borderTopWidth:.5}}>
+                    <View style={{width:'35%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center',borderTopLeftRadius:20,borderBottomLeftRadius:12}}>
+                      <View style={{width:100,height:100,borderRadius:50,backgroundColor:'white',overflow:'hidden',flexDirection:'column'}}>
+                        <Image source={images.imageTemp} style={{width:'100%',height:'100%',}}/>            
+                      </View>
+                      <Text style={{color:'navy',fontSize:12,fontWeight:700,marginTop:0}}>CHILD NO. {item.childNo}</Text>
+                    </View>
+                    <View style={{width:'65%',height:'100%',backgroundColor:'white',flexDirection:'column',justifyContent:'flex-start',alignItems:'center',borderTopRightRadius:20,borderBottomRightRadius:12}}>
+                      <Text style={{fontSize:17,color:'navy',marginTop:0,fontWeight:900}}>Hi, i'm {item.childFname} {item.childLname}</Text>
+                      <View style={{width:'100%',height:'80%',backgroundColor:'white',flexWrap:'wrap'}}>
+                        <View style={{width:'50%',height:'50%',backgroundColor:'white',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                          <View style={{width:40,height:40,borderRadius:20,alignItems:'center',justifyContent:'center',backgroundColor:'teal'}}>
+                            <FontAwesomeIcon icon={faCalendar} size={20} color="white"/>
+                          </View>
+                          <View style={{width:50,height:'100%',alignItems:'center',justifyContent:'center'}}>
+                            <Text style={{fontSize:12,fontWeight:300}}>Age</Text>
+                            <Text style={{fontSize:11,fontWeight:500}}>{item.age}</Text>
+                            <Text style={{fontSize:12,fontWeight:500}}>months</Text>
+                          </View>
+                        </View>
+                        <View style={{width:'50%',height:'50%',backgroundColor:'white',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                          <View style={{width:40,height:40,borderRadius:20,alignItems:'center',justifyContent:'center',backgroundColor:'skyblue'}}>
+                            <FontAwesomeIcon icon={faRuler} size={20} color="white"/>
+                          </View>
+                          <View style={{width:50,height:'100%',alignItems:'center',justifyContent:'center'}}>
+                            <Text style={{fontSize:12,fontWeight:300}}>Height</Text>
+                            <Text style={{fontSize:11,fontWeight:500}}>{item.height} cm</Text>
+                          </View>
+                        </View>
+                        <View style={{width:'50%',height:'50%',backgroundColor:'white',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                          <View style={{width:40,height:40,borderRadius:20,alignItems:'center',justifyContent:'center',backgroundColor:'orange'}}>
+                            <FontAwesomeIcon icon={faWeightScale} size={20} color="white"/>
+                          </View>
+                          <View style={{width:50,height:'100%',alignItems:'center',justifyContent:'center'}}>
+                            <Text style={{fontSize:12,fontWeight:300}}>Weight</Text>
+                            <Text style={{fontSize:11,fontWeight:500}}>{item.weight} kg</Text>
+                          </View>
+                        </View>
+                        <View style={{width:'50%',height:'50%',backgroundColor:'white',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                          <View style={{width:40,height:40,borderRadius:20,alignItems:'center',justifyContent:'center',backgroundColor:item.childGender==="Male"?'skyblue':"pink"}}>
+                            <FontAwesomeIcon icon={faTransgender} size={20} color="white"/>
+                          </View>
+                          <View style={{width:50,height:'100%',alignItems:'center',justifyContent:'center'}}>
+                            <Text style={{fontSize:12,fontWeight:300}}>Gender</Text>
+                            <Text style={{fontSize:11,fontWeight:500}}>{item.childGender}</Text>
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+                  </View>
                 </View>
-                <Text style={{color:'navy',fontSize:12,fontWeight:700,marginTop:0}}>CHILD NO. {item.childNo}</Text>
-              </View>
-              <View style={{width:'65%',height:'100%',backgroundColor:'white',flexDirection:'column',justifyContent:'flex-start',alignItems:'center',borderTopRightRadius:20,borderBottomRightRadius:12}}>
-                <Text style={{fontSize:17,color:'navy',marginTop:0,fontWeight:900}}>Hi, i'm {item.childFname} {item.childLname}</Text>
-                <View style={{width:'100%',height:'80%',backgroundColor:'white',flexWrap:'wrap'}}>
-                  <View style={{width:'50%',height:'50%',backgroundColor:'white',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:40,height:40,borderRadius:20,alignItems:'center',justifyContent:'center',backgroundColor:'teal'}}>
-                      <FontAwesomeIcon icon={faCalendar} size={20} color="white"/>
-                    </View>
-                    <View style={{width:50,height:'100%',alignItems:'center',justifyContent:'center'}}>
-                      <Text style={{fontSize:12,fontWeight:300}}>Age</Text>
-                      <Text style={{fontSize:11,fontWeight:500}}>{item.age} days</Text>
-                    </View>
-                  </View>
-                  <View style={{width:'50%',height:'50%',backgroundColor:'white',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:40,height:40,borderRadius:20,alignItems:'center',justifyContent:'center',backgroundColor:'skyblue'}}>
-                      <FontAwesomeIcon icon={faRuler} size={20} color="white"/>
-                    </View>
-                    <View style={{width:50,height:'100%',alignItems:'center',justifyContent:'center'}}>
-                      <Text style={{fontSize:12,fontWeight:300}}>Height</Text>
-                      <Text style={{fontSize:11,fontWeight:500}}>{item.height} cm</Text>
-                    </View>
-                  </View>
-                  <View style={{width:'50%',height:'50%',backgroundColor:'white',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:40,height:40,borderRadius:20,alignItems:'center',justifyContent:'center',backgroundColor:'orange'}}>
-                      <FontAwesomeIcon icon={faWeightScale} size={20} color="white"/>
-                    </View>
-                    <View style={{width:50,height:'100%',alignItems:'center',justifyContent:'center'}}>
-                      <Text style={{fontSize:12,fontWeight:300}}>Weight</Text>
-                      <Text style={{fontSize:11,fontWeight:500}}>{item.weight} kg</Text>
-                    </View>
-                  </View>
-                  <View style={{width:'50%',height:'50%',backgroundColor:'white',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:40,height:40,borderRadius:20,alignItems:'center',justifyContent:'center',backgroundColor:item.childGender==="Male"?'skyblue':"pink"}}>
-                      <FontAwesomeIcon icon={faTransgender} size={20} color="white"/>
-                    </View>
-                    <View style={{width:50,height:'100%',alignItems:'center',justifyContent:'center'}}>
-                      <Text style={{fontSize:12,fontWeight:300}}>Gender</Text>
-                      <Text style={{fontSize:11,fontWeight:500}}>{item.childGender}</Text>
-                    </View>
-                  </View>
-                </View>
-              </View>
-            </View>
-          </View>
+              }
+            </>
         </>
       }
     </TouchableOpacity>
+    
+    </>
   );
   
 
@@ -237,12 +251,22 @@ export default Childimmunization = () => {
       <Loading/>
       :
       <View style={styles.container}>
-        <View style={{width:'100%',height:60, backgroundColor:'transparent',alignItems:'center',justifyContent:'center'}}>
-          <TouchableOpacity onPress={()=> nav.navigate("Registerchild")} style={{width:160,height:40,flexDirection:'row',alignSelf:'flex-start',alignItems:'center',justifyContent:'center',marginLeft:20,borderRadius:10,backgroundColor:"navy"}}>
-            <FontAwesomeIcon icon={faPlusCircle} size={24} color="white"/>
-            <Text style={{color:'white',marginLeft:10}}>register child</Text>
-          </TouchableOpacity>
-        </View>
+        {
+          toggled?
+          <View style={{width:'100%',height:60, backgroundColor:'transparent',alignItems:'center',justifyContent:'center'}}>
+            <TouchableOpacity onPress={()=>setToggled(!toggled)} style={{width:160,height:40,flexDirection:'row',alignSelf:'flex-start',alignItems:'center',justifyContent:'center',marginLeft:20,borderRadius:10,backgroundColor:"navy"}}>
+              <FontAwesomeIcon icon={faArrowLeft} size={24} color="white"/>
+              <Text style={{color:'white',marginLeft:10}}>go back</Text>
+            </TouchableOpacity>
+          </View>
+          :
+          <View style={{width:'100%',height:60, backgroundColor:'transparent',alignItems:'center',justifyContent:'center'}}>
+            <TouchableOpacity onPress={()=> nav.navigate("Registerchild")} style={{width:160,height:40,flexDirection:'row',alignSelf:'flex-start',alignItems:'center',justifyContent:'center',marginLeft:20,borderRadius:10,backgroundColor:"navy"}}>
+              <FontAwesomeIcon icon={faPlusCircle} size={24} color="white"/>
+              <Text style={{color:'white',marginLeft:10}}>register child</Text>
+            </TouchableOpacity>
+          </View>
+        }
         <ScrollView style={{width:'90%',height:'80%',alignSelf:'center',marginTop:0}}>
               <FlatList
                 data={documents}

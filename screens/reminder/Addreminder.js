@@ -50,15 +50,50 @@ export default Addreminder = () => {
     let date = []
     today5 = moment(today5).format("YYYY-MM-DD")
     while(moment(today5) <= moment(today6)){
-        multipleDates.push(today5)
       today5 = moment(today5).add(1, 'days').format("YYYY-MM-DD");
+      date.push(today5)
     }
-
+    setMultipleDates(date);
   }
 
+  useEffect(()=>{
+    getDatesInRange();
+    var first = selectedRange.firstDate;
+    var second = selectedRange.secondDate;
+    const start = getFormatedDate(first, "DD");
+    const end = getFormatedDate(second, "DD");
+    var i;
+    for (i == start; i <= end; i++) {
+     
+    }
+    console.log(multipleDates.length);
+    if(number<1){
+      setNumber(1)
+    }
+  },[])
+
 const handleReminder = () => {
+  
+  var time = moment().utcOffset('+08:00').format('hh:mm a');
+  const dateNow = getFormatedDate(
+    today.setDate(today.getDate()),
+    "YYYY/MM/DD"
+  );
     try{
       getDatesInRange();
+      addDoc(collection(database,'log'),{
+        uid: id,
+        type: "reminder",
+        timeMade: time,
+        dateMade: dateNow,
+        activity: "added a reminder"
+      })
+        addDoc(collection(database,'events'),{
+          uid: id,
+          type: "reminder",
+          dateMade: startDate,
+          activity: "added a reminder"
+        })
         addDoc(collection(database,'reminders'),{
           user: id,
           dates: multipleDates,
@@ -77,19 +112,6 @@ const handleReminder = () => {
         console.log(e)
     }
 }
-
-  var first = selectedRange.firstDate;
-  var second = selectedRange.secondDate;
-  const start = getFormatedDate(first, "DD");
-  const end = getFormatedDate(second, "DD");
-  var i;
-  for (i == start; i <= end; i++) {
-   
-  }
-  console.log(multipleDates.length);
-  if(number<1){
-    setNumber(1)
-  }
 
   function stringify(string){
     return JSON.stringify(string);
@@ -149,6 +171,7 @@ const handleReminder = () => {
                   setRange(range);
                 }}
                 blockSingleDateSelection={true}
+                
                 responseFormat="YYYY-MM-DD"
                 maxDate={moment().add(100, "days")}
                 minDate={moment()}
@@ -188,7 +211,6 @@ const handleReminder = () => {
             </Text>
           </TouchableOpacity>
           {addTime ? 
-          <ScrollView style={{width:'80%',height:400,alignSelf:'center'}}>
               <View style={{alignItems:'center',justifyContent:'flex-start',alignItems:'center',justifyContent:'center',width:'100%',height:'100%',marginTop:'1%'}}>
                   <Text>Repeat reminder in: {stringify(multipleTimes)} hours</Text>
                   <View style={{flexDirection:'row', width:'80%',height:30,alignItems:'center',justifyContent:'space-between',alignSelf:'center'}}>
@@ -196,32 +218,13 @@ const handleReminder = () => {
                   {
                       number!=null?
                       <View style={{width:'100%',height:450,flexDirection:'column'}}>
-                          <View style={{flexDirection:'row'}}>
-                              <TouchableOpacity onPress={()=> setNumber(number-1)} style={{width:150,height:40,color:'white',alignSelf:'center',alignItems:'center',justifyContent:'center'}}>
-                                  <View style={{width:"70%",height:'100%',backgroundColor:'navy',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                                      <FontAwesomeIcon icon={faPlus} color="white"/>
-                                      <Text style={{color:'white',fontSize:14,fontWeight:600}}>ADD TIME</Text>
-                                  </View>
-                              </TouchableOpacity>
-                              <TouchableOpacity onPress={()=> setMultipleTimes([])} style={{width:150,height:40,color:'white',alignSelf:'center',alignItems:'center',justifyContent:'center'}}>
-                                  <View style={{width:'70%',height:'100%',backgroundColor:'navy',flexDirection:'row',alignItems:'center',justifyContent:'space-evenly'}}>
-                                      <FontAwesomeIcon icon={faTimesCircle} color="white"/>
-                                      <Text style={{color:'white',fontSize:14,fontWeight:600}}>Reset</Text>
-                                  </View>
-                              </TouchableOpacity>
-                          </View>
-                          <Text>Note* choose time then press select, press add time to add a new Time.</Text>
-                          <DatePicker
-                              mode="time"
-                              minuteInterval={15}
-                              onTimeChange={(selectedTime) => multipleTimes.push(selectedTime)}
-                          />
+                          
                       </View>
                       :
                       null
                   }
               </View> 
-          </ScrollView> : null}
+          : null}
           <TouchableOpacity
             onPress={() => setAddNote(!addNote)}
             style={{

@@ -41,7 +41,6 @@ const History = () => {
   const [docUserId, setDocUserId] = useState();
   const [noData, setNoData] = useState(false);
 
-
     useEffect(()=> {
       async function fetchData(){
         const querySnapshot = await getDocs(query(collection(database, 'appointments'),where("uid", "==", id)));
@@ -78,7 +77,7 @@ const History = () => {
   },[]);
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container}> 
       {
         loading?
         <Loading/>
@@ -93,8 +92,8 @@ const History = () => {
                 <Text style={{color:'navy',fontSize:18,fontWeight:400,alignSelf:'center',}}>Here is the list of your appointments</Text>
               </View>
               <View style={{height:'100%'}}>
-                <FlatList
-                  data={documents}
+                <FlatList //if index<5 || ! ORRRRRRRRRRRRR if toggled {display (n)} else {5}
+                  data={documents} //sabi ni sir ayusin design nito
                   renderItem={renderItem}
                   keyExtractor={item=> item.id} // Use index as key for demo purposes
                 />

@@ -7,7 +7,7 @@ import AnimatedLottieView from 'lottie-react-native';
 import { lotties } from '../../style';
 import { TouchableOpacity } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faChildren, faX, faEgg, faBrain, faPlusCircle, faHeartbeat, faLink, faGenderless, faTransgenderAlt } from '@fortawesome/free-solid-svg-icons';
+import { faChildren, faX, faEgg, faBrain, faPlusCircle, faHeartbeat, faLink, faGenderless, faTransgenderAlt, faFingerprint, faBone, faSadCry, faHands, faChild, faDroplet } from '@fortawesome/free-solid-svg-icons';
 import { faHeartPulse, faLine } from '@fortawesome/free-solid-svg-icons';
 //Firebase
 import { addDoc, 
@@ -25,6 +25,7 @@ import { addDoc,
   updateDoc} from 'firebase/firestore';
 import { database } from '../../config/firebase';
 import { authentication } from '../../config/firebase';
+import { faNutritionix, faSoundcloud } from '@fortawesome/free-brands-svg-icons';
 //
  
 const Milestone = () => {
@@ -93,7 +94,7 @@ const Milestone = () => {
           {
               activeOne?
               <TouchableOpacity onPress={()=> setActiveOne(false)}>
-                <View style={{flexDirection:'row',justifyContent:'space-around'}}>
+                <View style={{flexDirection:'row',justifyContent:'space-around'}}> 
                   <View style={{width:'4%'}}>
                     <View style={{width:'100%',height:400,backgroundColor:weeksDifference>=4?'greenyellow':'grey',marginLeft:10}}>
 
@@ -226,7 +227,7 @@ const Milestone = () => {
                     <View style={{height:70,flexDirection:'row',marginTop:30,marginLeft:-20,flexDirection:'row'}}>
                     <View style={{width:30,height:10,backgroundColor:weeksDifference>=11?'greenyellow':'lightgrey'}}/>
                       <View style={{width:'100%',height:90,backgroundColor:'rgb(240,240,255)',flexDirection:'row',marginTop:-30,alignItems:'center',justifyContent:'space-around'}}>
-                        <FontAwesomeIcon icon={faLink} size={25} color="pink"/>
+                        <FontAwesomeIcon icon={faHands} size={25} color="pink"/>
                         <Text style={{width:'80%',fontWeight:300}}>The fingers and toes of your child are separating and resembling actual infant organs. The beds of the fingernail and toenail are also starting to form.</Text>
                       </View>
                     </View>
@@ -274,28 +275,28 @@ const Milestone = () => {
                     <View style={{height:70,flexDirection:'row',marginTop:30,marginLeft:-20,flexDirection:'row'}}>
                       <View style={{width:30,height:10,backgroundColor:weeksDifference>=14?'greenyellow':'grey'}}/>
                       <View style={{width:'100%',height:90,backgroundColor:'rgb(240,240,255)',flexDirection:'row',marginTop:-30,alignItems:'center',justifyContent:'space-around'}}>
-                        <FontAwesomeIcon icon={faLink} size={25} color="pink"/>
+                        <FontAwesomeIcon icon={faSadCry} size={25} color="pink"/>
                         <Text style={{width:'80%',fontWeight:300}}>With the development of the vocal chords, the promise of laughter, cries, and the very first words begins.</Text>
                       </View>
                     </View>
                     <View style={{height:70,flexDirection:'row',marginTop:30,marginLeft:-20,flexDirection:'row'}}>
                       <View style={{width:30,height:10,backgroundColor:weeksDifference>=15?'greenyellow':'grey'}}/>
                       <View style={{width:'100%',height:90,backgroundColor:'rgb(240,240,255)',flexDirection:'row',marginTop:-30,alignItems:'center',justifyContent:'space-around'}}>
-                        <FontAwesomeIcon icon={faLink} size={25} color="pink"/>
+                        <FontAwesomeIcon icon={faTransgenderAlt} size={25} color="pink"/>
                         <Text style={{width:'80%',fontWeight:300}}>Girl or boy? This week sees the arrival of completely grown genitalia. But keep in mind that they could still be difficult to spot on an ultrasound.</Text>
                       </View>
                     </View>
                     <View style={{height:70,flexDirection:'row',marginTop:30,marginLeft:-20,flexDirection:'row'}}>
                       <View style={{width:30,height:10,backgroundColor:weeksDifference>=16?'greenyellow':'grey'}}/>
                       <View style={{width:'100%',height:90,backgroundColor:'rgb(240,240,255)',flexDirection:'row',marginTop:-30,alignItems:'center',justifyContent:'space-around'}}>
-                        <FontAwesomeIcon icon={faLink} size={25} color="pink"/>
+                        <FontAwesomeIcon icon={faBone} size={25} color="pink"/>
                         <Text style={{width:'80%',fontWeight:300}}>The skeleton of your infant is beginning to ossify. Translation: His skeleton would be clear on an X-ray taken today.</Text>
                       </View>
                     </View>
                     <View style={{height:70,flexDirection:'row',marginTop:30,marginLeft:-20,flexDirection:'row'}}>
                       <View style={{width:30,height:10,backgroundColor:weeksDifference>=17?'greenyellow':'grey'}}/>
                       <View style={{width:'100%',height:90,backgroundColor:'rgb(240,240,255)',flexDirection:'row',marginTop:-30,alignItems:'center',justifyContent:'space-around'}}>
-                        <FontAwesomeIcon icon={faLink} size={25} color="pink"/>
+                        <FontAwesomeIcon icon={faSoundcloud} size={25} color="pink"/>
                         <Text style={{width:'80%',fontWeight:300}}>This week, the infant's hearing has advanced significantly. He/She is beginning to hear your voice because the ears are almost fully developed.</Text>
                       </View>
                     </View>
@@ -326,36 +327,36 @@ const Milestone = () => {
                     <View style={{height:70,flexDirection:'row',marginTop:30,marginLeft:-20,flexDirection:'row'}}>
                     <View style={{width:30,height:10,backgroundColor:weeksDifference>=18?'greenyellow':'grey'}}/>
                       <View style={{width:'100%',height:90,backgroundColor:'rgb(240,240,255)',flexDirection:'row',marginTop:-30,alignItems:'center',justifyContent:'space-around'}}>
-                        <FontAwesomeIcon icon={faLink} size={25} color="pink"/>
-                        <Text style={{width:'80%',fontWeight:300}}>With the development of the vocal chords, the promise of laughter, cries, and the very first words begins.</Text>
+                        <FontAwesomeIcon icon={faFingerprint} size={25} color="pink"/>
+                        <Text style={{width:'80%',fontWeight:300}}>Your precious little baby is truly one of a kind now, with unique fingerprints on those little fingertips and toes.</Text>
                       </View>
                     </View>
                     <View style={{height:70,flexDirection:'row',marginTop:30,marginLeft:-20,flexDirection:'row'}}>
                     <View style={{width:30,height:10,backgroundColor:weeksDifference>=19?'greenyellow':'grey'}}/>
                       <View style={{width:'100%',height:90,backgroundColor:'rgb(240,240,255)',flexDirection:'row',marginTop:-30,alignItems:'center',justifyContent:'space-around'}}>
-                        <FontAwesomeIcon icon={faLink} size={25} color="pink"/>
-                        <Text style={{width:'80%',fontWeight:300}}>With the development of the vocal chords, the promise of laughter, cries, and the very first words begins.</Text>
+                        <FontAwesomeIcon icon={faChild} size={25} color="pink"/>
+                        <Text style={{width:'80%',fontWeight:300}}>This week, you might feel the baby move for the first time, but if not, don't get alarmed. Soon, you will!</Text>
                       </View>
                     </View>
                     <View style={{height:70,flexDirection:'row',marginTop:30,marginLeft:-20,flexDirection:'row'}}>
                     <View style={{width:30,height:10,backgroundColor:weeksDifference>=20?'greenyellow':'grey'}}/>
                       <View style={{width:'100%',height:90,backgroundColor:'rgb(240,240,255)',flexDirection:'row',marginTop:-30,alignItems:'center',justifyContent:'space-around'}}>
-                        <FontAwesomeIcon icon={faLink} size={25} color="pink"/>
-                        <Text style={{width:'80%',fontWeight:300}}>With the development of the vocal chords, the promise of laughter, cries, and the very first words begins.</Text>
+                        <FontAwesomeIcon icon={faTransgenderAlt} size={25} color="pink"/>
+                        <Text style={{width:'80%',fontWeight:300}}>Girl or boy? If you want to find out, your ultrasound this week should be able to tell what you're having!</Text>
                       </View>
                     </View>
                     <View style={{height:70,flexDirection:'row',marginTop:30,marginLeft:-20,flexDirection:'row'}}>
                     <View style={{width:30,height:10,backgroundColor:weeksDifference>=21?'greenyellow':'grey'}}/>
                       <View style={{width:'100%',height:90,backgroundColor:'rgb(240,240,255)',flexDirection:'row',marginTop:-30,alignItems:'center',justifyContent:'space-around'}}>
-                        <FontAwesomeIcon icon={faLink} size={25} color="pink"/>
-                        <Text style={{width:'80%',fontWeight:300}}>With the development of the vocal chords, the promise of laughter, cries, and the very first words begins.</Text>
+                        <FontAwesomeIcon icon={faDroplet} size={25} color="pink"/>
+                        <Text style={{width:'80%',fontWeight:300}}>The liver and spleen of your unborn child have been working hard to produce blood cells, but the bone marrow is now mature enough to assist as well.</Text>
                       </View>
                     </View>
                     <View style={{height:70,flexDirection:'row',marginTop:30,marginLeft:-20,flexDirection:'row'}}>
                     <View style={{width:30,height:10,backgroundColor:weeksDifference>=22?'greenyellow':'grey'}}/>
                       <View style={{width:'100%',height:90,backgroundColor:'rgb(240,240,255)',flexDirection:'row',marginTop:-30,alignItems:'center',justifyContent:'space-around'}}>
                         <FontAwesomeIcon icon={faLink} size={25} color="pink"/>
-                        <Text style={{width:'80%',fontWeight:300}}>With the development of the vocal chords, the promise of laughter, cries, and the very first words begins.</Text>
+                        <Text style={{width:'80%',fontWeight:300}}>Baby's nervous system is developing their five senses, therefore their little fingers are developing the ability to grasp their small ears, noses, and umbilical cords.</Text>
                       </View>
                     </View>
                   </View>
@@ -374,36 +375,43 @@ const Milestone = () => {
               <TouchableOpacity onPress={()=> setActiveSix(false)}>
                 <View style={{flexDirection:'row',justifyContent:'space-around'}}>
                   <View style={{width:'4%'}}>
-                    <View style={{width:'100%',height:400,backgroundColor:weeksDifference>=24?"greenyellow":'lightgrey',marginLeft:10}}>
+                    <View style={{width:'100%',height:500,backgroundColor:weeksDifference>=27?"greenyellow":'lightgrey',marginLeft:10}}>
 
                     </View>
-                    <View style={{width:30,height:30,backgroundColor:weeksDifference>=24?"greenyellow":'lightgrey',marginLeft:2,borderRadius:15,marginTop:'-12%',justifyContent:'center',alignItems:'center'}}>
+                    <View style={{width:30,height:30,backgroundColor:weeksDifference>=27?"greenyellow":'lightgrey',marginLeft:2,borderRadius:15,marginTop:'-12%',justifyContent:'center',alignItems:'center'}}>
                       <View style={{width:15,height:15,backgroundColor:'white',borderRadius:7,marginTop:'0%'}}/>
                     </View>
                   </View>
                   <View style={{width:'80%',heigth:300,backgroundColor:'white'}}>
                     <View style={{height:70,flexDirection:'row',marginTop:30,marginLeft:-20,flexDirection:'row'}}>
-                    <View style={{width:30,height:10,backgroundColor:weeksDifference>=21?'greenyellow':'grey'}}/>
-                      <View style={{width:'100%',height:90,backgroundColor:'rgb(240,240,255)',flexDirection:'row',marginTop:-30,alignItems:'center',justifyContent:'space-around'}}>
-                        <FontAwesomeIcon icon={faLink} size={25} color="pink"/>
-                        <Text style={{width:'80%',fontWeight:300}}>With the development of the vocal chords, the promise of laughter, cries, and the very first words begins.</Text>
-                      </View>
-                    </View>
-                    <View style={{height:70,flexDirection:'row',marginTop:30,marginLeft:-20,flexDirection:'row'}}>
-                    <View style={{width:30,height:10,backgroundColor:weeksDifference>=22?'greenyellow':'grey'}}/>
-                      <View style={{width:'100%',height:90,backgroundColor:'rgb(240,240,255)',marginTop:-30}}>
-                        <Text></Text>
-                      </View>
-                    </View>
-                    <View style={{height:70,flexDirection:'row',marginTop:30,marginLeft:-20,flexDirection:'row'}}>
-                    <View style={{width:30,height:10,backgroundColor:weeksDifference>=23?'greenyellow':'grey'}}/>
-                      <View style={{width:'100%',height:90,backgroundColor:'rgb(240,240,255)',flexDirection:'row',marginTop:-30,alignItems:'center',justifyContent:'space-around'}}>
+                    <View style={{width:'100%',height:90,backgroundColor:'rgb(240,240,255)',flexDirection:'row',marginTop:-30,alignItems:'center',justifyContent:'space-around'}}>
                         <FontAwesomeIcon icon={faLink} size={25} color="pink"/>
                         <Text style={{width:'80%',fontWeight:300}}>With the development of the vocal chords, the promise of laughter, cries, and the very first words begins.</Text>
                       </View>
                     </View>
                     <View style={{height:70,flexDirection:'row',marginTop:30,marginLeft:-20,flexDirection:'row'}}>
                     <View style={{width:30,height:10,backgroundColor:weeksDifference>=24?'greenyellow':'grey'}}/>
+                      <View style={{width:'100%',height:90,backgroundColor:'rgb(240,240,255)',flexDirection:'row',marginTop:-30,alignItems:'center',justifyContent:'space-around'}}>
+                        <FontAwesomeIcon icon={faLink} size={25} color="pink"/>
+                        <Text style={{width:'80%',fontWeight:300}}>With the development of the vocal chords, the promise of laughter, cries, and the very first words begins.</Text>
+                      </View>
+                    </View>
+                    <View style={{height:70,flexDirection:'row',marginTop:30,marginLeft:-20,flexDirection:'row'}}>
+                    <View style={{width:30,height:10,backgroundColor:weeksDifference>=25?'greenyellow':'grey'}}/>
+                      <View style={{width:'100%',height:90,backgroundColor:'rgb(240,240,255)',flexDirection:'row',marginTop:-30,alignItems:'center',justifyContent:'space-around'}}>
+                        <FontAwesomeIcon icon={faLink} size={25} color="pink"/>
+                        <Text style={{width:'80%',fontWeight:300}}>With the development of the vocal chords, the promise of laughter, cries, and the very first words begins.</Text>
+                      </View>
+                    </View>
+                    <View style={{height:70,flexDirection:'row',marginTop:30,marginLeft:-20,flexDirection:'row'}}>
+                    <View style={{width:30,height:10,backgroundColor:weeksDifference>=26?'greenyellow':'grey'}}/>
+                      <View style={{width:'100%',height:90,backgroundColor:'rgb(240,240,255)',flexDirection:'row',marginTop:-30,alignItems:'center',justifyContent:'space-around'}}>
+                        <FontAwesomeIcon icon={faLink} size={25} color="pink"/>
+                        <Text style={{width:'80%',fontWeight:300}}>With the development of the vocal chords, the promise of laughter, cries, and the very first words begins.</Text>
+                      </View>
+                    </View>
+                    <View style={{height:70,flexDirection:'row',marginTop:30,marginLeft:-20,flexDirection:'row'}}>
+                    <View style={{width:30,height:10,backgroundColor:weeksDifference>=27?'greenyellow':'grey'}}/>
                       <View style={{width:'100%',height:90,backgroundColor:'rgb(240,240,255)',flexDirection:'row',marginTop:-30,alignItems:'center',justifyContent:'space-around'}}>
                         <FontAwesomeIcon icon={faLink} size={25} color="pink"/>
                         <Text style={{width:'80%',fontWeight:300}}>With the development of the vocal chords, the promise of laughter, cries, and the very first words begins.</Text>
@@ -428,10 +436,10 @@ const Milestone = () => {
               <TouchableOpacity onPress={()=> setActiveSeven(false)}>
                 <View style={{flexDirection:'row',justifyContent:'space-around'}}>
                   <View style={{width:'4%'}}>
-                    <View style={{width:'100%',height:400,backgroundColor:weeksDifference>=28?"greenyellow":'lightgrey',marginLeft:10}}>
+                    <View style={{width:'100%',height:400,backgroundColor:weeksDifference>=31?"greenyellow":'lightgrey',marginLeft:10}}>
 
                     </View>
-                    <View style={{width:30,height:30,backgroundColor:weeksDifference>=28?"greenyellow":'lightgrey',marginLeft:2,borderRadius:15,marginTop:'-12%',justifyContent:'center',alignItems:'center'}}>
+                    <View style={{width:30,height:30,backgroundColor:weeksDifference>=31?"greenyellow":'lightgrey',marginLeft:2,borderRadius:15,marginTop:'-12%',justifyContent:'center',alignItems:'center'}}>
                       <View style={{width:15,height:15,backgroundColor:'white',borderRadius:7,marginTop:'0%'}}/>
                     </View>
                   </View>
@@ -480,10 +488,10 @@ const Milestone = () => {
               <TouchableOpacity onPress={()=> setActiveEight(false)}>
                 <View style={{flexDirection:'row',justifyContent:'space-around'}}>
                   <View style={{width:'4%'}}>
-                    <View style={{width:'100%',height:400,backgroundColor:weeksDifference>32?"greenyellow":'lightgrey',marginLeft:10}}>
+                    <View style={{width:'100%',height:400,backgroundColor:weeksDifference>35?"greenyellow":'lightgrey',marginLeft:10}}>
 
                     </View>
-                    <View style={{width:30,height:30,backgroundColor:weeksDifference>32?"greenyellow":'lightgrey',marginLeft:2,borderRadius:15,marginTop:'-12%',justifyContent:'center',alignItems:'center'}}>
+                    <View style={{width:30,height:30,backgroundColor:weeksDifference>35?"greenyellow":'lightgrey',marginLeft:2,borderRadius:15,marginTop:'-12%',justifyContent:'center',alignItems:'center'}}>
                       <View style={{width:15,height:15,backgroundColor:'white',borderRadius:7,marginTop:'0%'}}/>
                     </View>
                   </View>
@@ -532,10 +540,10 @@ const Milestone = () => {
               <TouchableOpacity onPress={()=> setActiveNine(false)}>
                 <View style={{flexDirection:'row',justifyContent:'space-around'}}>
                   <View style={{width:'4%'}}>
-                    <View style={{width:'100%',height:400,backgroundColor:weeksDifference>=36?"greenyellow":'lightgrey',marginLeft:10}}>
+                    <View style={{width:'100%',height:400,backgroundColor:weeksDifference>=41?"greenyellow":'lightgrey',marginLeft:10}}>
 
                     </View>
-                    <View style={{width:30,height:30,backgroundColor:weeksDifference>=36?"greenyellow":'lightgrey',marginLeft:2,borderRadius:15,marginTop:'-12%',justifyContent:'center',alignItems:'center'}}>
+                    <View style={{width:30,height:30,backgroundColor:weeksDifference>=41?"greenyellow":'lightgrey',marginLeft:2,borderRadius:15,marginTop:'-12%',justifyContent:'center',alignItems:'center'}}>
                       <View style={{width:15,height:15,backgroundColor:'white',borderRadius:7,marginTop:'0%'}}/>
                     </View>
                   </View>

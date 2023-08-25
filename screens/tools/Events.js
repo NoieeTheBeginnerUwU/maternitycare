@@ -16,6 +16,7 @@ const Events  = () => {
     today.setDate(today.getDate()),
     "YYYY-MM-DD"
   );
+  
   const loadItems = (day) => {
     setTimeout(() => {
       for (let i = -15; i < 85; i++) {

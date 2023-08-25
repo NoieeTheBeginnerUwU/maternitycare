@@ -24,85 +24,106 @@ import Childimmunization from './Immunization/Childimmunization';
 import Nochild from './Immunization/Nochild';
 import Registerchild from './Immunization/Registerchild';
 import Reminder from './tools/Reminder';
+import Users from './home/User';
+import Articles from './home/Articles';
+import Log from './log/Log';
 import Addreminder from './reminder/Addreminder';
+import About from './home/About';
+import Terms from './home/Terms';
 //Global styling
 const Stack = createStackNavigator();
 //Fontawesome
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faBoxArchive, faCirclePlus, faFaceAngry, faGear, faGears, faHamburger, faToolbox } from '@fortawesome/free-solid-svg-icons';
+import {  faCirclePlus, } from '@fortawesome/free-solid-svg-icons';
 import { faTools } from '@fortawesome/free-solid-svg-icons/faTools';
 import { faHome } from '@fortawesome/free-solid-svg-icons/faHome';
-import { faPlusCircle } from '@fortawesome/free-solid-svg-icons/faPlusCircle';
-import { faDroplet, faBurger, faBell } from '@fortawesome/free-solid-svg-icons';
 //For navigation between inner pages
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation } from '@react-navigation/native';
+import LoggingIn from './animations/LoggingIn';
 
 const Dashboard = () => {
   const navigation = useNavigation();
   const [active, setActive] = useState("");
-  const navigateTo = (active) => {
+  const [signIn, setSignIn] = useState(false);
+
+  useEffect(()=>{
+    setSignIn(true)
+    setTimeout(()=>{
+      setSignIn(false)
+    },2000)
+  },[])
+
+  const navigateTo = (active) => { 
     navigation.navigate(active)
     setActive(active);
   }
 
   return (
     <>
-      <StatusBar
-        animated={true}
-        backgroundColor="black"
-      />
-    <Stack.Navigator screenOptions={{headerTitleAlign: 'center', headerTintColor: 'white',headerStyle:{backgroundColor: '#2E417E',}}}>  
-      <Stack.Screen name='Home' component={Home}/>
-      <Stack.Screen name='Appointment' component={Appointment}/>
-      <Stack.Screen name='Tools' component={Tools}/>
-      <Stack.Screen name='Child' component={Child}/>
-      <Stack.Screen name='History' component={History}/>
-      <Stack.Screen name='Staff' component={Staff}/>
-      <Stack.Screen name='Milestone' component={Milestone}/>
-      <Stack.Screen name='Lab' component={Lab}/>
-      <Stack.Screen name='Events' component={Events}/>
-      <Stack.Screen name='Notification' component={Notification}/>
-      <Stack.Screen name='Profile' component={Profile}/>
-      <Stack.Screen name='Edit' component={Edit}/>
-      <Stack.Screen name='Password' component={Changepass}/>
-      <Stack.Screen name='Settings' component={Settings}/>
-      <Stack.Screen name='Childimmunization' component={Childimmunization}/>
-      <Stack.Screen name='Nochild' component={Nochild}/>
-      <Stack.Screen name='Registerchild' component={Registerchild}/>
-      <Stack.Screen name='Reminder' component={Reminder}/>
-      <Stack.Screen name='AddReminder' component={Addreminder}/>
-    </Stack.Navigator>
+    {
+      signIn?
+      <LoggingIn/>
+      :
+      <>
+        <StatusBar animated={true} backgroundColor="black"/>
+      <Stack.Navigator screenOptions={{headerTitleAlign: 'center', headerTintColor: 'white',headerStyle:{backgroundColor: 'pink',}}}>  
+        <Stack.Screen name='Home' component={Home}/>
+        <Stack.Screen name='Appointment' component={Appointment}/>
+        <Stack.Screen name='Tools' component={Tools}/>
+        <Stack.Screen name='Child' component={Child}/>
+        <Stack.Screen name='History' component={History}/>
+        <Stack.Screen name='Staff' component={Staff}/>
+        <Stack.Screen name='Milestone' component={Milestone}/>
+        <Stack.Screen name='Lab' component={Lab}/>
+        <Stack.Screen name='Events' component={Events}/>
+        <Stack.Screen name='Notification' component={Notification}/>
+        <Stack.Screen name='Profile' component={Profile}/>
+        <Stack.Screen name='Edit' component={Edit}/>
+        <Stack.Screen name='Password' component={Changepass}/>
+        <Stack.Screen name='Settings' component={Settings}/>
+        <Stack.Screen name='Childimmunization' component={Childimmunization}/>
+        <Stack.Screen name='Nochild' component={Nochild}/>
+        <Stack.Screen name='Registerchild' component={Registerchild}/>
+        <Stack.Screen name='Reminder' component={Reminder}/>
+        <Stack.Screen name='Users' component={Users}/>
+        <Stack.Screen name='Articles' component={Articles}/>
+        <Stack.Screen name='AddReminder' component={Addreminder}/>
+        <Stack.Screen name='Log' component={Log}/>
+        <Stack.Screen name='About' component={About}/>
+        <Stack.Screen name='Terms' component={Terms}/>
+      </Stack.Navigator>
 
-    <View style={style.bottomNav}>
+      <View style={style.bottomNav}>
+        <View  style={{width:'33%', height: 10,backgroundColor: 'transparent',justifyContent: 'center',alignItems: 'center' }}>
+        <TouchableOpacity style={{width: "100%", height: 40, backgroundColor: 'transparent',alignItems: 'center',justifyContent: 'center'}} onPress={()=> navigateTo("Home")}>
+          <View style={{width: 75, height: 30, borderRadius: 40,backgroundColor: active === "Home"? '#F0F2F5': 'transparent', alignItems: 'center', justifyContent: 'center',}}> 
+            <View style={{width: 60, height: active === "Home"?30: 0, borderRadius: 30, backgroundColor: active === "Home"? '#Ffc1cc': 'transparent', alignItems: 'center', justifyContent: 'center'}}>
+              <FontAwesomeIcon icon={ faHome } size={24} style={{color:active==="Home"? "white":'#Ffc1cc'}}/>
+            </View>
+          </View>
+        </TouchableOpacity>
+      </View>
       <View  style={{width:'33%', height: 10,backgroundColor: 'transparent',justifyContent: 'center',alignItems: 'center' }}>
-      <TouchableOpacity style={{width: "100%", height: 40, backgroundColor: 'transparent',alignItems: 'center',justifyContent: 'center'}} onPress={()=> navigateTo("Home")}>
-        <View style={{width: 75, height: 30, borderRadius: 40,backgroundColor: active === "Home"? '#F0F2F5': 'transparent', alignItems: 'center', justifyContent: 'center',}}> 
-          <View style={{width: 60, height: active === "Home"?30: 0, borderRadius: 30, backgroundColor: active === "Home"? '#2E417E': 'transparent', alignItems: 'center', justifyContent: 'center'}}>
-            <FontAwesomeIcon icon={ faHome } size={24} style={{color:active==="Home"? "white":'#2E417E'}}/>
+        <TouchableOpacity style={{width: "100%", height: 40, backgroundColor: 'transparent',alignItems: 'center',justifyContent: 'center'}} onPress={()=> navigateTo("Appointment")}>
+          <View style={{width: 75, height: 30, borderRadius: 40,backgroundColor: active === "Appointment"? '#F0F2F5': 'transparent', alignItems: 'center', justifyContent: 'center',}}> 
+            <View style={{width: 60, height: active === "Appointment"?30: 0, borderRadius: 30, backgroundColor: active === "Appointment"? '#Ffc1cc': 'transparent', alignItems: 'center', justifyContent: 'center'}}>
+              <FontAwesomeIcon icon={ faCirclePlus } size={24} style={{color:active==="Appointment"? "white":'#Ffc1cc'}}/>
+            </View>
           </View>
-        </View>
-      </TouchableOpacity>
-     </View>
-     <View  style={{width:'33%', height: 10,backgroundColor: 'transparent',justifyContent: 'center',alignItems: 'center' }}>
-      <TouchableOpacity style={{width: "100%", height: 40, backgroundColor: 'transparent',alignItems: 'center',justifyContent: 'center'}} onPress={()=> navigateTo("Appointment")}>
-        <View style={{width: 75, height: 30, borderRadius: 40,backgroundColor: active === "Appointment"? '#F0F2F5': 'transparent', alignItems: 'center', justifyContent: 'center',}}> 
-          <View style={{width: 60, height: active === "Appointment"?30: 0, borderRadius: 30, backgroundColor: active === "Appointment"? '#2E417E': 'transparent', alignItems: 'center', justifyContent: 'center'}}>
-            <FontAwesomeIcon icon={ faCirclePlus } size={24} style={{color:active==="Appointment"? "white":'#2E417E'}}/>
+        </TouchableOpacity>
+      </View>
+      <View  style={{width:'33%', height: 10,backgroundColor: 'transparent',justifyContent: 'center',alignItems: 'center' }}>
+        <TouchableOpacity style={{width: "100%", height: 40, backgroundColor: 'transparent',alignItems: 'center',justifyContent: 'center'}} onPress={()=> navigateTo("Tools")}>
+          <View style={{width: 75, height: 30, borderRadius: 40,backgroundColor: active === "Tools"? '#F0F2F5': 'transparent', alignItems: 'center', justifyContent: 'center', }}> 
+            <View style={{width: 60, height: active === "Tools"?30: 0, borderRadius: 30, backgroundColor: active === "Tools"? '#Ffc1cc': 'transparent', alignItems: 'center', justifyContent: 'center'}}>
+              <FontAwesomeIcon icon={ faTools } size={24} style={{color:active==="Tools"? "white":'#Ffc1cc'}}/>
+            </View>
           </View>
-        </View>
-      </TouchableOpacity>
-     </View>
-     <View  style={{width:'33%', height: 10,backgroundColor: 'transparent',justifyContent: 'center',alignItems: 'center' }}>
-      <TouchableOpacity style={{width: "100%", height: 40, backgroundColor: 'transparent',alignItems: 'center',justifyContent: 'center'}} onPress={()=> navigateTo("Tools")}>
-        <View style={{width: 75, height: 30, borderRadius: 40,backgroundColor: active === "Tools"? '#F0F2F5': 'transparent', alignItems: 'center', justifyContent: 'center', }}> 
-          <View style={{width: 60, height: active === "Tools"?30: 0, borderRadius: 30, backgroundColor: active === "Tools"? '#2E417E': 'transparent', alignItems: 'center', justifyContent: 'center'}}>
-            <FontAwesomeIcon icon={ faTools } size={24} style={{color:active==="Tools"? "white":'#2E417E'}}/>
-          </View>
-        </View>
-      </TouchableOpacity>
-     </View>
-    </View>
-    
+        </TouchableOpacity>
+      </View>
+      </View>
+      </>
+    }
     </>
   )
 }
@@ -124,7 +145,7 @@ const style = StyleSheet.create({
     alignSelf: 'center',
     borderRadius: 40,
     marginBottom: '2%',
-    borderColor:'#2E417E',
+    borderColor:'#Ffc1cc',
     borderWidth:2 ,
   },
   bottomNavInside: {

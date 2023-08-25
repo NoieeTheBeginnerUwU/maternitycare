@@ -47,10 +47,6 @@ import { onSnapshot } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
 //import loading screen
 import Loading from "../animations/Loading";
-//image picker of expo
-import * as ImagePicker from "expo-image-picker";
-//FileSystem
-import * as FileSystem from 'expo-file-system';
 const Profile = () => {
   const [isSelected, setSelection] = useState(false);
   const id = authentication.currentUser.uid;
@@ -109,38 +105,6 @@ const Profile = () => {
   }
 
   User();
-  //change profile picture
-  const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    console.log(result);
-
-    if (!result.canceled) {
-      setImage(result.uri);
-      const filename = result.uri
-      const imageUri = result.uri;
-      const imageInfo = await FileSystem.getInfoAsync(imageUri);
-      const base64Image = await FileSystem.readAsStringAsync(imageUri, { encoding: 'base64' });
-      const savedImageUri = `${FileSystem.documentDirectory,filename}.jpg`;
-        await FileSystem.writeAsStringAsync(savedImageUri, base64Image, { encoding: 'base64' });
-        setProfilePic(savedImageUri);
-        updateDoc(doc(database, "userData", id), {
-          userPic: profilePic
-        }).then(alert("Profile photo updated successfuly."));
-        console.log('Image saved', 'The image has been saved to local storage.');
-  
-    }
-  };
-
-  useEffect(()=>{
-    
-  },[])
 
   function logout() {
     authentication
@@ -180,9 +144,9 @@ const Profile = () => {
                   style={style.pic}
                   source={require('../../assets/usertemplate.png')}/>
                 :
-                <Image
-                  style={style.pic}  onPress={()=> pickImage()}
-                  source={{uri:profilePicPlaceholder}}/>
+                <Image  onPress={()=> pickImage()}
+                style={style.pic}
+                source={require('../../assets/usertemplate.png')}/>
                 }
             </TouchableOpacity>
             <View style={style.container}>
@@ -202,9 +166,6 @@ const Profile = () => {
                 >
                   {fnamePlaceholder} {mnamePlaceholder} {lnamePlaceholder}
                 </Text>
-                <TouchableOpacity onPress={()=> nav.navigate("Edit")} style={{width:'40%',height:30,backgroundColor:'navy',alignSelf:'center',borderRadius:10,alignItems:'center',justifyContent:'center'}}>
-                  <Text style={{color:'white',fontSize:16,fontWeight:700}}>Edit Profile</Text>
-                </TouchableOpacity>
               </View>
               <Text
                 style={{

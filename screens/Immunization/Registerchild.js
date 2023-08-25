@@ -28,6 +28,10 @@ const Registerchild = () => {
     today.setDate(today.getDate() -20000),
     "YYYY/MM/DD"
   );
+  const dateNow = getFormatedDate(
+    today.setDate(today.getDate()),
+    "YYYY/MM/DD"
+  );
   //console.log(startDate)
   //Date
   const [selectedStartDate, setSelectedStartDate] = useState("");
@@ -62,29 +66,42 @@ const Registerchild = () => {
   const id = authentication.currentUser.uid;
   //Firebase backend here
   function sendData(){
-    try{
-      addDoc(collection(database,'child'),{
-        Motheruid: id,
-        dateRegistered: startDate,
-        childFname: fname,
-        childLname: lname,
-        childPlaceOfBirth: placeOfBirth,
-        childAddress: address,
-        childDob: selectedStartDate,
-        childGender: gender,
-        father: father,
-        height:"",
-        weight: "",
-      });
-      setSelectedStartDate('')
-      setChildAdded(true);
-      setTimeout(()=>{
-        setChildAdded(false);
-        nav.navigate("Childimmunization")
-      },3000)
-    }catch(error){
-      console.log(error);
-      alert(error);
+    var time = moment().utcOffset('+08:00').format('hh:mm a');
+    if(!fname||!lname||!address||!placeOfBirth||!selectedStartDate||!gender){
+      alert("Please fill all the necessary inputs.")
+    }else{
+      try{
+        addDoc(collection(database,'log'),{
+          uid: id,
+          type: "child",
+          timeMade: time,
+          dateMade: dateNow,
+          activity: "registered a child for immunization"
+        })
+        addDoc(collection(database,'child'),{
+          Motheruid: id,
+          dateRegistered: startDate,
+          timeRegistered: time,
+          childFname: fname,
+          childLname: lname,
+          childPlaceOfBirth: placeOfBirth,
+          childAddress: address,
+          childDob: selectedStartDate,
+          childGender: gender,
+          father: father,
+          height:"",
+          weight: "",
+        });
+        setSelectedStartDate('')
+        setChildAdded(true);
+        setTimeout(()=>{
+          setChildAdded(false);
+          nav.navigate("Childimmunization")
+        },3000)
+      }catch(error){
+        console.log(error);
+        alert(error);
+      }
     }
       
   }

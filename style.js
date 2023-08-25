@@ -83,6 +83,14 @@ export const lotties = {
     Calendar2:require("./assets/animation_lkr1lasy.json"),
     CalendarSuccess:require("./assets/animation_lkr1mqit.json"),
 
+//Woman Login
+
+    WomanLogin:require("./assets/animation_llq6sf9j.json"),
+
+//Edit Profile
+
+    
+
 }
 
 export const images = {
@@ -113,7 +121,7 @@ export const style = StyleSheet.create({
     buttonBack: {
         width: '100%',
         height: '100%',
-        backgroundColor: 'rgba(0,0,249,.6)',
+        backgroundColor: 'pink',
         color: 'white',
         justifyContent: 'center',
         borderRadius: 10
@@ -130,10 +138,12 @@ export const style = StyleSheet.create({
     loginBtn: {
         width: '100%',
         height: 45,
-        backgroundColor: 'rgba(0,0,249,.6)',
+        backgroundColor: 'pink',
         alignSelf: 'center',
         marginTop: '5%',
         borderRadius: 14,
+        alignItems:'center',
+        justifyContent:'center'
     },
     loginBtnText: {
         fontSize: 20,
@@ -147,8 +157,7 @@ export const style = StyleSheet.create({
         marginTop: '3%'
     },
     redirect: {
-        color: 'blue',
-        textDecorationLine: 'underline',
+        color: 'skyblue',
         marginLeft: '2%',
     },
     //Dashboard navigation
@@ -158,3 +167,293 @@ export const style = StyleSheet.create({
     }
 
 })
+
+export const weeksData = [{
+    week1Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week2Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week3Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week4Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week5Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week6Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week7Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week8Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week9Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week10Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week11Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week12Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week13Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week14Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week16Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week17Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week18Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week19Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week20Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week21Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week22Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week23Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week24Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week25Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week26Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week27Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week28Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week29Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week30Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week31Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week32Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week33Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week34Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week35Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week36Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week37Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week38Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week39Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week40Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    week41Data: {
+        1: "",
+        2:"",
+        3:"",
+        EDD: "",
+        DOC: "",
+    },
+    
+
+}]
+
+export const FeedingRecommendation = [{
+    title: "Feeding Recommendations to a healthy child.",
+    subtitle: "Birth to 6 months",
+}]

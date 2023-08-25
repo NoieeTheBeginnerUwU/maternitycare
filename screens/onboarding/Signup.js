@@ -37,8 +37,7 @@ import { storage } from "../../config/firebase";
 import { uploadBytesResumable, ref, getDownloadURL } from "firebase/storage";
 //import loading screen
 import Loading from "../animations/Loading";
-//image picker of expo
-import * as ImagePicker from "expo-image-picker";
+
 const Signup = () => {
   const [openStartDatePicker, setOpenStartDatePicker] = useState(false);
   const today = new Date();
@@ -97,7 +96,7 @@ const Signup = () => {
         createUserWithEmailAndPassword(authentication, email, password)
         .then((re) =>{
           const id = authentication.currentUser.uid;
-          saveImage();
+          registerIndieID(id, 10244, 'MRmNGe8fHmswLJsrtYA7H3');
             setDoc(doc(database, "userData",id),{
               userFname: fname,
               userMname: mname,
@@ -106,7 +105,6 @@ const Signup = () => {
               userAddress: address,
               userBirthdate: selectedStartDate,
               userNumber: num,
-              userPic: image,
               dateCreated: date,
               bloodPressure: '',
               lastPeriod: '',
@@ -125,94 +123,94 @@ const Signup = () => {
   }
 
 //change profile picture
-const pickImage = async () => {
-  // No permissions request is necessary for launching the image library
-  let result = await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ImagePicker.MediaTypeOptions.All,
-    allowsEditing: true,
-    aspect: [4, 3],
-    quality: 1,
-  });
+// const pickImage = async () => {
+//   // No permissions request is necessary for launching the image library
+//   let result = await ImagePicker.launchImageLibraryAsync({
+//     mediaTypes: ImagePicker.MediaTypeOptions.All,
+//     allowsEditing: true,
+//     aspect: [4, 3],
+//     quality: 1,
+//   });
 
-  console.log(result);
+//   console.log(result);
 
-  if (!result.canceled) {
-    setImage(result.uri);
-  }
-};
+//   if (!result.canceled) {
+//     setImage(result.uri);
+//   }
+// };
 
-function saveImage(){
-  const uploadImage = async () => {
-    const blobImage = await new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.onload = function () {
-        resolve(xhr.response);
-      };
-      xhr.onerror = function () {
-        reject(new TypeError("Network request failed."));
-      };
-      xhr.responseType = "blob";
-      xhr.open("GET", image, true);
-      xhr.send(null);
-    });
-    // Create file metadata including the content type
-    /** @type {any} */
-    const metadata = {
-      contentType: "image/jpeg",
-    };
+// function saveImage(){
+//   const uploadImage = async () => {
+//     const blobImage = await new Promise((resolve, reject) => {
+//       const xhr = new XMLHttpRequest();
+//       xhr.onload = function () {
+//         resolve(xhr.response);
+//       };
+//       xhr.onerror = function () {
+//         reject(new TypeError("Network request failed."));
+//       };
+//       xhr.responseType = "blob";
+//       xhr.open("GET", image, true);
+//       xhr.send(null);
+//     });
+//     // Create file metadata including the content type
+//     /** @type {any} */
+//     const metadata = {
+//       contentType: "image/jpeg",
+//     };
 
-    // Upload file and metadata to the object 'images/mountains.jpg'
-    const storageRef = ref(storage, "profiles/" + id);
-    const uploadTask = uploadBytesResumable(storageRef, blobImage, metadata);
+//     // Upload file and metadata to the object 'images/mountains.jpg'
+//     const storageRef = ref(storage, "profiles/" + id);
+//     const uploadTask = uploadBytesResumable(storageRef, blobImage, metadata);
 
-    // Listen for state changes, errors, and completion of the upload.
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log("Upload is " + progress + "% done");
-        switch (snapshot.state) {
-          case "paused":
-            console.log("Upload is paused");
-            break;
-          case "running":
-            console.log("Upload is running");
-            break;
-        }
-      },
-      (error) => {
-        // A full list of error codes is available at
-        // https://firebase.google.com/docs/storage/web/handle-errors
-        switch (error.code) {
-          case "storage/unauthorized":
-            // User doesn't have permission to access the object
-            break;
-          case "storage/canceled":
-            // User canceled the upload
-            break;
+//     // Listen for state changes, errors, and completion of the upload.
+//     uploadTask.on(
+//       "state_changed",
+//       (snapshot) => {
+//         // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+//         const progress =
+//           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+//         console.log("Upload is " + progress + "% done");
+//         switch (snapshot.state) {
+//           case "paused":
+//             console.log("Upload is paused");
+//             break;
+//           case "running":
+//             console.log("Upload is running");
+//             break;
+//         }
+//       },
+//       (error) => {
+//         // A full list of error codes is available at
+//         // https://firebase.google.com/docs/storage/web/handle-errors
+//         switch (error.code) {
+//           case "storage/unauthorized":
+//             // User doesn't have permission to access the object
+//             break;
+//           case "storage/canceled":
+//             // User canceled the upload
+//             break;
 
-          // ...
+//           // ...
 
-          case "storage/unknown":
-            // Unknown error occurred, inspect error.serverResponse
-            break;
-        }
-      },
-      () => {
-        // Upload completed successfully, now we can get the download URL
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          console.log("File available at", downloadURL);
-        });
-      }
-    );
-  };
-  if (image != null) {
-    uploadImage();
-    setImage(null);
-  }
-}
+//           case "storage/unknown":
+//             // Unknown error occurred, inspect error.serverResponse
+//             break;
+//         }
+//       },
+//       () => {
+//         // Upload completed successfully, now we can get the download URL
+//         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+//           console.log("File available at", downloadURL);
+//         });
+//       }
+//     );
+//   };
+//   if (image != null) {
+//     uploadImage();
+//     setImage(null);
+//   }
+// }
 
   console.log(fname, mname, lname,email, selectedStartDate, num, image )
 
@@ -226,13 +224,13 @@ function saveImage(){
       <View style={{width:140,height:140,alignSelf:'center',marginBottom:'-22%'}}>
       </View>
       <View style={{alignSelf: 'center', marginTop: '-10%'}}>
-        <Text style={{fontSize: 32, color: 'black', fontWeight: 800}}>Create an account</Text>
+        <Text style={{fontSize: 28, color: 'skyblue', fontWeight: 800}}>Create an account</Text>
       </View>
       <View>
       </View>
       <View style={{flexDirection:'row',marginTop:'4%',}}>
         <View style={{width:'15%',height:40,alignItems:'center',justifyContent:'center'}}>
-          <FontAwesomeIcon icon={faUser} size={24} color="navy"/>
+          <FontAwesomeIcon icon={faUser} size={24} color="pink"/>
         </View>
         <View style={{width:'80%',height:40,backgroundColor:'white',flexDirection:'row',alignSelf:'center',alignItems:'center',justifyContent:'space-between'}}>
           <TextInput style={{width:'29%',height:40,backgroundColor:'white',textAlign:'center',borderBottomWidth:1,borderBottomColor:'black'}} placeholder='First name' onChangeText={(text)=> setFname(text)}/>
@@ -243,7 +241,7 @@ function saveImage(){
 
       <View style={{flexDirection:'row',marginTop:'4%',}}>
         <View style={{width:'15%',height:40,alignItems:'center',justifyContent:'center'}}>
-          <FontAwesomeIcon icon={faMailBulk} size={24} color="navy"/>
+          <FontAwesomeIcon icon={faMailBulk} size={24} color="pink"/>
         </View>
         <View style={{width:'80%',height:40,backgroundColor:'white',flexDirection:'row',alignSelf:'center',alignItems:'center',justifyContent:'space-between'}}>
           <TextInput style={{width:'100%',height:40,backgroundColor:'white',textAlign:'center',borderBottomWidth:1,borderBottomColor:'black'}} placeholder='Email' onChangeText={(text)=> setEmail(text)}/>
@@ -252,7 +250,7 @@ function saveImage(){
 
       <View style={{flexDirection:'row',marginTop:'4%',}}>
         <View style={{width:'15%',height:40,alignItems:'center',justifyContent:'center'}}>
-          <FontAwesomeIcon icon={faMapLocation} size={24} color="navy"/>
+          <FontAwesomeIcon icon={faMapLocation} size={24} color="pink"/>
         </View>
         <View style={{width:'80%',height:40,backgroundColor:'white',flexDirection:'row',alignSelf:'center',alignItems:'center',justifyContent:'space-between'}}>
           <TextInput style={{width:'100%',height:40,backgroundColor:'white',textAlign:'center',borderBottomWidth:1,borderBottomColor:'black'}} placeholder='Current Address' onChangeText={(text)=> setAddress(text)}/>
@@ -261,7 +259,7 @@ function saveImage(){
 
       <View style={{flexDirection:'row',marginTop:'4%',}}>
         <View style={{width:'15%',height:40,alignItems:'center',justifyContent:'center'}}>
-          <FontAwesomeIcon icon={faLock} size={24} color="navy"/>
+          <FontAwesomeIcon icon={faLock} size={24} color="pink"/>
         </View>
         <View style={{width:'80%',height:40,backgroundColor:'white',flexDirection:'row',alignSelf:'center',alignItems:'center',justifyContent:'space-between'}}>
           <TextInput secureTextEntry={true} style={{width:'100%',height:40,backgroundColor:'white',textAlign:'center',borderBottomWidth:1,borderBottomColor:'black'}} placeholder='Enter Password' onChangeText={(text)=> setPassword(text)}/>
@@ -270,7 +268,7 @@ function saveImage(){
 
       <View style={{flexDirection:'row',marginTop:'4%',}}>
         <View style={{width:'15%',height:40,alignItems:'center',justifyContent:'center'}}>
-          <FontAwesomeIcon icon={faLock} size={24} color="navy"/>
+          <FontAwesomeIcon icon={faLock} size={24} color="pink"/>
         </View>
         <View style={{width:'80%',height:40,backgroundColor:'white',flexDirection:'row',alignSelf:'center',alignItems:'center',justifyContent:'space-between'}}>
           <TextInput  secureTextEntry={true} style={{width:'100%',height:40,backgroundColor:'white',textAlign:'center',borderBottomWidth:1,borderBottomColor:'black'}} placeholder='Confirm Password' onChangeText={(text)=> setConfirm(text)}/>
@@ -282,7 +280,7 @@ function saveImage(){
           <Text>Date of Birth</Text>
           <TouchableOpacity onPress={()=> setOpenStartDatePicker(!openStartDatePicker)}>
             <View style={{flexDirection:'row',justifyContent:'space-around',alignItems:'center'}} >
-              <FontAwesomeIcon icon={faCalendar} size={24} color="blue"/>
+              <FontAwesomeIcon icon={faCalendar} size={24} color="pink"/>
               <TextInput editable={false} selectTextOnFocus={false} placeholder={selectedStartDate} style={{width:'80%',textAlign:'center',height:35,borderRadius:4,backgroundColor:'white'}}/>
             </View>
           </TouchableOpacity>
@@ -292,15 +290,17 @@ function saveImage(){
           <Text>Mobile Number</Text>
           <TouchableOpacity onPress={()=> setOpenStartDatePicker(!openStartDatePicker)}>
             <View style={{flexDirection:'row',justifyContent:'space-around',alignItems:'center'}} >
-              <FontAwesomeIcon icon={faMobilePhone} size={24} color="blue"/>
+              <FontAwesomeIcon icon={faMobilePhone} size={24} color="pink"/>
               <TextInput placeholder="09---------- " 
                onChangeText={(text)=> setNumber(text)} style={{width:'80%',textAlign:'center',height:35,borderRadius:4,backgroundColor:'white'}}/>
             </View>
           </TouchableOpacity>
         </View>
       </View>
-
-
+      <View style={{flexDirection:'row',alignSelf:'center'}}>
+        <Text onPress={()=> nav.navigate("Terms and Conditions")} style={{alignSelf:'center',margin:'2%',color:'skyblue'}}>Terms and Conditions</Text>
+        <Text  onPress={()=> nav.navigate("Privacy and Policy")} style={{alignSelf:'center',margin:'2%',color:'skyblue'}}>Privacy and Policy</Text>
+      </View>
       <View style={{width: '90%', alignSelf: 'center', height: 60}}>
         <TouchableOpacity style={style.loginBtn} onPress={()=> signUpUser()}>
           <Text style={style.loginBtnText}>Sign Up</Text>

@@ -4,7 +4,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import AnimatedLottieView from 'lottie-react-native';
 import { lotties } from '../../style';
 
-const Loading = () => {
+const LoggingIn = () => {
 
     const animationRef = useRef();
     useEffect(() => {
@@ -13,13 +13,13 @@ const Loading = () => {
 
   return (
     <View style={style.container}>
-        <AnimatedLottieView ref={animationRef} style={{width:300,height:300,alignSelf:'center'}} source={lotties.babySleeping}  autoPlay loop/>
-        <Text style={{fontSize:35,color:'skyblue',fontWeight:'700',}}>Loading</Text>
+        <AnimatedLottieView ref={animationRef} style={{width:400,height:400,alignSelf:'center'}} source={lotties.WomanLogin}  autoPlay loop/>
+        <Text style={{fontSize:35,color:'skyblue',fontWeight:'700',}}>Logging In</Text>
     </View>
   )
 }
 
-export default Loading
+export default LoggingIn
 
 const style = StyleSheet.create({
     container:{
