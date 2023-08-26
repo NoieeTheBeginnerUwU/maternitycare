@@ -15,13 +15,17 @@ import {
   faAngleLeft,
   faAngleRight,
   faDoorOpen,
+  faDroplet,
   faGear,
   faGift,
   faKey,
   faMailBulk,
   faPen,
+  faPersonPregnant,
   faPhone,
+  faRuler,
   faSignOut,
+  faWeightScale,
 } from "@fortawesome/free-solid-svg-icons";
 //firebase authentication
 import { authentication } from "../../config/firebase";
@@ -58,7 +62,6 @@ const Profile = () => {
   const [number, setNumber] = useState("");
   const [dob, setDob] = useState("");
   const [address, setAddress] = useState("");
-  const [image, setImage] = useState(null);
   const [profilePic, setProfilePic] = useState();
   //
   const [fnamePlaceholder, setFnamePlaceholder] = useState("");
@@ -68,7 +71,12 @@ const Profile = () => {
   const [numberPlaceholder, setNumberPlaceholder] = useState("");
   const [dobPlaceholder, setDobPlaceholder] = useState("");
   const [addressPlaceholder, setAddressPlaceholder] = useState("");
+  const [heightPlaceholder, setHeightPlaceholder] = useState();
+  const [weightPlaceholder, setWeightPlaceholder] = useState("");
+  const [bloodPressurePlaceholder, setBloodPressurePlaceholder] = useState("");
+  const [dateModifiedPlaceholder, setDateModifiedPlacehlder] = useState("");
   const [profilePicPlaceholder, setProfilePicPlaceholder] = useState("");
+  const [bmi, setBmi] = useState()
   const uid = id.toString;
 
   const [loading, setLoading] = useState(false);
@@ -86,22 +94,28 @@ const Profile = () => {
     //
     const ref = doc(database, "userData", id);
 
-    try {
-      const docRef = doc(database, "userData", uid);
-      onSnapshot(docRef, (doc) => {
-        const data = doc.data();
-        setFnamePlaceholder(data.userFname);
-        setMnamePlaceholder(data.userMname);
-        setLnamePlaceholder(data.userLname);
-        setEmailPlaceholder(data.userEmail);
-        setDobPlaceholder(data.userBirthdate);
-        setNumberPlaceholder(data.userNumber);
-        setAddressPlaceholder(data.userAddress);
-        setProfilePicPlaceholder(data.userPic);
-      });
-    } catch (error) {
-      alert(error);
-    }
+    useEffect(()=>{
+      try {
+        const docRef = doc(database, "userData", uid);
+        onSnapshot(docRef, (doc) => {
+          const data = doc.data();
+          setFnamePlaceholder(data.userFname);
+          setMnamePlaceholder(data.userMname);
+          setLnamePlaceholder(data.userLname);
+          setEmailPlaceholder(data.userEmail);
+          setDobPlaceholder(data.userBirthdate);
+          setNumberPlaceholder(data.userNumber);
+          setAddressPlaceholder(data.userAddress);
+          setProfilePicPlaceholder(data.userPic);
+          setBloodPressurePlaceholder(data.bloodPressure);
+          setHeightPlaceholder(data.height);
+          setWeightPlaceholder(data.weight);
+          setDateModifiedPlacehlder(data.dateUpdated);
+        });
+      } catch (error) {
+        alert(error);
+      }
+    },[])
   }
 
   User();
@@ -117,8 +131,12 @@ const Profile = () => {
         // An error happened.
       });
   }
-  console.log(profilePic)
+  console.log(profilePicPlaceholder)
   const nav = useNavigation();
+
+  let bm = Math.ceil(weightPlaceholder/((heightPlaceholder/100)^2));
+
+    //camera
 
   return (
     <>
@@ -140,13 +158,13 @@ const Profile = () => {
             <TouchableOpacity>
                 {
                   !profilePicPlaceholder?
-                  <Image  onPress={()=> pickImage()}
+                  <Image
                   style={style.pic}
                   source={require('../../assets/usertemplate.png')}/>
                 :
-                <Image  onPress={()=> pickImage()}
-                style={style.pic}
-                source={require('../../assets/usertemplate.png')}/>
+                <Image
+                style={{width:120,height:120,marginTop:40,alignSelf:'center',borderRadius:140}}
+                source={{uri:profilePicPlaceholder}}/>
                 }
             </TouchableOpacity>
             <View style={style.container}>
@@ -155,7 +173,7 @@ const Profile = () => {
                   width: "80%",
                   height: 60,
                   backgroundColor: "transparent",
-                  margin: 12,
+                  marginTop: -12,
                   alignSelf: "center",
                   alignItems: "center",
                   justifyContent: "center",
@@ -167,6 +185,37 @@ const Profile = () => {
                   {fnamePlaceholder} {mnamePlaceholder} {lnamePlaceholder}
                 </Text>
               </View>
+              <View style={{width:'96%',height:60,borderColor:'pink',borderWidth:2.4,alignSelf:'center',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                <View style={{width:'25%',height:'100%',borderColor:'skyblue',borderWidth:1,flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                  <FontAwesomeIcon icon={faPersonPregnant} size={22} color="pink"/>
+                  <View style={{width:'70%',height:'100%',alignItems:'center',justifyContent:'center'}}>
+                    <Text style={{}}>BMI</Text>
+                    <Text style={{}}>{bm}</Text>
+                  </View>
+                </View>
+                <View style={{width:'25%',height:'100%',borderColor:'skyblue',borderWidth:1,flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                <FontAwesomeIcon icon={faWeightScale} size={22} color="orange"/>
+                  <View style={{width:'70%',height:'100%',alignItems:'center',justifyContent:'center'}}>
+                    <Text style={{}}>Weight</Text>
+                    <Text style={{}}>{weightPlaceholder}</Text>
+                  </View>
+                </View>
+                <View style={{width:'25%',height:'100%',borderColor:'skyblue',borderWidth:1,flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                <FontAwesomeIcon icon={faRuler} size={22} color="yellow"/>
+                  <View style={{width:'70%',height:'100%',alignItems:'center',justifyContent:'center'}}>
+                    <Text style={{}}>Height</Text>
+                    <Text style={{}}>{heightPlaceholder}</Text>
+                  </View>
+                </View>
+                <View style={{width:'25%',height:'100%',borderColor:'skyblue',borderWidth:1,flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                <FontAwesomeIcon icon={faDroplet} size={22} color="red"/>
+                  <View style={{width:'70%',height:'100%',alignItems:'center',justifyContent:'center'}}>
+                    <Text style={{}}>BP</Text>
+                    <Text style={{}}>{bloodPressurePlaceholder}</Text>
+                  </View>
+                </View>
+              </View>
+              <Text style={{marginLeft:20,fontWeight:300,marginBottom:-10}}>Last modified: {dateModifiedPlaceholder}</Text>
               <Text
                 style={{
                   color: "#2E417E",
@@ -211,7 +260,7 @@ const Profile = () => {
                     <FontAwesomeIcon
                       icon={faMailBulk}
                       size={20}
-                      color="#2E417E"
+                      color="pink"
                     />
                     <Text
                       style={{
@@ -254,7 +303,7 @@ const Profile = () => {
                       justifyContent: "space-around",
                     }}
                   >
-                    <FontAwesomeIcon icon={faGift} size={20} color="#2E417E" />
+                    <FontAwesomeIcon icon={faGift} size={20} color="pink" />
                     <Text
                       style={{
                         color: "#2E417E",
@@ -296,7 +345,7 @@ const Profile = () => {
                       justifyContent: "space-around",
                     }}
                   >
-                    <FontAwesomeIcon icon={faPhone} size={20} color="#2E417E" />
+                    <FontAwesomeIcon icon={faPhone} size={20} color="pink" />
                     <Text
                       style={{
                         color: "#2E417E",
@@ -341,7 +390,7 @@ const Profile = () => {
                     <FontAwesomeIcon
                       icon={faMailBulk}
                       size={20}
-                      color="#2E417E"
+                      color="pink"
                     />
                     <Text
                       style={{
@@ -390,9 +439,9 @@ const Profile = () => {
                     margin: "2%",
                   }}
                 >
-                  <FontAwesomeIcon icon={faKey} size={20} color="grey" />
+                  <FontAwesomeIcon icon={faKey} size={20} color="skyblue" />
                   <Text>Change Password</Text>
-                  <FontAwesomeIcon icon={faAngleRight} size={20} color="grey" />
+                  <FontAwesomeIcon icon={faAngleRight} size={20} color="skyblue" />
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => nav.navigate("Settings")}
@@ -403,9 +452,9 @@ const Profile = () => {
                     margin: "2%",
                   }}
                 >
-                  <FontAwesomeIcon icon={faGear} size={20} color="grey" />
+                  <FontAwesomeIcon icon={faGear} size={20} color="skyblue" />
                   <Text>Settings</Text>
-                  <FontAwesomeIcon icon={faAngleRight} size={20} color="grey" />
+                  <FontAwesomeIcon icon={faAngleRight} size={20} color="skyblue" />
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => logout()}
@@ -416,7 +465,7 @@ const Profile = () => {
                     margin: "2%",
                   }}
                 >
-                  <FontAwesomeIcon icon={faSignOut} size={20} color="grey" />
+                  <FontAwesomeIcon icon={faSignOut} size={20} color="skyblue" />
                   <Text>Logout</Text>
                   <FontAwesomeIcon
                     icon={faAngleRight}

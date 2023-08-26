@@ -16,15 +16,26 @@ import { authentication } from "../../config/firebase";
 import { database } from "../../config/firebase";
 import Reminderadded from "../animations/Reminderadded";
 import { addDoc,getDocs,query,collection } from "firebase/firestore";
+import { Dropdown } from "react-native-element-dropdown";
+import AntDesign from '@expo/vector-icons/AntDesign';
+
+const data = [
+  { label: 'once a day', value: 'once a day' },
+  { label: 'twice a day', value: 'twice a a day' },
+  { label: 'thrice a day', value: 'thrice a day' },
+];
+
 
 export default Addreminder = () => {
   const nav = useNavigation();
   const id = authentication.currentUser.uid;
-  const [addDate, setAddDate] = useState(false);
+  const [value, setValue] = useState(null);
+  const [isFocus, setIsFocus] = useState(false);
+  const [addDate, setAddDate] = useState(true);
   const [addTime, setAddTime] = useState(false);
   const [selectedRange, setRange] = useState({});
   const [addReminder, setAddReminder] = useState(false);
-  const [addNote, setAddNote] = useState(false);
+  const [addNote, setAddNote] = useState(true);
   const [time, setTime] = useState("");
   const [number, setNumber] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -33,7 +44,17 @@ export default Addreminder = () => {
   const [multipleTimes, setMultipleTimes] = useState([]);
   const [note, setNote] = useState('');
   const [addedReminder, setAddedReminder] = useState(false);
-  
+  //
+  const renderLabel = () => {
+    if (value || isFocus) {
+      return (
+        <Text style={[styles.label, isFocus && { color: 'blue' }]}>
+   
+        </Text>
+      );
+    }
+    return null;
+  };
   //
   const today = new Date();
   const today2 = new Date();
@@ -50,32 +71,16 @@ export default Addreminder = () => {
     let date = []
     today5 = moment(today5).format("YYYY-MM-DD")
     while(moment(today5) <= moment(today6)){
+        multipleDates.push(today5)
       today5 = moment(today5).add(1, 'days').format("YYYY-MM-DD");
-      date.push(today5)
     }
-    setMultipleDates(date);
-  }
 
-  useEffect(()=>{
-    getDatesInRange();
-    var first = selectedRange.firstDate;
-    var second = selectedRange.secondDate;
-    const start = getFormatedDate(first, "DD");
-    const end = getFormatedDate(second, "DD");
-    var i;
-    for (i == start; i <= end; i++) {
-     
-    }
-    console.log(multipleDates.length);
-    if(number<1){
-      setNumber(1)
-    }
-  },[])
+  }
 
 const handleReminder = () => {
   
   var time = moment().utcOffset('+08:00').format('hh:mm a');
-  const dateNow = getFormatedDate(
+    const dateNow = getFormatedDate(
     today.setDate(today.getDate()),
     "YYYY/MM/DD"
   );
@@ -97,7 +102,7 @@ const handleReminder = () => {
         addDoc(collection(database,'reminders'),{
           user: id,
           dates: multipleDates,
-          times: multipleTimes,
+          times: value,
           note: note,
           dateMade: startDate,
           status:'disabled',
@@ -106,12 +111,25 @@ const handleReminder = () => {
         setMultipleTimes([]);
         setTimeout(()=>{
           setAddedReminder(false);
-          nav.navigate("Reminder");
+          nav.navigate("Tools");
         },3000)
     }catch(e){
         console.log(e)
     }
 }
+
+  var first = selectedRange.firstDate;
+  var second = selectedRange.secondDate;
+  const start = getFormatedDate(first, "DD");
+  const end = getFormatedDate(second, "DD");
+  var i;
+  for (i == start; i <= end; i++) {
+   
+  }
+  console.log(multipleDates.length);
+  if(number<1){
+    setNumber(1)
+  }
 
   function stringify(string){
     return JSON.stringify(string);
@@ -171,7 +189,6 @@ const handleReminder = () => {
                   setRange(range);
                 }}
                 blockSingleDateSelection={true}
-                
                 responseFormat="YYYY-MM-DD"
                 maxDate={moment().add(100, "days")}
                 minDate={moment()}
@@ -182,49 +199,6 @@ const handleReminder = () => {
               <Text>To: {selectedRange.secondDate}</Text>
             </View>
           ) : null}
-          <TouchableOpacity
-            onPress={() => setAddTime(!addTime)}
-            style={{
-              alignSelf: "center",
-              width: "90%",
-              marginTop: 10,
-              height: 60,
-              backgroundColor: "navy",
-              flexDirection: "row",
-              justifyContent: "center",
-              justifyContent: "start",
-              alignItems: "center",
-            }}
-          >
-              <View style={{width:20,height:20,marginRight:'5%',marginLeft:'4%',backgroundColor: multipleTimes.length<1? 'grey':'green',borderRadius:10, alignItems:'center',justifyContent:'center'}}>
-                <FontAwesomeIcon icon={faCheck} size={13} color="white"/>
-              </View>
-            <Text
-              style={{
-                color: "white",
-                fontSize: 15,
-                fontWeight: 700,
-                marginLeft: "-2.5%",
-              }}
-            >
-              2. Add Time
-            </Text>
-          </TouchableOpacity>
-          {addTime ? 
-              <View style={{alignItems:'center',justifyContent:'flex-start',alignItems:'center',justifyContent:'center',width:'100%',height:'100%',marginTop:'1%'}}>
-                  <Text>Repeat reminder in: {stringify(multipleTimes)} hours</Text>
-                  <View style={{flexDirection:'row', width:'80%',height:30,alignItems:'center',justifyContent:'space-between',alignSelf:'center'}}>
-                  </View>
-                  {
-                      number!=null?
-                      <View style={{width:'100%',height:450,flexDirection:'column'}}>
-                          
-                      </View>
-                      :
-                      null
-                  }
-              </View> 
-          : null}
           <TouchableOpacity
             onPress={() => setAddNote(!addNote)}
             style={{
@@ -250,22 +224,57 @@ const handleReminder = () => {
                 marginLeft: "-2.5%",
               }}
             >
-              3. Add Note
+              2. Add Note
             </Text>
           </TouchableOpacity>
           {addNote ? (
             <View
               style={{
                 width: "100%",
-                height: '100%',
+                height: 400,
                 backgroundColor: "white",
                 alignSelf: "center",
                 borderBottom:1000,
               }}
             >
+    
+              <View style={{width:'100%',height:100}}>
+              {renderLabel()}
+                        <Dropdown
+                          style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
+                          placeholderStyle={styles.placeholderStyle}
+                          selectedTextStyle={styles.selectedTextStyle}
+                          inputSearchStyle={styles.inputSearchStyle}
+                          iconStyle={styles.iconStyle}
+                          data={data}
+                          search
+                          maxHeight={250}
+                          labelField="label"
+                          valueField="value"
+                          placeholder={!isFocus ? 'how many times a day?' : '...'}
+                          searchPlaceholder="Search..."
+                          value={value}
+                          onFocus={() => setIsFocus(true)}
+                          onBlur={() => setIsFocus(false)}
+                          onChange={item => {
+                            setValue(item.value);
+                            setIsFocus(false);
+                          }}
+                          renderLeftIcon={() => (
+                            <AntDesign
+                              style={styles.icon}
+                              color={isFocus ? 'blue' : 'black'}
+                              name="Safety"
+                              size={20}
+                              marginRight={20}
+                            />
+                          )}
+                        />
+              </View>
+         
               <TextInput
                 placeholder="Add a note"
-                style={{ alignSelf: "center", marginTop: 50 }}
+                style={{ alignSelf: "center", marginTop: 50, marginBottom: 50, width:'80%',height:70,borderBottomColor:'black',borderBottomWidth:1 }}
                 onChangeText={(text) => setNote(text)}
               />
               <TouchableOpacity onPress={()=> handleReminder()} style={{width:'90%',height:40,alignSelf:'center',alignItems:'center',backgroundColor:'navy',justifyContent:'center'}}>
@@ -300,4 +309,38 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "white",
   },
+  dropdown: {
+    height: 50,
+    borderColor: 'gray',
+    borderWidth: 0.5,
+    borderRadius: 8,
+    paddingHorizontal: 8,
+  },
+  icon: {
+    marginRight: 100,
+  },
+  label: {
+    position: 'absolute',
+    backgroundColor: 'white',
+    left: 22,
+    top: 8,
+    zIndex: 999,
+    paddingHorizontal: 8,
+    fontSize: 14,
+  },
+  placeholderStyle: {
+    fontSize: 16,
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+  },
+  iconStyle: {
+    width: 20,
+    height: 20,
+  },
+  inputSearchStyle: {
+    height: 40,
+    fontSize: 16,
+  },
 });
+

@@ -89,6 +89,11 @@ export const lotties = {
 
 //Edit Profile
 
+//Deleted
+
+    Deleted:require("./assets/animation_llr7nfzt.json"),
+    Bell:require("./assets/animation_llrr8x5t.json"),
+
     
 
 }

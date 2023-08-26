@@ -22,7 +22,7 @@ import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 //firebase
 import { database } from '../../config/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { setDoc,doc } from 'firebase/firestore';
+import { setDoc,doc,addDoc,collection } from 'firebase/firestore';
 //Date
 import moment from 'moment';
 import { getFormatedDate } from "react-native-modern-datepicker";
@@ -97,7 +97,17 @@ const Signup = () => {
         .then((re) =>{
           const id = authentication.currentUser.uid;
           registerIndieID(id, 10244, 'MRmNGe8fHmswLJsrtYA7H3');
-            setDoc(doc(database, "userData",id),{
+          addDoc(collection(database, "registration"),{
+            uid: id,
+            userFname: fname,
+            userMname: mname,
+            userLname: lname,
+            userEmail: email,
+            dateMade: made,
+            number: num,
+            status: 'pending'
+          })
+          setDoc(doc(database, "userData",id),{
               userFname: fname,
               userMname: mname,
               userLname: lname,
@@ -110,8 +120,7 @@ const Signup = () => {
               lastPeriod: '',
               otherInfo: '',
               weight: 0,
-              dateUpdated: ''
-
+              dateUpdated: '',
             })
             setIsSignedIn(true)
           })

@@ -10,9 +10,10 @@ import { useNavigation } from "@react-navigation/native";
 //import firebase
 import { authentication } from "../../config/firebase";
 import { database } from "../../config/firebase";
-import { addDoc,getDocs,query,collection,where, doc,updateDoc } from "firebase/firestore";
+import { addDoc,getDocs,query,collection,where, doc,updateDoc,deleteDoc } from "firebase/firestore";
 //import loading
 import Loading from "../animations/Loading";
+import Deleted from "../animations/Deleted";
 
 export default Reminder = () => {
   const id = authentication.currentUser.uid;
@@ -22,6 +23,8 @@ export default Reminder = () => {
   const [loading, setLoading] = useState(false);
   const [reminders, setReminders] = useState([]);
   const [selectedId, setSelectedId] = useState();
+  const [toDelete, setToDelete] = useState(false);
+  const [hasDeleted, setHasDeleted] = useState(false);
 
   async function fetchData(){
     const querySnapshot = await getDocs(query(collection(database, 'reminders'),where("user", "==", id)));
@@ -78,34 +81,58 @@ export default Reminder = () => {
     }
   }
 
+  async function deleteReminder(){
+    await deleteDoc(doc(database, "reminders", selectedId));
+    setToDelete(false);
+
+    setHasDeleted(true);
+    setTimeout(()=>{
+      setHasDeleted(false);
+      alert("Reminder deleted successfully")
+      nav.navigate("Tools");
+    },2000)
+
+    
+  }
+
   const renderItem = ({ item }) => (
-    <View style={{width:'100%',height:100,flexDirection:'row',marginTop:'3%'}} onTouchEnd={()=> setSelectedId(item.id)}>
-      <View style={{width:'80%',height:'100%',alignContent:'center',alignSelf:'center',justifyContent:'center',backgroundColor:item.status==="enabled" ? "navy":"grey",margin:'1%'}}>
-        <Text style={{color:'white',fontSize:10,marginLeft:'4%'}}>Reminder: {item.note}</Text>
-        <View style={{display:item.status==="disabled"?"none":'flex',width:'90%'}}>
-          <Text style={{color:'white',fontSize:10,marginLeft:'4%'}}>Dates: {item.dates}</Text>
-          <Text style={{color:'white',fontSize:10,marginLeft:'4%'}}>Times: {item.times}</Text>
+    <View style={{width:'100%',height:100,flexDirection:'row',margin:'2%',alignItems:'center',justifyContent:'center'}}>
+      <View style={{width:'80%',height:100,flexDirection:'row'}} onTouchMove={()=> [setSelectedId(item.id),setActive(!active)]}>
+        <View style={{width:'100%',height:'100%',alignContent:'center',alignSelf:'center',justifyContent:'center',backgroundColor:item.status==="enabled" ? "navy":"grey",margin:'1%'}}>
+          <Text style={{color:'white',fontSize:10,marginLeft:'4%'}}>Reminder: {item.note}</Text>
+          <View style={{display:item.status==="disabled"?"none":'flex',width:'90%'}}>
+            <Text style={{color:'white',fontSize:10,marginLeft:'4%'}}>Dates: {item.dates}</Text>
+            <Text style={{color:'white',fontSize:10,marginLeft:'4%'}}>Times: {item.times}</Text>
+          </View>
+          <Text style={{color:'white',fontSize:10,marginLeft:'4%'}}>Date Made: {item.dateMade}</Text>
         </View>
-        <Text style={{color:'white',fontSize:10,marginLeft:'4%'}}>Date Made: {item.dateMade}</Text>
       </View>
-        <View style={{width:'20%',height:'100%',backgroundColor:'navy'}}>
-          <TouchableOpacity onPress={()=> [setActive(!active), handleReminder(item.id)]} style={{width:'100%',height:'100%',alignItems:'center',justifyContent:'center'}}>
-            {
-              item.status==="enabled"?
-              <View style={{width:'60%',height:'70%',backgroundColor:'white',borderRadius:30,alignItems:'center',justifyContent:'flex-start'}}>
-                <View style={{width:'90%',height:'50%',backgroundColor:'blue',borderRadius:30,marginTop:'5%',alignItems:'center',justifyContent:'center'}}>
-                  <Text style={{color:'white',alignSelf:'center',fontSize:8}}>Enabled</Text>
-                </View>
-              </View>
-              :
-              <View style={{width:'60%',height:'70%',backgroundColor:'white',borderRadius:30,alignItems:'center',justifyContent:'flex-end'}}>
-                <View style={{width:'90%',height:'50%',backgroundColor:'grey',borderRadius:30,marginBottom:'5%',alignItems:'center',justifyContent:'center'}}>
-                  <Text style={{color:'white',alignSelf:'center',fontSize:8}}>Disabled</Text>
-                </View>
-              </View>
-            }
-          </TouchableOpacity>
-        </View>
+      
+      <View style={{width:'20%',height:100,backgroundColor:'navy'}}>
+      {
+        selectedId===item.id&&active===false?
+        <TouchableOpacity onPress={()=> setToDelete(!toDelete)} style={{width:'100%',height:'100%',backgroundColor:'red',alignItems:'center',justifyContent:'center'}}>
+          <Text style={{color:'white'}}>delete?</Text>
+        </TouchableOpacity>
+        :
+        <TouchableOpacity onPress={()=> [setActive(!active), handleReminder(item.id)]} style={{width:'100%',height:'100%',alignItems:'center',justifyContent:'center'}}>
+        {
+          item.status==="enabled"?
+          <View style={{width:'60%',height:'70%',backgroundColor:'white',borderRadius:30,alignItems:'center',justifyContent:'flex-start'}}>
+            <View style={{width:'90%',height:'50%',backgroundColor:'blue',borderRadius:30,marginTop:'5%',alignItems:'center',justifyContent:'center'}}>
+              <Text style={{color:'white',alignSelf:'center',fontSize:8}}>Enabled</Text>
+            </View>
+          </View>
+          :
+          <View style={{width:'60%',height:'70%',backgroundColor:'white',borderRadius:30,alignItems:'center',justifyContent:'flex-end'}}>
+            <View style={{width:'90%',height:'50%',backgroundColor:'grey',borderRadius:30,marginBottom:'5%',alignItems:'center',justifyContent:'center'}}>
+              <Text style={{color:'white',alignSelf:'center',fontSize:8}}>Disabled</Text>
+            </View>
+          </View>
+        }
+      </TouchableOpacity>
+      }
+      </View>
     </View>
   );
   
@@ -113,22 +140,45 @@ export default Reminder = () => {
   return (
     <>
     {
+      hasDeleted&&
+      <Deleted/>
+    }
+    {
       loading?
       <Loading/>
       :
-      <View style={styles.container}>
-        <TouchableOpacity onPress={()=> nav.navigate('AddReminder')} style={{alignSelf:'center',width:'90%',height:50,marginTop:'5%',backgroundColor:'red',flexDirection:'row',justifyContent:'center',alignItems:'center'}}>
-          <FontAwesomeIcon icon={faPlusCircle} size={24} style={{marginRight:10}} color="white"/>
-          <Text style={{color:'white'}}>Add a reminder</Text>
-        </TouchableOpacity>
-        <View style={{width:'90%',height:'80%',alignSelf:'center',marginTop:40}}>
-              <FlatList
-                data={documents}
-                renderItem={renderItem}
-                keyExtractor={item=> item.id} // Use index as key for demo purposes
-              />
-        </View>
-      </View>
+      <>
+        {
+          toDelete?
+          <View style={{width:'60%',height:'40%',marginTop:'20%',backgroundColor:'white',alignSelf:'center',borderRadius:20}}>
+            <View style={{width:'100%',height:'70%',alignItems:'center',justifyContent:'center',color:'skyblue',fontSize:24,fontWeight:600}}>
+              <Text style={{width:'80%'}}>Are you sure you want to delete this reminder?</Text>
+            </View>
+            <View style={{width:'100%',height:'30%', flexDirection:'row',justifyContent:'space-evenly',alignItems:'center'}}>
+              <TouchableOpacity onPress={()=> deleteReminder()} style={{width:'40%',height:40,borderRadius:10,backgroundColor:'navy',alignItems:'center',justifyContent:'center'}}>
+                <Text style={{color:'white'}}>Yes</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={{width:'40%',height:40,borderRadius:10,backgroundColor:'grey',alignItems:'center',justifyContent:'center'}} onPress={()=> setToDelete(!toDelete)}>
+                <Text style={{color:'white'}}>No</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+          :
+          <View style={styles.container}>
+            <TouchableOpacity onPress={()=> nav.navigate('AddReminder')} style={{alignSelf:'center',width:'90%',height:50,marginTop:'5%',backgroundColor:'red',flexDirection:'row',justifyContent:'center',alignItems:'center'}}>
+              <FontAwesomeIcon icon={faPlusCircle} size={24} style={{marginRight:10}} color="white"/>
+              <Text style={{color:'white'}}>Add a reminder</Text>
+            </TouchableOpacity>
+            <View style={{width:'90%',height:'80%',alignSelf:'center',marginTop:40}}>
+                  <FlatList
+                    data={documents}
+                    renderItem={renderItem}
+                    keyExtractor={item=> item.id} // Use index as key for demo purposes
+                  />
+            </View>
+          </View>
+        }
+      </>
     }
     </>
   );

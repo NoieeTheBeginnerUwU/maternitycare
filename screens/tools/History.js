@@ -43,10 +43,12 @@ const History = () => {
 
     useEffect(()=> {
       async function fetchData(){
-        const querySnapshot = await getDocs(query(collection(database, 'appointments'),where("uid", "==", id)));
+        const querySnapshot = await getDocs(query(collection(database, 'appointments'),orderBy("dateMade","desc")));
         const userData = [];
         const data = querySnapshot.forEach(doc=>{
-          userData.push({id:doc.id, DateApp:doc.data().appointmentDate, status:doc.data().status,purpose:doc.data().purpose,time:doc.data().time,made:doc.data().dateMade});
+          if(doc.data().uid===id){
+            userData.push({id:doc.id, DateApp:doc.data().appointmentDate, status:doc.data().status,purpose:doc.data().purpose,time:doc.data().time,made:doc.data().dateMade});
+          }
         })
         setDocuments(userData);
         if(userData.length<=0){
@@ -58,7 +60,7 @@ const History = () => {
     },[]);
 
   const renderItem = ({ item }) => (
-    <View style={{width:'90%',height:100,alignContent:'center',alignSelf:'center',justifyContent:'center',backgroundColor:item.status==="pending"&& "grey" ||item.status==="approved"&& "green"|| item.status==="denied"&&"red",margin:'1%'}}>
+    <View style={{width:'90%',height:100,alignContent:'center',alignSelf:'center',justifyContent:'center',backgroundColor:item.status==="pending"&& "grey" ||item.status==="approved"&& "green"|| item.status==="denied"&&"red",marginBottom:'1%'}}>
       <Text style={{color:'white',fontSize:12,marginLeft:'4%'}}>Appointment ID: {item.id}</Text>
       <Text style={{color:'white',fontSize:10,marginLeft:'4%'}}>Date of Appointment: {item.DateApp}</Text>
       <Text style={{color:'white',fontSize:10,marginLeft:'4%'}}>Time of Appointment: {item.time}</Text>
@@ -88,15 +90,17 @@ const History = () => {
             <Nodata/>
             :
             <View>
-              <View style={{width:'100%',height:60, backgroundColor:'white',alignItems:'center',justifyContent:'center',marginBottom:20}}>
+              <View style={{width:'100%',height:40, backgroundColor:'white',alignItems:'center',justifyContent:'center',marginBottom:20}}>
                 <Text style={{color:'navy',fontSize:18,fontWeight:400,alignSelf:'center',}}>Here is the list of your appointments</Text>
               </View>
-              <View style={{height:'100%'}}>
-                <FlatList //if index<5 || ! ORRRRRRRRRRRRR if toggled {display (n)} else {5}
-                  data={documents} //sabi ni sir ayusin design nito
-                  renderItem={renderItem}
-                  keyExtractor={item=> item.id} // Use index as key for demo purposes
-                />
+              <View style={{width:'100%',height:'96%'}}>
+                <ScrollView style={{width:'100%',height:'100%',marginBottom:'30%'}}>
+                  <FlatList //if index<5 || ! ORRRRRRRRRRRRR if toggled {display (n)} else {5}
+                    data={documents} //sabi ni sir ayusin design nito
+                    renderItem={renderItem}
+                    keyExtractor={item=> item.id} // Use index as key for demo purposes
+                  />
+                </ScrollView>
               </View>
             </View>
           }

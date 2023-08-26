@@ -21,6 +21,7 @@ import { addDoc,
   DocumentSnapshot,
   updateDoc} from 'firebase/firestore';
 //import storage
+import { getDownloadURL } from 'firebase/storage';
 import { storage } from '../config/firebase';
 import { ref } from 'firebase/storage';
 //Images
@@ -45,6 +46,7 @@ import { getFormatedDate } from 'react-native-modern-datepicker';
 import Loading from './animations/Loading';
 import Fetchdata from './animations/Fetchdata';
 import { TouchableHighlight } from 'react-native';
+import { faConciergeBell } from '@fortawesome/free-solid-svg-icons';
 
 const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}) => (
   <View style={{flexDirection:'column'}}>
@@ -151,6 +153,7 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
   let dateOfDelivery = today3.format("YYYY/MM/DD");
   const today4 = moment(dateOfDelivery, "YYYY/MM/DD")
   const nowToThen = today4.diff(today1, "weeks");
+  const [hasNotif, setHasNotif] = useState(false);
 
   //console.log("Delivery Date: "+dateOfDelivery)
   //console.log("Weeks Left: "+nowToThen)
@@ -158,15 +161,22 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
   //console.log(weeksDifference);
   //fetch the articles
   useEffect(()=> {
-    try{
+   
       async function fetchEvents(){
         const querySnapshot = await getDocs(collection(database, 'appointments'),where("uid", "==", id));
+        const querySnapshot2 = await getDocs(collection(database, 'notifications'),where("uid", "==", id));
         const userData = [];
-        const latest = [];
+        const userData2 = [];
         const data = querySnapshot.forEach(doc=>{
           let activityDate = moment(doc.data().appointmentDate, "YYYY/MM/DD")
-          if(activityDate.diff(today1, "days"<=1) && doc.data().status==="approved" && doc.data().time!==""){
+          if(activityDate.diff(today1, "days"<=1) && doc.data().status==="approved" && doc.data().time!==""&&doc.data().uid===id){
             userData.push({id:doc.id, date:doc.data().appointmentDate, time:doc.data().time, status:doc.data().status, purpose:doc.data().purpose});
+          }
+          
+        })
+        const data2 = querySnapshot2.forEach(docs=>{
+          if(docs.data().status==="unread"&&docs.data().uid===id){
+            setHasNotif(true)
           }
           
         })
@@ -180,9 +190,11 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
           setNoData(true)
         }
       };
-    }catch(e){
-      console.log(e)
-    }
+      getDownloadURL(ref(storage, id))
+      .then((url)=>{
+        setImage(url)
+      })
+  //
     fetchEvents();
   },[]);
 
@@ -304,15 +316,15 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
             <View style={{flexDirection: 'row',backgroundColor:'transparent', alignItems:'center',justifyContent:'center'}}>
               <TouchableOpacity style={{backgroundColor:'transparent'}} onPress={()=> nav.navigate("Profile")}>
                   <View style={{width: '55%', height: 70, marginLeft: '5%', padding: '2%',flexDirection:'row',}}>
-                  {
+                  { 
                     !profilePicPlaceholder?
                     <Image
                     style={{width:60,height:60,borderRadius:120}}
                     source={require('../assets/usertemplate.png')}/>
                   :
                   <Image
-                  style={{width:60,height:60,borderRadius:120}}
-                  source={require('../assets/usertemplate.png')}/>
+                  style={{width:60,height:60,borderRadius:120}}  
+                  source={{uri:profilePicPlaceholder}}/>
                   }
                     <View style={{marginTop: '7%', marginLeft:10}}>
                       <View style={{flexDirection:'row', marginBottom:'-8%', width: 170, height: 30,}}>
@@ -333,7 +345,16 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                 </TouchableOpacity>
               <View style={{width: 100, alignSelf:'center', alignItems:'center',justifyContent:'center',}}>
                 <TouchableOpacity style={{width:40,height:40,borderRadius:40,backgroundColor:'white', alignItems:'center',justifyContent:'center'}} onPress={()=> nav.navigate("Notification")}>
-                  <FontAwesomeIcon icon={faBell} size={20} color="navy"/>
+                  {
+                    hasNotif===true?
+                    <View>
+                      <AnimatedLottieView ref={animationRef} style={{width:50,height:50,}} source={lotties.Bell}  autoPlay loop/>
+                    </View>
+                    :
+                    <View>
+                      <AnimatedLottieView style={{width:50,height:50,}} source={lotties.Bell}/>
+                    </View>
+                  }
                 </TouchableOpacity>
               </View>
             </View>
@@ -1131,7 +1152,7 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
             </View>
           </TouchableOpacity>
           {
-            hasEvent===false?
+            hasEvent?
             <View style={{width:'100%',height:150,backgroundColor:'white'}}>
               <View style={{width:'100%',height:'100%',flexDirection:'colum',alignItems:'center',justifyContent:'center'}}>
               <ScrollView horizontal={true}>

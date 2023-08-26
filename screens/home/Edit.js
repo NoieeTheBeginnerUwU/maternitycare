@@ -44,6 +44,8 @@ import {
   DocumentSnapshot,
   updateDoc,
 } from "firebase/firestore";
+import { storage } from "../../config/firebase";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { onSnapshot } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
 //import loading screen
@@ -52,10 +54,11 @@ import Loading from "../animations/Loading";
 //FileSystem
 import { KeyboardAvoidingView } from "react-native";
 //Import react native image picker
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import * as ImagePicker from 'expo-image-picker';
+//moment js
 import moment from "moment";
 import { getFormatedDate } from "react-native-modern-datepicker";
-
+import { uploadBytes } from "firebase/storage";
 const Edit = () => {
   const [isSelected, setSelection] = useState(false);
   const id = authentication.currentUser.uid;
@@ -67,8 +70,8 @@ const Edit = () => {
   const [number, setNumber] = useState("");
   const [dob, setDob] = useState("");
   const [address, setAddress] = useState("");
-  const [image, setImage] = useState(null);
   const [profilePic, setProfilePic] = useState();
+  const [image, setImage] = useState();
   //
   const [userdata, setuserdata] = useState([]);
   const [fnamePlaceholder, setFnamePlaceholder] = useState("");
@@ -87,25 +90,6 @@ const Edit = () => {
     "YYYY/MM/DD"
   );
 
-  //camera
-  const [pickedImage, setPickedImage] = useState(null);
-  const showGallery = () => {
-    let options = {
-      cancelButtonTitle: 'Cancel',
-      mediaType: 'photo',
-
-    };
-
-    launchImageLibrary(options => {
-      if (error) {
-        console.log('Image picker error: ', error);
-      } else {
-        setPickedImage(uri);
-        console.log(uri)
-      }
-    });
-
-  };
 
   const [loading, setLoading] = useState(false);
 
@@ -139,7 +123,8 @@ const Edit = () => {
       alert(error);
     }
   }
-
+  User();
+  console.log(image)
   function update(){
     var time = moment().utcOffset('+08:00').format('hh:mm a');
     if(!lname||!mname||!lname||!email||!number||!address){
@@ -175,11 +160,59 @@ const Edit = () => {
         userLname: lname,
         userEmail: email,
         userNumber: number,
+        userPic: image,
       }).then(alert("Changes successful."));
       nav.navigate("Profile")
     }
   }
   const nav = useNavigation();
+
+
+  //camera
+  const pickImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+     const uploadURL = await uploadImageAsync(result.assets[0].uri);
+     setImage(uploadURL);
+    }else{
+      //do nothing
+    }
+    //firebase start 
+    async function uploadImageAsync (uri) {
+      const blob = await new Promise((resolve, reject)=>{
+        const xhr = new XMLHttpRequest();
+        xhr.onload = function(){
+          resolve(xhr.response);
+        };
+        xhr.onerror = function(e){
+          console.log(e);
+          reject(new TypeError("Network request failed."))
+        };
+        xhr.responseType = "blob";
+        xhr.open("GET", uri, true);
+        xhr.send(null);
+      });
+
+      try{
+        const storageRef = ref(storage, id);
+        const result = await uploadBytes(storageRef, blob);
+        return await getDownloadURL(storageRef);
+        blob.close();
+      }catch(e){
+        
+      }
+
+    }
+    //firebase end
+
+  };
 
   return (
     <>
@@ -199,7 +232,7 @@ const Edit = () => {
               }}
             ></View>
             <View style={{alignItems:'center',justifyContent:'center'}}>
-              <TouchableOpacity onPress={() => showGallery()}>
+              <TouchableOpacity onPress={() => pickImage()}>
                   {
                     !profilePicPlaceholder?
                     <Image
@@ -208,11 +241,11 @@ const Edit = () => {
                   :
                   <Image
                   style={style.pic}
-                  source={require('../../assets/usertemplate.png')}/>
+                  source={{uri:image}}/>
                   }
               </TouchableOpacity>
               <View style={{width:30,height:30,borderRadius:30,marginTop:-30,marginLeft:70,backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
-                  <TouchableOpacity onPress={() => showGallery()}>
+                  <TouchableOpacity onPress={() => pickImage}>
                     <FontAwesomeIcon icon={faCamera} color="skyblue" size={20}/>
                   </TouchableOpacity>
               </View>
