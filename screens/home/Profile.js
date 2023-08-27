@@ -131,7 +131,6 @@ const Profile = () => {
         // An error happened.
       });
   }
-  console.log(profilePicPlaceholder)
   const nav = useNavigation();
 
   let bm = Math.ceil(weightPlaceholder/((heightPlaceholder/100)^2));

@@ -115,32 +115,35 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
   var date_updated = "";
   var last_period = "";
   var height = "";
-  try{
-    onSnapshot(docRef, (doc) =>{
-      const data = doc.data();
-      setFnamePlaceholder(data.userFname);
-      setLnamePlaceholder(data.userLname);
-      setProfilePicPlaceholder(data.userPic);
-      //medical stuff
-      setBloodPressurePlaceholder(data.bloodPressure);
-      setLastPeriodPlaceholder(data.lastPeriod);
-      setWeightPlaceholder(data.weight);
-      setOtherInfoPlaceholder(data.otherInfo);
-      setDateUpdatedPlaceholder(data.dateUpdated);
-      setLastPeriodPlaceholder(data.lastPeriod);
-      setHeightPlaceholder(data.height)
-      disperseData.push({bp:bloodPressurePlaceholder,weight:weightPlaceholder,otherInfo:otherInfoPlaceholder,dateUpdate:dateUpdatedPlaceholder,lastPeriod:lastPeriodPlaceholder,height:heightPlaceholder}).toString
-      disperseData.toString()
-      setBp(disperseData.bp);
-      setWeight(disperseData.weight);
-      setOtherInfo(disperseData.otherInfo);
-      setDateUpdated(disperseData.dateUpdated);
-      setLastPeriod(disperseData.lastPeriod);
-      setHeight1(disperseData.height)
-
-    },[])
-  }catch(e){
-    console.log(e);
+ 
+  function getUserData(){
+    try{
+      onSnapshot(docRef, (doc) =>{
+        const data = doc.data();
+        setFnamePlaceholder(data.userFname);
+        setLnamePlaceholder(data.userLname);
+        setProfilePicPlaceholder(data.userPic);
+        //medical stuff
+        setBloodPressurePlaceholder(data.bloodPressure);
+        setLastPeriodPlaceholder(data.lastPeriod);
+        setWeightPlaceholder(data.weight);
+        setOtherInfoPlaceholder(data.otherInfo);
+        setDateUpdatedPlaceholder(data.dateUpdated);
+        setLastPeriodPlaceholder(data.lastPeriod);
+        setHeightPlaceholder(data.height)
+        disperseData.push({bp:bloodPressurePlaceholder,weight:weightPlaceholder,otherInfo:otherInfoPlaceholder,dateUpdate:dateUpdatedPlaceholder,lastPeriod:lastPeriodPlaceholder,height:heightPlaceholder}).toString
+        disperseData.toString()
+        setBp(disperseData.bp);
+        setWeight(disperseData.weight);
+        setOtherInfo(disperseData.otherInfo);
+        setDateUpdated(disperseData.dateUpdated);
+        setLastPeriod(disperseData.lastPeriod);
+        setHeight1(disperseData.height)
+  
+      },[])
+    }catch(e){
+      console.log(e);
+    }
   }
   //Date related code (var date = moment().utcOffset('+08:00').format(' hh:mm:ss a');)
   const today1 = moment(currentDate,"YYYY/MM/DD");
@@ -155,47 +158,38 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
   const nowToThen = today4.diff(today1, "weeks");
   const [hasNotif, setHasNotif] = useState(false);
 
-  //console.log("Delivery Date: "+dateOfDelivery)
-  //console.log("Weeks Left: "+nowToThen)
-  //console.log(lastPeriod);
-  //console.log(weeksDifference);
-  //fetch the articles
   useEffect(()=> {
-   
       async function fetchEvents(){
         const querySnapshot = await getDocs(collection(database, 'appointments'),where("uid", "==", id));
-        const querySnapshot2 = await getDocs(collection(database, 'notifications'),where("uid", "==", id));
         const userData = [];
-        const userData2 = [];
         const data = querySnapshot.forEach(doc=>{
+          let thisDay = moment(today1, "YYYY/MM/DD")
           let activityDate = moment(doc.data().appointmentDate, "YYYY/MM/DD")
-          if(activityDate.diff(today1, "days"<=1) && doc.data().status==="approved" && doc.data().time!==""&&doc.data().uid===id){
+          if(activityDate.diff(today1, "days") === 1 && doc.data().status==="approved" && doc.data().uid===id){
             userData.push({id:doc.id, date:doc.data().appointmentDate, time:doc.data().time, status:doc.data().status, purpose:doc.data().purpose});
           }
-          
-        })
-        const data2 = querySnapshot2.forEach(docs=>{
-          if(docs.data().status==="unread"&&docs.data().uid===id){
-            setHasNotif(true)
-          }
-          
         })
         setDocument(userData);
-        if(document>0){
+        console.log(document);
+        if(document.length>0){
           setHasEvent(true);
-        }else{
-          setHasEvent(false);
         }
-        if(userData.length<=0){
-          setNoData(true)
-        }
+        getDownloadURL(ref(storage, id))
+        .then((url)=>{
+          try{
+            if(url!=""){
+              setImage(url)
+            }
+            else{
+              setImage(require("../assets/usertemplate.png"))
+            }
+          }catch(e){
+            setImage(require("../assets/usertemplate.png"))
+          }
+        })
       };
-      getDownloadURL(ref(storage, id))
-      .then((url)=>{
-        setImage(url)
-      })
-  //
-    fetchEvents();
+      getUserData();
+      fetchEvents();
   },[]);
 
   //this one very important ahaha
@@ -1152,7 +1146,7 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
             </View>
           </TouchableOpacity>
           {
-            hasEvent?
+            hasEvent===true?
             <View style={{width:'100%',height:150,backgroundColor:'white'}}>
               <View style={{width:'100%',height:'100%',flexDirection:'colum',alignItems:'center',justifyContent:'center'}}>
               <ScrollView horizontal={true}>
