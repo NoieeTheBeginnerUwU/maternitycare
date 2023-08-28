@@ -94,7 +94,12 @@ export const lotties = {
     Deleted:require("./assets/animation_llr7nfzt.json"),
     Bell:require("./assets/animation_llrr8x5t.json"),
 
-    
+//User details
+
+
+//Doctor calling
+
+    DoctorCalling:require("./assets/animation_lluvcty1.json")
 
 }
 

@@ -41,7 +41,6 @@ import { ScrollView } from 'react-native';
     <View style={{width:'90%',height:100,alignContent:'center',alignSelf:'center',justifyContent:'center',backgroundColor:"skyblue",marginTop:'1%'}}>
       <Text style={{color:'white',fontSize:14,marginLeft:'4%'}}>activity: {item.activity}</Text>
       <Text style={{color:'white',fontSize:14,marginLeft:'4%'}}>Date of activity: {item.dateMade}</Text>
-      <Text style={{color:'white',fontSize:14,marginLeft:'4%'}}>Time of activity: {item.timeMade}</Text>
     </View>
   );
 

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, Image,TextInput, Button, Modal, KeyboardAvoidingView } from 'react-native';
+import { View, Text, StyleSheet, Image, TextInput, Button, Modal, KeyboardAvoidingView } from 'react-native';
 import { registerIndieID } from 'native-notify';
 import axios from 'axios';
 //Firebase 
@@ -28,7 +28,7 @@ import moment from 'moment';
 import { getFormatedDate } from "react-native-modern-datepicker";
 import DatePicker from "react-native-modern-datepicker";
 //Import Fontawesome
-import { faArrowLeft, faMapLocation, faUser, faCalendar } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faMapLocation, faUser, faCalendar, faCamera } from '@fortawesome/free-solid-svg-icons';
 import { faMailBulk } from '@fortawesome/free-solid-svg-icons';
 import { faLock } from '@fortawesome/free-solid-svg-icons';
 import { faMobilePhone } from '@fortawesome/free-solid-svg-icons';
@@ -37,6 +37,10 @@ import { storage } from "../../config/firebase";
 import { uploadBytesResumable, ref, getDownloadURL } from "firebase/storage";
 //import loading screen
 import Loading from "../animations/Loading";
+import { faCheckCircle } from '@fortawesome/free-regular-svg-icons';
+import Doctorcalling from '../animations/Doctorcalling';
+//Import expo image picker
+import * as ImagePicker from 'expo-image-picker';
 
 const Signup = () => {
   const [openStartDatePicker, setOpenStartDatePicker] = useState(false);
@@ -46,7 +50,7 @@ const Signup = () => {
     "YYYY/MM/DD"
   );
   const startDate = getFormatedDate(
-    today.setDate(today.getDate() -30000),
+    today.setDate(today.getDate() -70000),
     "YYYY/MM/DD"
   );
   //default image uri
@@ -54,7 +58,7 @@ const Signup = () => {
 
   //console.log(startDate)
   //Date
-  const [selectedStartDate, setSelectedStartDate] = useState("1/1/1990");
+  const [selectedStartDate, setSelectedStartDate] = useState("");
   const [startedDate, setStartedDate] = useState("");
 
   function handleChangeStartDate(propDate) {
@@ -83,9 +87,21 @@ const Signup = () => {
   const [image, setImage] = useState(null);
   const [profilePictureURL, setProfilePictureURL] = useState(null);
   const profilePictureRef = ref(storage, 'images');
+  //steps
+  const [step, setStep] = useState("");
+  const [step1, setStep1] = useState(false);
+  const [step2, setStep2] = useState(false);
+  const [step3, setStep3] = useState(false);
+  const [step4, setStep4] = useState(false);
+  //questions
+  const [question1, setQuestion1] = useState("");
+  const [question2, setQuestion2] = useState("");
+  const [question3, setQuestion3] = useState("");
+  const [question4, setQuestion4] = useState("");
+  const [question5, setQuestion5] = useState("");
 
   const [isSignedIn, setIsSignedIn] = useState(false); 
-  var date = moment().format("YYYY-MM-DD");
+  var date = moment().format("YYYY-MM-DD hh:mm a");
   const signUpUser = () => {
     if(!fname||!mname||!email||!lname||!address||!num||!confirm||!password){
       alert("Please fill out all the necessary inputs. Thank you.")
@@ -93,20 +109,36 @@ const Signup = () => {
       if(password!=confirm){
         alert("password does not match")
       }else{
+        setStep4(true);
+        async function uploadImageAsync (uri) {
+          const blob = await new Promise((resolve, reject)=>{
+            const xhr = new XMLHttpRequest();
+            xhr.onload = function(){
+              resolve(xhr.response);
+            };
+            xhr.onerror = function(e){
+              console.log(e);
+              reject(new TypeError("Network request failed."))
+            };
+            xhr.responseType = "blob";
+            xhr.open("GET", uri, true);
+            xhr.send(null);
+          });
+    
+          try{
+            const storageRef = ref(storage, id);
+            const result = await uploadBytes(storageRef, blob);
+            return await getDownloadURL(storageRef);
+            blob.close();
+          }catch(e){
+            
+          }
+        }
         createUserWithEmailAndPassword(authentication, email, password)
         .then((re) =>{
+          uploadImageAsync (image);
           const id = authentication.currentUser.uid;
           registerIndieID(id, 10244, 'MRmNGe8fHmswLJsrtYA7H3');
-          addDoc(collection(database, "registration"),{
-            uid: id,
-            userFname: fname,
-            userMname: mname,
-            userLname: lname,
-            userEmail: email,
-            dateMade: made,
-            number: num,
-            status: 'pending'
-          })
           setDoc(doc(database, "userData",id),{
               userFname: fname,
               userMname: mname,
@@ -115,12 +147,21 @@ const Signup = () => {
               userAddress: address,
               userBirthdate: selectedStartDate,
               userNumber: num,
+              userPic: image,
+              question1: question1,
+              question2: question2,
+              question3: question3,
+              question4: question4,
+              question5: question5,
               dateCreated: date,
               bloodPressure: '',
               lastPeriod: '',
               otherInfo: '',
+              height: 0,
               weight: 0,
+              status:'pending',
               dateUpdated: '',
+              userLevel: "standard user",
             })
             setIsSignedIn(true)
           })
@@ -131,6 +172,39 @@ const Signup = () => {
     }
   }
 
+   //camera
+   const pickImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      let url = result.assets[0].uri;
+     //const uploadURL = await uploadImageAsync(result.assets[0].uri);
+     setImage(url);
+     console.log(image);
+    }else{
+      //do nothing
+    }
+    //firebase start 
+
+    //firebase end
+
+  };
+
+  useEffect(()=>{
+    if(question1===""||question2===""||question3===""||question4===""||question5!==""){
+      setStep2(false);
+    }
+    else{
+      setStep2(true);
+      setStep("step3")
+    }
+  })
 //change profile picture
 // const pickImage = async () => {
 //   // No permissions request is necessary for launching the image library
@@ -221,19 +295,189 @@ const Signup = () => {
 //   }
 // }
 
-  console.log(fname, mname, lname,email, selectedStartDate, num, image )
+//console.log(fname, mname, lname,email, selectedStartDate, num, image )
 
   return (
-    <View style={style.container}  onPress={()=> setOpenStartDatePicker(false)}>
-      <View style={style.btnContainer}>
-        <TouchableOpacity style={style.buttonBack} onPress={()=> nav.navigate("Login")}>
-          <Text style={style.buttonBackText}>Go back</Text>
-        </TouchableOpacity>
+    <View style={style.container}>
+      <View style={{width:'100%',height:100,backgroundColor:'transparent'}}>
+        <View style={{width:'100%',height:'100%',backgroundColor:'transparent',alignItems:'center',justifyContent:'center',flexDirection:'column'}}>
+          <View style={{width:'100%',height:'50%',flexDirection:'row',alignItems:'center',justifyContent:'space-evenly'}}>
+            <TouchableOpacity style={{width:'100%',height:'100%',flexDirection:'column',alignItems:'center',justifyContent:'center'}} onPress={()=> setStep("step1")}>
+              {
+                step1===true?
+                <FontAwesomeIcon icon={faCheckCircle} size={24} color='greenyellow'/>
+                :
+                <FontAwesomeIcon icon={faCheckCircle} size={24} color='grey'/>
+              }
+              <Text style={{fontSize:14,fontWeight:400,color:step==="step1"?"skyblue":"black"}}>Step 1</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={{width:'100%',height:'100%',flexDirection:'column',alignItems:'center',justifyContent:'center'}} onPress={()=> setStep("step2")}>
+                            {
+                step2===true?
+                <FontAwesomeIcon icon={faCheckCircle} size={24} color='greenyellow'/>
+                :
+                <FontAwesomeIcon icon={faCheckCircle} size={24} color='grey'/>
+              }
+              <Text style={{fontSize:14,fontWeight:400,color:step==="step2"?"skyblue":"black"}}>Step 2</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={{width:'100%',height:'100%',flexDirection:'column',alignItems:'center',justifyContent:'center'}} onPress={()=> setStep("step3")}>
+                            {
+                step3===true?
+                <FontAwesomeIcon icon={faCheckCircle} size={24} color='greenyellow'/>
+                :
+                <FontAwesomeIcon icon={faCheckCircle} size={24} color='grey'/>
+              }
+              <Text style={{fontSize:14,fontWeight:400,color:step==="step3"?"skyblue":"black"}}>Step 3</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={{width:'100%',height:'100%',flexDirection:'column',alignItems:'center',justifyContent:'center'}} onPress={()=> setStep("step4")}>
+                            {
+                step4===true?
+                <FontAwesomeIcon icon={faCheckCircle} size={24} color='greenyellow'/>
+                :
+                <FontAwesomeIcon icon={faCheckCircle} size={24} color='grey'/>
+              }
+              <Text style={{fontSize:14,fontWeight:400,color:step==="step4"?"skyblue":"black"}}>Step 4</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
-      <View style={{width:140,height:140,alignSelf:'center',marginBottom:'-22%'}}>
+      {
+        step==="step1"||step===""&&
+        <>
+        <View style={{width:'100%',height:'100%',backgroundColor:'transparent',alignSelf:'center'}}>
+          <Doctorcalling/>
+            <TouchableOpacity onPress={()=> [setStep("step2"),setStep1(true)]} style={{marginTop:'10%',width:'70%',alignSelf:'center',alignItems:'center',justifyContent:'center',height:50,backgroundColor:'pink',borderRadius:10}}>
+              <Text style={{color:'white',fontSize:20,fontWeight:600}}>okay, i agree</Text>
+            </TouchableOpacity>
+        </View>
+        </>
+      }
+            {
+        step==="step2"&&
+        <>
+        <View style={{width:'100%',height:'100%',backgroundColor:'transparent',alignSelf:'center',marginBottom:'-22%'}}>
+          <Text style={{alignSelf:'center',color:'pink',fontWeight:800,fontSize:18}}>PLEASE ANSWER ALL THE QUESTIONS</Text>
+          <ScrollView style={{width:'100%',height:'100%'}}>
+            <View style={{width:'94%',height:200,alignSelf:'center',marginTop:'4%',borderRadius:20,flexDirection:'column',backgroundColor:'ghostwhite',alignItems:'center',justifyContent:'space-evenly'}}>
+                <Text>Is this your first time of giving birth?</Text>
+                <Text>Ito ba ang unang beses na ikaw ay manganganak?</Text>
+                <View style={{width:'100%',height:50,flexDirection:'row',alignItems:'center',justifyContent:'space-evenly'}}>
+                  <TouchableOpacity onPress={()=> setQuestion1("yes")} style={{width:100,height:40,borderRadius:20,backgroundColor:'green',alignItems:'center',justifyContent:'center'}}>
+                    <Text style={{color:'white'}}>YES</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={()=> setQuestion1("no")} style={{width:100,height:40,borderRadius:20,backgroundColor:'red',alignItems:'center',justifyContent:'center'}}>
+                    <Text style={{color:'white'}}>NO</Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={{width:'100%',height:22,alignItems:'center',justifyContent:'center'}}>
+                    {
+                      question1!==""&&
+                      <Text style={{color:'pink',fontSize:18}}>answered {question1}</Text>
+                    }
+                  </View>
+            </View>
+            <View style={{width:'94%',height:200,alignSelf:'center',marginTop:'4%',borderRadius:20,flexDirection:'column',backgroundColor:'ghostwhite',alignItems:'center',justifyContent:'space-evenly'}}>
+                <Text>Have you ever undergone a caesarean section for childbirth</Text>
+                <Text>Naranasan mo na bang magkaroon ng caesarean section sa panganganak?</Text>
+                <View style={{width:'100%',height:60,flexDirection:'row',alignItems:'center',justifyContent:'space-evenly'}}>
+                  <TouchableOpacity onPress={()=> setQuestion2("yes")}  style={{width:100,height:40,borderRadius:20,backgroundColor:'green',alignItems:'center',justifyContent:'center'}}>
+                    <Text style={{color:'white'}}>YES</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={()=> setQuestion2("no")}  style={{width:100,height:40,borderRadius:20,backgroundColor:'red',alignItems:'center',justifyContent:'center'}}>
+                    <Text style={{color:'white'}}>NO</Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={{width:'100%',height:22,alignItems:'center',justifyContent:'center'}}>
+                    {
+                      question2!==""&&
+                      <Text style={{color:'pink',fontSize:18}}>answered {question2}</Text>
+                    }
+                  </View>
+            </View>
+            <View style={{width:'94%',height:200,alignSelf:'center',marginTop:'4%',borderRadius:20,flexDirection:'column',backgroundColor:'ghostwhite',alignItems:'center',justifyContent:'space-evenly'}}>
+                <Text>Have you experienced giving birth prematurely?</Text>
+                <Text>Naranasan mo na bang manganak ng maaga?</Text>
+                <View style={{width:'100%',height:60,flexDirection:'row',alignItems:'center',justifyContent:'space-evenly'}}>
+                  <TouchableOpacity onPress={()=> setQuestion3("yes")}  style={{width:100,height:40,borderRadius:20,backgroundColor:'green',alignItems:'center',justifyContent:'center'}}>
+                    <Text style={{color:'white'}}>YES</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={()=> setQuestion3("no")}  style={{width:100,height:40,borderRadius:20,backgroundColor:'red',alignItems:'center',justifyContent:'center'}}>
+                    <Text style={{color:'white'}}>NO</Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={{width:'100%',height:22,alignItems:'center',justifyContent:'center'}}>
+                    {
+                      question3!==""&&
+                      <Text style={{color:'pink',fontSize:18}}>answered {question3}</Text>
+                    }
+                  </View>
+            </View>
+            <View style={{width:'94%',height:200,alignSelf:'center',marginTop:'4%',borderRadius:20,flexDirection:'column',backgroundColor:'ghostwhite',alignItems:'center',justifyContent:'space-evenly'}}>
+                <Text>Did you have to deliver prematurely due to medical reasons?</Text>
+                <Text>Kailangan mo bang manganak nang maaga dahil sa medikal na mga dahilan?</Text>
+                <View style={{width:'100%',height:60,flexDirection:'row',alignItems:'center',justifyContent:'space-evenly'}}>
+                  <TouchableOpacity onPress={()=> setQuestion4("yes")}  style={{width:100,height:40,borderRadius:20,backgroundColor:'green',alignItems:'center',justifyContent:'center'}}>
+                    <Text style={{color:'white'}}>YES</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={()=> setQuestion4("no")}  style={{width:100,height:40,borderRadius:20,backgroundColor:'red',alignItems:'center',justifyContent:'center'}}>
+                    <Text style={{color:'white'}}>NO</Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={{width:'100%',height:22,alignItems:'center',justifyContent:'center'}}>
+                    {
+                      question4!==""&&
+                      <Text style={{color:'pink',fontSize:18}}>answered {question4}</Text>
+                    }
+                  </View>
+            </View>
+            <View style={{width:'94%',height:200,alignSelf:'center',marginTop:'4%',borderRadius:20,flexDirection:'column',backgroundColor:'ghostwhite',alignItems:'center',justifyContent:'space-evenly',marginBottom:'50%'}}>
+                <Text>Is your age above 30 years old?</Text>
+                <Text>Ang iyong edad ba ay mas mataas pa sa trentang taon?</Text>
+                <View style={{width:'100%',height:60,flexDirection:'row',alignItems:'center',justifyContent:'space-evenly'}}>
+                  <TouchableOpacity onPress={()=> setQuestion5("yes")}  style={{width:100,height:40,borderRadius:20,backgroundColor:'green',alignItems:'center',justifyContent:'center'}}>
+                    <Text style={{color:'white'}}>YES</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={()=> setQuestion5("no")}  style={{width:100,height:40,borderRadius:20,backgroundColor:'red',alignItems:'center',justifyContent:'center'}}>
+                    <Text style={{color:'white'}}>NO</Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={{width:'100%',height:22,alignItems:'center',justifyContent:'center'}}>
+                    {
+                      question5!==""&&
+                      <Text style={{color:'pink',fontSize:18}}>answered {question5}</Text>
+                    }
+                  </View>
+            </View>
+          </ScrollView>
+        </View>
+        </>
+      }
+            {
+        step==="step3"&&
+        <>
+          <View style={{width:'100%',height:'100%',backgroundColor:'transparent',alignSelf:'center',flexDirection:'column',alignItems:'center',justifyContent:'center'}}>
+              <Text style={{margin:'4%',fontSize:24,color:"skyblue",fontWeight:700,marginTop:'-50%'}}>ADD PROFILE PICTURE</Text>
+              <TouchableOpacity style={{width:250,height:250,borderRadius:250,backgroundColor:'ghostwhite',alignItems:'center',justifyContent:'center'}} onPress={()=> pickImage()}>
+                {
+                  image!==""?
+                  <Image source={{uri:image}} style={{width:'100%',height:'100%',borderRadius:200}}/>
+                  :
+                  <FontAwesomeIcon icon={faCamera} size={120} color='lightgrey'/>
+                }
+              </TouchableOpacity>
+              <TouchableOpacity style={{width:200,marginTop:60,height:50,backgroundColor:'pink',borderRadius:10,alignItems:'center',justifyContent:'center'}} onPress={()=> [setStep("step4"),setStep3(true)]}>
+                <Text style={{fontSize:20,fontWeight:500,color:'white'}}>Next</Text>
+              </TouchableOpacity>
+          </View>
+        </>
+      }
+      {
+        step==="step4"&&
+        <>
+          <View style={{width:140,height:140,alignSelf:'center',marginBottom:'-22%'}}>
       </View>
       <View style={{alignSelf: 'center', marginTop: '-10%'}}>
-        <Text style={{fontSize: 28, color: 'skyblue', fontWeight: 800}}>Create an account</Text>
+        <Text style={{fontSize: 28, color: 'skyblue', fontWeight: 800}}>User Details</Text>
       </View>
       <View>
       </View>
@@ -325,13 +569,13 @@ const Signup = () => {
             visible={openStartDatePicker}
           >
             <View style={styles.centeredView}>
-              <View style={styles.modalView} onTouchMove={handleOnPressStartDate}>
+              <View style={styles.modalView} >
                 <DatePicker
                   mode="calendar"
                   minimumDate={startDate}
                   selected={selectedStartDate}
                   onDateChanged={handleChangeStartDate}
-                  onSelectedChange={(date) => setSelectedStartDate(date)}
+                  onSelectedChange={(date) => [setSelectedStartDate(date),handleOnPressStartDate()]}
                   options={{
                     backgroundColor: "#080516",
                     textHeaderColor: "#469ab6",
@@ -342,12 +586,11 @@ const Signup = () => {
                     borderColor: "rgba(122, 146, 165, 0.1)",
                   }}
                 />
-                <TouchableOpacity onTouchMove={handleOnPressStartDate}>
-                  <Text style={{ color: "white",}}>Slide to close</Text>
-                </TouchableOpacity>
               </View>
             </View>
           </Modal>
+        </>
+      }
     </View>
 
   )

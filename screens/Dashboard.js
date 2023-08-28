@@ -51,29 +51,6 @@ const Dashboard = () => {
   const [active, setActive] = useState("");
   const [signIn, setSignIn] = useState(false);
   const [registered, isRegistered] = useState(false);
-  const [document, setDocuments] = useState([]);
-
-  useEffect(()=>{
-    async function fetchData(){
-      const querySnapshot = await getDocs(query(collection(database, 'registration'),where("uid", "==", id)));
-      const userData = [];
-      const data = querySnapshot.forEach(doc=>{
-        userData.push({id:doc.id, status:doc.data().status});
-        if(doc.data().status==="pending"){
-          isRegistered(false);
-        }
-        if(doc.data().status==="approved"){
-          isRegistered(true);
-        }
-      })
-      setDocuments(userData);
-      if(userData.length<=0){
-        setNoData(true)
-      }
-      var i = 1;
-      console.log("Fetched ", i++, " times")
-    };
-  },[])
 
   useEffect(()=>{
     setSignIn(true)
@@ -88,12 +65,7 @@ const Dashboard = () => {
   }
 
   return (
-    <>{
-      registered?
-      <>
-        <Fetchdata/>
-      </>
-      :
+    <>
       <>
           {
           signIn?
@@ -160,8 +132,6 @@ const Dashboard = () => {
                 </>
               }
           </>
-        }
-     
     </>
   )
 }

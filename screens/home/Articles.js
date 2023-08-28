@@ -46,10 +46,9 @@ const Articles = () => {
             const querySnapshot = await getDocs(collection(database, 'articles'));
             const userData = [];
             const data = querySnapshot.forEach(doc=>{
-              userData.push({id:doc.id, author:doc.data().author, height:doc.data().height,pic:doc.data().userPic,content:doc.data().content,title:doc.data().title,author:doc.data().author,topic:doc.data().topic});
+              userData.push({id:doc.id, author:doc.data().author, content:doc.data().content,title:doc.data().title,author:doc.data().author,topic:doc.data().topic});
             })
             setDocument(userData);
-            console.log(disperseData[0].bp)
             if(userData.length<=0){
               setNoData(true)
             }

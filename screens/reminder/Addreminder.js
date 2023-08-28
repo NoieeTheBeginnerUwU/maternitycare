@@ -82,7 +82,7 @@ const handleReminder = () => {
   var time = moment().utcOffset('+08:00').format('hh:mm a');
     const dateNow = getFormatedDate(
     today.setDate(today.getDate()),
-    "YYYY/MM/DD"
+    "YYYY/MM/DD hh:mm a"
   );
     try{
       getDatesInRange();

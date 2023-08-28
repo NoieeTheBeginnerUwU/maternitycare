@@ -61,7 +61,7 @@ export default function Appointment() {
   );
   const dateNow = getFormatedDate(
     today.setDate(today.getDate()),
-    "YYYY/MM/DD"
+    "YYYY/MM/DD hh:mm a"
   );
   //console.log(startDate)
   //Date

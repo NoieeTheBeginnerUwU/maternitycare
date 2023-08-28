@@ -47,16 +47,35 @@ import Loading from './animations/Loading';
 import Fetchdata from './animations/Fetchdata';
 import { TouchableHighlight } from 'react-native';
 import { faConciergeBell } from '@fortawesome/free-solid-svg-icons';
+//Expo notif
+import * as Device from 'expo-device';
+import * as Notifications from 'expo-notifications';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
+
 
 const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}) => (
   <View style={{flexDirection:'column'}}>
-    <View style={{width:100,height:120, margin:10, backgroundColor,alignItems:'center',justifyContent:'center',borderRadius:5}}>
-      <Text style={{fontSize:20,fontWeight:500,color,textDecorationLine:'underline'}}>today</Text>
-      <Text style={{ fontSize:10,fontWeight:500,color,}}>Time:  {item.time}</Text>
-      <Text style={{ fontSize:10,fontWeight:500,color,}}>{item.purpose}</Text>
+    <View style={{width:120,height:150, margin:10, backgroundColor,alignItems:'center',justifyContent:'center',borderRadius:5}}>     
+      <View style={{width:'100%',height:'30%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+        <Text style={{fontSize:16,fontWeight:500,color:'white',}}>Appointment ID</Text>
+        <Text style={{fontSize:8,fontWeight:500,color:'white',}}>{item.id}</Text>
+      </View>
+      <View style={{width:'100%',height:'70%',backgroundColor:'skyblue',alignItems:'center',justifyContent:'center'}}>
+        <Text style={{fontSize:8,fontWeight:500,color,}}>date: {item.date}</Text>
+        <Text style={{ fontSize:10,fontWeight:500,color,}}>Time:  {item.time}</Text>
+        <Text style={{ fontSize:10,fontWeight:500,color,}}>{item.purpose}</Text>
+      </View>
     </View>
   </View>
 );
+
 
  Home = () => {
 
@@ -67,7 +86,7 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
   const [byDate, setByDate] = useState("");
   const [document, setDocument] = useState(""); 
   const [timeline, showTimeline] = useState(true);
-  const [hasEvent, setHasEvent] = useState();
+  const [hasEvent, setHasEvent] = useState(false);
   const [profileImage, setProfileImage] = useState();
   const id = authentication.currentUser.uid;
   const uid = authentication.currentUser.uid;
@@ -90,6 +109,7 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
       />
     );
   };
+
   //User account 
   const [fnamePlaceholder, setFnamePlaceholder] = useState('');
   const [lnamePlaceholder, setLnamePlaceholder] = useState('');
@@ -100,7 +120,6 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
   const [otherInfoPlaceholder, setOtherInfoPlaceholder] = useState('');
   const [dateUpdatedPlaceholder, setDateUpdatedPlaceholder] = useState('');
   const [heightPlaceholder, setHeightPlaceholder] = useState('');
-  const docRef = doc(database, 'userData', id);
   var disperseData  = [];
   const [bp, setBp] = useState();
   const [weight, setWeight] = useState();
@@ -115,36 +134,7 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
   var date_updated = "";
   var last_period = "";
   var height = "";
- 
-  function getUserData(){
-    try{
-      onSnapshot(docRef, (doc) =>{
-        const data = doc.data();
-        setFnamePlaceholder(data.userFname);
-        setLnamePlaceholder(data.userLname);
-        setProfilePicPlaceholder(data.userPic);
-        //medical stuff
-        setBloodPressurePlaceholder(data.bloodPressure);
-        setLastPeriodPlaceholder(data.lastPeriod);
-        setWeightPlaceholder(data.weight);
-        setOtherInfoPlaceholder(data.otherInfo);
-        setDateUpdatedPlaceholder(data.dateUpdated);
-        setLastPeriodPlaceholder(data.lastPeriod);
-        setHeightPlaceholder(data.height)
-        disperseData.push({bp:bloodPressurePlaceholder,weight:weightPlaceholder,otherInfo:otherInfoPlaceholder,dateUpdate:dateUpdatedPlaceholder,lastPeriod:lastPeriodPlaceholder,height:heightPlaceholder}).toString
-        disperseData.toString()
-        setBp(disperseData.bp);
-        setWeight(disperseData.weight);
-        setOtherInfo(disperseData.otherInfo);
-        setDateUpdated(disperseData.dateUpdated);
-        setLastPeriod(disperseData.lastPeriod);
-        setHeight1(disperseData.height)
-  
-      },[])
-    }catch(e){
-      console.log(e);
-    }
-  }
+
   //Date related code (var date = moment().utcOffset('+08:00').format(' hh:mm:ss a');)
   const today1 = moment(currentDate,"YYYY/MM/DD");
   const today2 = moment(lastPeriodPlaceholder, "YYYY/MM/DD");
@@ -157,40 +147,47 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
   const today4 = moment(dateOfDelivery, "YYYY/MM/DD")
   const nowToThen = today4.diff(today1, "weeks");
   const [hasNotif, setHasNotif] = useState(false);
+  
+  function getUserdata(){
+    const docRef = doc(database, 'userData', id);
+    onSnapshot(docRef, (doc) =>{
+      const data = doc.data();
+      setFnamePlaceholder(data.userFname);
+      setLnamePlaceholder(data.userLname);
+      setProfilePicPlaceholder(data.userPic);
+      //medical stuff
+      setBloodPressurePlaceholder(data.bloodPressure);
+      setLastPeriodPlaceholder(data.lastPeriod);
+      setWeightPlaceholder(data.weight);
+      setOtherInfoPlaceholder(data.otherInfo);
+      setDateUpdatedPlaceholder(data.dateUpdated);
+      setLastPeriodPlaceholder(data.lastPeriod);
+      setHeightPlaceholder(data.height)
+      disperseData.push({bp:bloodPressurePlaceholder,weight:weightPlaceholder,otherInfo:otherInfoPlaceholder,dateUpdate:dateUpdatedPlaceholder,lastPeriod:lastPeriodPlaceholder,height:heightPlaceholder}).toString
+      disperseData.toString()
+    },[])
+  }
 
-  useEffect(()=> {
-      async function fetchEvents(){
-        const querySnapshot = await getDocs(collection(database, 'appointments'),where("uid", "==", id));
-        const userData = [];
-        const data = querySnapshot.forEach(doc=>{
-          let thisDay = moment(today1, "YYYY/MM/DD")
-          let activityDate = moment(doc.data().appointmentDate, "YYYY/MM/DD")
-          if(activityDate.diff(today1, "days") === 1 && doc.data().status==="approved" && doc.data().uid===id){
-            userData.push({id:doc.id, date:doc.data().appointmentDate, time:doc.data().time, status:doc.data().status, purpose:doc.data().purpose});
-          }
-        })
-        setDocument(userData);
-        console.log(document);
-        if(document.length>0){
-          setHasEvent(true);
-        }
-        getDownloadURL(ref(storage, id))
-        .then((url)=>{
-          try{
-            if(url!=""){
-              setImage(url)
-            }
-            else{
-              setImage(require("../assets/usertemplate.png"))
-            }
-          }catch(e){
-            setImage(require("../assets/usertemplate.png"))
-          }
-        })
-      };
-      getUserData();
-      fetchEvents();
-  },[]);
+  useEffect(()=>{
+    getUserdata();
+    fetchEvents();
+  },[])
+  
+  async function fetchEvents(){
+    let thisDay = moment(today1, "YYYY/MM/DD")
+    const querySnapshot = await getDocs(collection(database, 'appointments'));
+    const userData = [];
+    const data = querySnapshot.forEach(doc=>{
+      let activityDate = moment(doc.data().appointmentDate, "YYYY/MM/DD")
+      if(activityDate.diff(today1, "days") <= 7 && activityDate.diff(today1, "days") >0 && doc.data().status==="approved"&&doc.data().uid===id){
+        userData.push({id:doc.id, date:doc.data().appointmentDate, time:doc.data().time, status:doc.data().status, purpose:doc.data().purpose});
+      }
+    })
+    setDocument(userData);
+    if(document.length>=1){
+      setHasEvent(true);
+    }
+  };
 
   //this one very important ahaha
   function stringify(string){
@@ -1132,7 +1129,7 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
           </View>
           }
         </TouchableOpacity>
-        <View style={{width:'100%',height:380}}>
+        <View style={{width:'100%',height:document.length>0?300:420,marginBottom:'5%'}}>
          <View style={{width:'94%',height:70,marginTop:'5%',backgroundColor:'#E3EBF5',borderColor:'blue',flexDirection:'column',alignSelf:'center',}}>
           <TouchableOpacity onPress={()=> showTimeline(true)} style={{ flexDirection:'row',margin:10,justifyContent:'space-around', alignItems:'center', marginLeft:20}}>
             <View style={{width:'30%'}}>
@@ -1142,12 +1139,12 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
             </View>
             <View  style={{width:'70%'}}>
               <Text style={{fontSize:17, fontWeight:700}}>Your Timeline</Text>
-              <Text>What's Coming up next?</Text>
+              <Text>What's Coming up this week?</Text>
             </View>
           </TouchableOpacity>
           {
-            hasEvent===true?
-            <View style={{width:'100%',height:150,backgroundColor:'white'}}>
+            document.length>0?
+            <View style={{width:'100%',height:220,backgroundColor:'white'}}>
               <View style={{width:'100%',height:'100%',flexDirection:'colum',alignItems:'center',justifyContent:'center'}}>
               <ScrollView horizontal={true}>
                   <FlatList //if index<5 || ! ORRRRRRRRRRRRR if toggled {display (n)} else {5}
@@ -1160,7 +1157,7 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
               </View>
             </View>
             :
-            <View style={{width:'100%',height:300,backgroundColor:'white'}}>
+            <View style={{width:'100%',height:400,backgroundColor:'white'}}>
               <View style={{width:'100%',height:'100%',flexDirection:'colum',alignItems:'center',justifyContent:'center'}}>
                 <FontAwesomeIcon icon={ faCircleExclamation } size={100} color='skyblue' style={style.none}/>
                 <Text style={{fontSize: 15, fontWeight: 300, alignSelf: 'center', marginTop: '6%'}}>No upcoming Events/Activities Yet</Text>
@@ -1169,7 +1166,7 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
           }
          </View>
         </View>
-        <View style={{width: '90%', height:100, marginBottom:20,marginTop:20,backgroundColor:'transparent',alignSelf:'center',}}>
+        <View style={{width: '90%', height:100, marginBottom:20,marginTop:80,backgroundColor:'transparent',alignSelf:'center',}}>
         <View style={{width:"100%",height:50,alignSelf:'center',borderColor:'#F55670', borderTopWidth:4}}>
           <Text style={{textAlign:'center',color:'pink',fontSize:16,marginTop:10,fontWeight:600}}>LATEST ARTICLES</Text>
         </View>

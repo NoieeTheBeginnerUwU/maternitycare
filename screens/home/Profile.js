@@ -78,6 +78,7 @@ const Profile = () => {
   const [profilePicPlaceholder, setProfilePicPlaceholder] = useState("");
   const [bmi, setBmi] = useState()
   const uid = id.toString;
+  const [userdata, setuserdata] = useState([]);
 
   const [loading, setLoading] = useState(false);
   useEffect(() => {
@@ -90,11 +91,7 @@ const Profile = () => {
   function User() {
     const uid = id.toString();
     //
-    const [userdata, setuserdata] = useState([]);
-    //
     const ref = doc(database, "userData", id);
-
-    useEffect(()=>{
       try {
         const docRef = doc(database, "userData", uid);
         onSnapshot(docRef, (doc) => {
@@ -115,10 +112,11 @@ const Profile = () => {
       } catch (error) {
         alert(error);
       }
-    },[])
   }
 
+ useEffect(()=>{
   User();
+ },[])
 
   function logout() {
     authentication

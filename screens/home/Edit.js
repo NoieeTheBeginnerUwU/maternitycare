@@ -53,7 +53,7 @@ import Loading from "../animations/Loading";
 //image picker of expo
 //FileSystem
 import { KeyboardAvoidingView } from "react-native";
-//Import react native image picker
+//Import expo image picker
 import * as ImagePicker from 'expo-image-picker';
 //moment js
 import moment from "moment";
@@ -123,7 +123,7 @@ const Edit = () => {
       alert(error);
     }
   }
-  User();
+
   console.log(image)
   function update(){
     var time = moment().utcOffset('+08:00').format('hh:mm a');
