@@ -76,9 +76,6 @@ const Login = () => {
       :
       <View style={style.container}>
         <View style={style.btnContainer}>
-          <TouchableOpacity style={style.buttonBack} onPress={()=> navigation.navigate("OnBoarding")}>
-            <Text style={style.buttonBackText}>Go back</Text>
-          </TouchableOpacity>
         </View>
         <View>
             <AnimatedLottieView ref={animationRef} style={{width:300,height:300,alignSelf:'center'}} source={lotties.lottie12}  autoPlay loop/>

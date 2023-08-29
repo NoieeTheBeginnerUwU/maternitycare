@@ -18,6 +18,7 @@ import { addDoc,
   where,
   and,
   query,
+  orderBy,
   DocumentSnapshot,
   updateDoc} from 'firebase/firestore';
 //import storage
@@ -147,52 +148,62 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
   const today4 = moment(dateOfDelivery, "YYYY/MM/DD")
   const nowToThen = today4.diff(today1, "weeks");
   const [hasNotif, setHasNotif] = useState(false);
-  
-  function getUserdata(){
-    const docRef = doc(database, 'userData', id);
-    onSnapshot(docRef, (doc) =>{
-      const data = doc.data();
-      setFnamePlaceholder(data.userFname);
-      setLnamePlaceholder(data.userLname);
-      setProfilePicPlaceholder(data.userPic);
-      //medical stuff
-      setBloodPressurePlaceholder(data.bloodPressure);
-      setLastPeriodPlaceholder(data.lastPeriod);
-      setWeightPlaceholder(data.weight);
-      setOtherInfoPlaceholder(data.otherInfo);
-      setDateUpdatedPlaceholder(data.dateUpdated);
-      setLastPeriodPlaceholder(data.lastPeriod);
-      setHeightPlaceholder(data.height)
-      disperseData.push({bp:bloodPressurePlaceholder,weight:weightPlaceholder,otherInfo:otherInfoPlaceholder,dateUpdate:dateUpdatedPlaceholder,lastPeriod:lastPeriodPlaceholder,height:heightPlaceholder}).toString
-      disperseData.toString()
-    },[])
-  }
 
   useEffect(()=>{
-    getUserdata();
     fetchEvents();
+    fetchData();
   },[])
   
-  async function fetchEvents(){
+  async function fetchData(){
     let thisDay = moment(today1, "YYYY/MM/DD")
-    const querySnapshot = await getDocs(collection(database, 'appointments'));
+    const querySnapshot = await getDocs(query(collection(database, 'appointments'),where("uid","==",id)));
     const userData = [];
-    const data = querySnapshot.forEach(doc=>{
-      let activityDate = moment(doc.data().appointmentDate, "YYYY/MM/DD")
-      if(activityDate.diff(today1, "days") <= 7 && activityDate.diff(today1, "days") >0 && doc.data().status==="approved"&&doc.data().uid===id){
+    let i = 1;
+    let appointments = querySnapshot;
+    appointments.docs.map((doc)=>{
+      console.log("fetched" + i + " times")
+      if(moment(doc.data().appointmentDate,"YYYY/MM/DD").diff(thisDay,"days")<=7 && moment(doc.data().appointmentDate,"YYYY/MM/DD").diff(thisDay,"days")>0){
         userData.push({id:doc.id, date:doc.data().appointmentDate, time:doc.data().time, status:doc.data().status, purpose:doc.data().purpose});
       }
+      i++;
     })
     setDocument(userData);
-    if(document.length>=1){
-      setHasEvent(true);
-    }
   };
+
+  function fetchEvents(){
+    try {
+      const docRef = doc(database, "userData", uid);
+      onSnapshot(docRef, (doc) => {
+        const data = doc.data();
+        setFnamePlaceholder(data.userFname);
+        setLnamePlaceholder(data.userLname);
+        setProfilePicPlaceholder(data.userPic);
+        setLastPeriodPlaceholder(data.lastPeriod);
+      },[]);
+      console.log("Fetched user data")
+    } catch (error) {
+      alert(error);
+    }
+  }
 
   //this one very important ahaha
   function stringify(string){
     return JSON.stringify(string);
   }
+
+  // useEffect(()=>{
+  //   async function Fetchdata(){
+  //     let thisDay = moment(today1, "YYYY/MM/DD")
+  //       const querySnapshot = await getDocs(collection(database, 'appointments'),where("uid","==",id));
+  //       const userData = [];
+  //       const data = querySnapshot.forEach(doc=>{
+  //           userData.push({id:doc.id, date:doc.data().appointmentDate, time:doc.data().time, status:doc.data().status, purpose:doc.data().purpose});
+  //           console.log("fetched appointments");
+  //         },[])
+  //       setDocument(userData);
+  //     };
+  //     Fetchdata();
+  // },[])
 
   try{
     useEffect(() => { 
@@ -1146,14 +1157,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
             document.length>0?
             <View style={{width:'100%',height:220,backgroundColor:'white'}}>
               <View style={{width:'100%',height:'100%',flexDirection:'colum',alignItems:'center',justifyContent:'center'}}>
-              <ScrollView horizontal={true}>
-                  <FlatList //if index<5 || ! ORRRRRRRRRRRRR if toggled {display (n)} else {5}
-                    data={document} //sabi ni sir ayusin design nito
-                    horizontal={true}
-                    renderItem={renderItem}
-                    keyExtractor={item=> item.id} // Use index as key for demo purposes
-                  />
-              </ScrollView>
+                  <ScrollView style={{width:'100%',height:'100%'}} horizontal={true}>
+                    <FlatList //if index<5 || ! ORRRRRRRRRRRRR if toggled {display (n)} else {5}
+                      data={document} //sabi ni sir ayusin design nito
+                      horizontal={true}
+                      renderItem={renderItem}
+                      keyExtractor={item=> item.id} // Use index as key for demo purposes
+                    />
+                  </ScrollView>
               </View>
             </View>
             :

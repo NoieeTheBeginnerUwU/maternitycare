@@ -79,19 +79,98 @@ const Registerchild = () => {
           activity: "registered a child for immunization"
         })
         addDoc(collection(database,'child'),{
-          Motheruid: id,
-          dateRegistered: startDate,
-          timeRegistered: time,
-          childFname: fname,
-          childLname: lname,
-          childPlaceOfBirth: placeOfBirth,
-          childAddress: address,
-          childDob: selectedStartDate,
-          childGender: gender,
-          father: father,
-          height:"",
-          weight: "",
-        });
+          //Child's data
+            Motheruid: id,
+            dateRegistered: startDate,
+            timeRegistered: time,
+            childFname: fname,
+            childLname: lname,
+            childPlaceOfBirth: placeOfBirth,
+            childAddress: address,
+            childDob: selectedStartDate,
+            childGender: gender,
+            father: father,
+            height:"",
+            weight: "",
+            //Early childhood care and development (ECCD) related data
+            clinic: "",
+            barangay: "",
+            purok: "",
+            address: "",//complete address of the family
+            mothersducationalLevel: "",//same as below
+            mothersOccupation: "", //dapat nasa registration to ng user
+            fathersName:"",
+            fathersEducationalLevel: "",
+            fathersOccupation: "",
+            childNo: "", //pang ilang anak siya
+            familyNo:"", //tanong natin kung paano itech
+            noOfPregnancies: "", //nakailang pagjujuntis na si inang
+            gestationalAgeAtBirth:"", //ilang weeks siya nang ipanganak
+            typeOfBirth: "", //normal or caesarian
+            placeOfDelivery: "",//1.Home 2.Lying-in 3.Hospital 4.Others_____
+            birthLength: "", //gaano siya kahaba nang ipanganak
+            dateOfBirthRegistration: "",//kelan ginawan ng birthcert?
+            birthAttendant: "",//1.Doctor 2.Nurse 3.Midwife 4.Others________
+          //ESSENTIAL HEALTH AND NUTRITION SERVICES
+           //Services
+            newbornScreening1: "",//(24 hours after birth) || Date Administered
+            newbornScreening2: "",//(24 hours after birth up to 3 mos old) || Date Administered
+           //Immunization proper
+            bcg1: "",
+            bcg2: "",
+            bcg3: "",
+            hepatitisB1: "",
+            hepatitisB2: "",
+            hepatitisB3: "",
+            pentavalentB1: "",
+            pentavalentB2: "",
+            pentavalentB3: "",
+            oralPolio1: "", //Oral Polio Vaccine 1 (OPV)
+            oralPolio2: "", //Oral Polio Vaccine 2 (OPV)
+            oralPolio3: "", //Oral Polio Vaccine 3 (OPV)
+            inactivePolio1: "",//Inactive Polio Vaccince 1 (IPV)
+            inactivePolio2: "",//Inactive Polio Vaccince 2 (IPV)
+            inactivePolio3: "",//Inactive Polio Vaccince 3 (IPV)
+            pneumococcal1: "",//Pneumococcal conjugate vaccine 1 (PCV) (6, 10, 14 weeks)
+            pneumococcal2: "",//Pneumococcal conjugate vaccine 2 (PCV) (6, 10, 14 weeks)
+            pneumococcal3: "",//Pneumococcal conjugate vaccine 3 (PCV) (6, 10, 14 weeks)
+            measlesRubella1: "", //Measles-Rubella 1 (MR) Measles-Rubella 1 (MMR) Vaccine (12-15 mos)
+            measlesRubella2: "", //Measles-Rubella 2 (MR) Measles-Rubella 2 (MMR) Vaccine (12-15 mos)
+            measlesRubella3: "", //Measles-Rubella 3 (MR) Measles-Rubella 3 (MMR) Vaccine (12-15 mos)
+          //Micronutrient Supplementation
+            vitAcap1_1: "",//Vit. A cap. –One dose 100,000 international units (6 mos-1y/o)
+            vitAcap1_2: "",//Vit. A cap. –One dose 100,000 international units (6 mos-1y/o)
+            vitA2_1: "",//Vit. A cap. –One dose 200,000 international units (1-2 yrs old)
+            vitA2_2: "",//Vit. A cap. –One dose 200,000 international units (1-2 yrs old)
+            deworming1: "",//Deworming (at 1 year old and then every 6 mos thereafter)
+            deworming2: "",//Deworming (at 1 year old and then every 6 mos thereafter)
+            deworming3: "",//Deworming (at 1 year old and then every 6 mos thereafter)
+            deworming4: "",//Deworming (at 1 year old and then every 6 mos thereafter)
+          //Counselling
+            exclusiveBreast1: "",//Exclusive breast (no water, no formula, no vitamins)
+            exclusiveBreast2: "",//Exclusive breast (no water, no formula, no vitamins)
+            exclusiveBreast3: "",//Exclusive breast (no water, no formula, no vitamins)
+            exclusiveBreast4: "",//Exclusive breast (no water, no formula, no vitamins)
+            exclusiveBreast5: "",//Exclusive breast (no water, no formula, no vitamins)
+            complementaryFeeding1: "",//Complementary feeding with continued breastfeeding (6 mos onwards)
+            complementaryFeeding2: "",//Complementary feeding with continued breastfeeding (6 mos onwards)
+            complementaryFeeding3: "",//Complementary feeding with continued breastfeeding (6 mos onwards)
+            complementaryFeeding4: "",//Complementary feeding with continued breastfeeding (6 mos onwards)
+            complementaryFeeding5: "",//Complementary feeding with continued breastfeeding (6 mos onwards)
+            oralHealth1: "",//Oral Health/Dental Check-up (starting at 6 mos-1 yr old
+            oralHealth2: "",//Oral Health/Dental Check-up (starting at 6 mos-1 yr old
+            oralHealth3: "",//Oral Health/Dental Check-up (starting at 6 mos-1 yr old
+            oralHealth4: "",//Oral Health/Dental Check-up (starting at 6 mos-1 yr old
+            oralHealth5: "",//Oral Health/Dental Check-up (starting at 6 mos-1 yr old
+            disabilityScreening1: "",//Developmental Milestones Delay and Disability Screening
+            disabilityScreening2: "",//Developmental Milestones Delay and Disability Screening
+            disabilityScreening3: "",//Developmental Milestones Delay and Disability Screening
+            disabilityScreening4: "",//Developmental Milestones Delay and Disability Screening
+            disabilityScreening5: "",//Developmental Milestones Delay and Disability Screening
+            growthMonitoring: "",//Growth Monitoring and Promotion (Plot at Growth chart)
+            monthly: "",//Monthly for infants 0-24 months
+            twice: ""//Twice a year for 24-59 months (>2years to <5 years old)
+         });
         setSelectedStartDate('')
         setChildAdded(true);
         setTimeout(()=>{

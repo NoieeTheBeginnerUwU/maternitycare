@@ -196,15 +196,7 @@ const Signup = () => {
 
   };
 
-  useEffect(()=>{
-    if(question1===""||question2===""||question3===""||question4===""||question5!==""){
-      setStep2(false);
-    }
-    else{
-      setStep2(true);
-      setStep("step3")
-    }
-  })
+ 
 //change profile picture
 // const pickImage = async () => {
 //   // No permissions request is necessary for launching the image library
@@ -296,6 +288,12 @@ const Signup = () => {
 // }
 
 //console.log(fname, mname, lname,email, selectedStartDate, num, image )
+
+useEffect(()=>{
+  if(question1!==""&&question2!==""&&question3!==""&&question4!==""&&question5!==""){
+    setStep2(true)
+  }
+})
 
   return (
     <View style={style.container}>
@@ -434,10 +432,10 @@ const Signup = () => {
                 <Text>Is your age above 30 years old?</Text>
                 <Text>Ang iyong edad ba ay mas mataas pa sa trentang taon?</Text>
                 <View style={{width:'100%',height:60,flexDirection:'row',alignItems:'center',justifyContent:'space-evenly'}}>
-                  <TouchableOpacity onPress={()=> setQuestion5("yes")}  style={{width:100,height:40,borderRadius:20,backgroundColor:'green',alignItems:'center',justifyContent:'center'}}>
+                  <TouchableOpacity onPress={()=> [setQuestion5("yes"),setStep("step3")]}  style={{width:100,height:40,borderRadius:20,backgroundColor:'green',alignItems:'center',justifyContent:'center'}}>
                     <Text style={{color:'white'}}>YES</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={()=> setQuestion5("no")}  style={{width:100,height:40,borderRadius:20,backgroundColor:'red',alignItems:'center',justifyContent:'center'}}>
+                  <TouchableOpacity onPress={()=> [setQuestion5("no"), setStep("step3")]}  style={{width:100,height:40,borderRadius:20,backgroundColor:'red',alignItems:'center',justifyContent:'center'}}>
                     <Text style={{color:'white'}}>NO</Text>
                   </TouchableOpacity>
                 </View>

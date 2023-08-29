@@ -94,13 +94,11 @@ const History = () => {
                 <Text style={{color:'navy',fontSize:18,fontWeight:400,alignSelf:'center',}}>Here is the list of your appointments</Text>
               </View>
               <View style={{width:'100%',height:'96%'}}>
-                <ScrollView style={{width:'100%',height:'100%',marginBottom:'30%'}}>
                   <FlatList //if index<5 || ! ORRRRRRRRRRRRR if toggled {display (n)} else {5}
                     data={documents} //sabi ni sir ayusin design nito
                     renderItem={renderItem}
                     keyExtractor={item=> item.id} // Use index as key for demo purposes
                   />
-                </ScrollView>
               </View>
             </View>
           }
