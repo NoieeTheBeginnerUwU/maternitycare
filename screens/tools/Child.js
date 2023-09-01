@@ -18,20 +18,19 @@ const Child = () => {
   const [hasData, setHasData] = useState(false);
   const [documents, setDocuments] = useState([]);
 
+  async function fetchData(){
+    const querySnapshot = await getDocs(query(collection(database, 'child'),where("Motheruid","==",id)));
+    const userData = [];
+    const data = querySnapshot.forEach((doc)=>{
+      userData.push({id:doc.id, DateApp:doc.data()});
+    })
+    setDocuments(userData);
+    if(documents.length>0){
+      setHasData(true)
+    }
+  }; 
+
   useEffect(()=> {
-    async function fetchData(){
-      const querySnapshot = await getDocs(query(collection(database, 'child'), where("Motheruid","==",id)));
-      const userData = [];
-      const data = querySnapshot.forEach(doc=>{
-        userData.push({id:doc.id, DateApp:doc.data()});
-      })
-      setDocuments(userData);
-      if(documents!==null){
-        setHasData(true)
-      }else{
-        
-      }
-    };
     fetchData();
   },[]);
 

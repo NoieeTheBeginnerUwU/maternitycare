@@ -12,7 +12,7 @@ import { TextInput } from "react-native-gesture-handler";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faAngleUp, faAngleDown, faPlus, faCheck,faMinus, faTimesCircle } from "@fortawesome/free-solid-svg-icons";
 import { useNavigation } from "@react-navigation/native";
-import { authentication } from "../../config/firebase";
+import { authentication, realtimeDatabase } from "../../config/firebase";
 import { database } from "../../config/firebase";
 import Reminderadded from "../animations/Reminderadded";
 import { addDoc,getDocs,query,collection } from "firebase/firestore";
@@ -44,6 +44,12 @@ export default Addreminder = () => {
   const [multipleTimes, setMultipleTimes] = useState([]);
   const [note, setNote] = useState('');
   const [addedReminder, setAddedReminder] = useState(false);
+  const [timePicked, setTimePicked] = useState('');
+  const [timePickedMorning, setTimePickedMorning] = useState("");
+  const [timePickedAfternoon, setTimePickedAfternoon] = useState("");
+  const [timePickedEvening, setTimePickedEvening] = useState("");
+  const [timePickedMidnight, setTimePickedMidnight] = useState("");
+  const [toggle, setToggle] = useState(false);
   //
   const renderLabel = () => {
     if (value || isFocus) {
@@ -86,6 +92,7 @@ const handleReminder = () => {
   );
     try{
       getDatesInRange();
+
       addDoc(collection(database,'log'),{
         uid: id,
         type: "reminder",
@@ -99,10 +106,22 @@ const handleReminder = () => {
           dateMade: startDate,
           activity: "added a reminder"
         })
+        if(timePickedMorning!==""){
+          multipleTimes.push(timePickedMorning);
+        }
+        if(timePickedAfternoon!==""){
+          multipleTimes.push(timePickedAfternoon);
+        }
+        if(timePickedEvening!==""){
+          multipleTimes.push(timePickedEvening);
+        }
+        if(timePickedMidnight!==""){
+          multipleTimes.push(timePickedMidnight);
+        }
         addDoc(collection(database,'reminders'),{
           user: id,
           dates: multipleDates,
-          times: value,
+          times: multipleTimes,
           note: note,
           dateMade: startDate,
           status:'disabled',
@@ -231,55 +250,243 @@ const handleReminder = () => {
             <View
               style={{
                 width: "100%",
-                height: 400,
+                height: 900,
                 backgroundColor: "white",
                 alignSelf: "center",
                 borderBottom:1000,
               }}
             >
     
-              <View style={{width:'100%',height:100}}>
-              {renderLabel()}
-                        <Dropdown
-                          style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
-                          placeholderStyle={styles.placeholderStyle}
-                          selectedTextStyle={styles.selectedTextStyle}
-                          inputSearchStyle={styles.inputSearchStyle}
-                          iconStyle={styles.iconStyle}
-                          data={data}
-                          search
-                          maxHeight={250}
-                          labelField="label"
-                          valueField="value"
-                          placeholder={!isFocus ? 'how many times a day?' : '...'}
-                          searchPlaceholder="Search..."
-                          value={value}
-                          onFocus={() => setIsFocus(true)}
-                          onBlur={() => setIsFocus(false)}
-                          onChange={item => {
-                            setValue(item.value);
-                            setIsFocus(false);
-                          }}
-                          renderLeftIcon={() => (
-                            <AntDesign
-                              style={styles.icon}
-                              color={isFocus ? 'blue' : 'black'}
-                              name="Safety"
-                              size={20}
-                              marginRight={20}
-                            />
-                          )}
-                        />
+              <View style={{width:'100%',height:400}}>
+              <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite'}}>
+                        <View style={{width:'100%',height:'90%',alignSelf:'center', flexDirection: 'column', backgroundColor:'red', marginTop:'5%'}}>
+                          <View style={{width:'100%',height:'50%',backgroundColor:'white',flexDirection:'column'}}>
+                            <Text style={{margin:'2%',fontWeight:700,color:'skyblue'}}>Morning</Text>
+                            <View style={{width:'100%',height:'80%', backgroundColor:"transparent",flexDirection:'row',flexWrap:'wrap'}}>
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedMorning==="8:00 am"? "blue":"white",color:timePickedMorning===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=> [setTimePickedMorning("8:00 am")]}>
+                                  <Text style={{color:timePickedMorning==="8:00 am"? "white":"blue"}}>8:00 am</Text>
+                                </TouchableOpacity>
+                              </View>
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedMorning==="8:30 am"? "blue":"white",color:timePickedMorning===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=> [setTimePickedMorning("8:30 am")]}>
+                                  <Text style={{color:timePickedMorning==="8:30 am"? "white":"blue"}}>8:30 am</Text>
+                                </TouchableOpacity>
+                              </View>
+
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedMorning==="9:00 am"? "blue":"white",color:timePickedMorning===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=> [setTimePickedMorning("9:00 am")]}>
+                                  <Text style={{color:timePickedMorning==="9:00 am"? "white":"blue"}}>9:00 am</Text>
+                                </TouchableOpacity>
+                              </View>
+
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedMorning==="9:30 am"? "blue":"white",color:timePickedMorning===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=> [setTimePickedMorning("9:30 am")]}>
+                                  <Text style={{color:timePickedMorning==="9:30 am"? "white":"blue"}}>9:30 am</Text>
+                                </TouchableOpacity>
+                              </View>
+
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedMorning==="10:00 am"? "blue":"white",color:timePickedMorning===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=> [setTimePickedMorning("10:00 am")]}>
+                                  <Text style={{color:timePickedMorning==="10:00 am"? "white":"blue"}}>10:00 am</Text>
+                                </TouchableOpacity>
+                              </View>
+
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedMorning==="10:30 am"? "blue":"white",color:timePickedMorning===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=> [setTimePickedMorning("10:30 am")]}>
+                                  <Text style={{color:timePickedMorning==="10:30 am"? "white":"blue"}}>10:30 am</Text>
+                                </TouchableOpacity>
+                              </View>
+
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedMorning==="11:00 am"? "blue":"white",color:timePickedMorning===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=> [setTimePickedMorning("11:00 am")]}>
+                                  <Text style={{color:timePickedMorning==="11:00 am"? "white":"blue"}}>11:00 am</Text>
+                                </TouchableOpacity>
+                              </View>
+
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedMorning==="11:30 am"? "blue":"white",color:timePickedMorning===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=> [setTimePickedMorning("11:30 am")]}>
+                                  <Text style={{color:timePickedMorning==="11:30 am"? "white":"blue"}}>11:30 am</Text>
+                                </TouchableOpacity>
+                              </View>
+
+                            </View>
+                          </View>
+                          <View style={{width:'100%',height:'50%',backgroundColor:'white',flexDirection:'column'}}>
+                            <Text style={{margin:'2%',fontWeight:700,color:'orange'}}>Afternoon</Text>
+                            <View style={{width:'100%',height:'80%', backgroundColor:"transparent",flexDirection:'row',flexWrap:'wrap'}}>
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedAfternoon==="1:00 pm"? "blue":"white",color:timePickedAfternoon===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=> [setTimePickedAfternoon("1:00 pm")]}>
+                                  <Text style={{color:timePickedAfternoon==="1:00 pm"? "white":"blue"}}>1:00 pm</Text>
+                                </TouchableOpacity>
+                              </View>
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedAfternoon==="1:30 pm"? "blue":"white",color:timePickedAfternoon===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=> [setTimePickedAfternoon("1:30 pm")]}>
+                                  <Text style={{color:timePickedAfternoon==="1:30 pm"? "white":"blue"}}>1:30 pm</Text>
+                                </TouchableOpacity>
+                              </View>
+
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedAfternoon==="2:00 pm"? "blue":"white",color:timePickedAfternoon===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=> [setTimePickedAfternoon("2:00 pm")]}>
+                                  <Text style={{color:timePickedAfternoon==="2:00 pm"? "white":"blue"}}>2:00 pm</Text>
+                                </TouchableOpacity>
+                              </View>
+
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedAfternoon==="2:30 pm"? "blue":"white",color:timePickedAfternoon===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=> [setTimePickedAfternoon("2:30 pm")]}>
+                                  <Text style={{color:timePickedAfternoon==="2:30 pm"? "white":"blue"}}>2:30 pm</Text>
+                                </TouchableOpacity>
+                              </View>
+
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedAfternoon==="3:00 pm"? "blue":"white",color:timePickedAfternoon===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=> [setTimePickedAfternoon("3:00 pm")]}>
+                                  <Text style={{color:timePickedAfternoon==="3:00 pm"? "white":"blue"}}>3:00 pm</Text>
+                                </TouchableOpacity>
+                              </View>
+
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedAfternoon==="3:30 pm"? "blue":"white",color:timePickedAfternoon===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=>  [setTimePickedAfternoon("3:30 pm")]}>
+                                  <Text style={{color:timePickedAfternoon==="3:30 pm"? "white":"blue"}}>3:30 pm</Text>
+                                </TouchableOpacity>
+                              </View>
+
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedAfternoon==="4:00 pm"? "blue":"white",color:timePickedAfternoon===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=> [setTimePickedAfternoon("4:00 pm")]}>
+                                  <Text style={{color:timePickedAfternoon==="4:00 pm"? "white":"blue"}}>4:00 pm</Text>
+                                </TouchableOpacity>
+                              </View>
+
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedAfternoon==="4:30 pm"? "blue":"white",color:timePickedAfternoon===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=> [setTimePickedAfternoon("4:30 pm")]}>
+                                  <Text style={{color:timePickedAfternoon==="4:30 pm"? "white":"blue"}}>4:30 pm</Text>
+                                </TouchableOpacity>
+                              </View>
+                              <Text style={{ fontSize: 13,marginLeft:'5%' }}>select the time within your covinience</Text>
+                            </View>
+                          </View>
+                        </View>
+                      </View>
               </View>
-         
-              <TextInput
-                placeholder="Add a note"
-                style={{ alignSelf: "center", marginTop: 50, marginBottom: 50, width:'80%',height:70,borderBottomColor:'black',borderBottomWidth:1 }}
-                onChangeText={(text) => setNote(text)}
-              />
-              <TouchableOpacity onPress={()=> handleReminder()} style={{width:'90%',height:40,alignSelf:'center',alignItems:'center',backgroundColor:'navy',justifyContent:'center'}}>
-                  <Text style={{color:'white'}}>Submit</Text>
-              </TouchableOpacity>
+              <View style={{width:'100%',height:400}}>
+              <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite'}}>
+                        <View style={{width:'100%',height:'90%',alignSelf:'center', flexDirection: 'column', backgroundColor:'red', marginTop:'5%'}}>
+                          <View style={{width:'100%',height:'50%',backgroundColor:'white',flexDirection:'column'}}>
+                            <Text style={{margin:'2%',fontWeight:700,color:'skyblue'}}>Evening</Text>
+                            <View style={{width:'100%',height:'80%', backgroundColor:"transparent",flexDirection:'row',flexWrap:'wrap'}}>
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedEvening==="8:00 pm"? "blue":"white",color:timePickedEvening===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=> [setTimePickedEvening("8:00 pm")]}>
+                                  <Text style={{color:timePickedEvening==="8:00 pm"? "white":"blue"}}>8:00 pm</Text>
+                                </TouchableOpacity>
+                              </View>
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedEvening==="8:30 pm"? "blue":"white",color:timePickedEvening===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=> [setTimePickedEvening("8:30 pm")]}>
+                                  <Text style={{color:timePickedEvening==="8:30 pm"? "white":"blue"}}>8:30 pm</Text>
+                                </TouchableOpacity>
+                              </View>
+
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedEvening==="9:00 pm"? "blue":"white",color:timePickedEvening===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=> [setTimePickedEvening("9:00 pm")]}>
+                                  <Text style={{color:timePickedEvening==="9:00 pm"? "white":"blue"}}>9:00 pm</Text>
+                                </TouchableOpacity>
+                              </View>
+
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedEvening==="9:30 pm"? "blue":"white",color:timePickedEvening===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=> [setTimePickedEvening("9:30 pm")]}>
+                                  <Text style={{color:timePickedEvening==="9:30 pm"? "white":"blue"}}>9:30 pm</Text>
+                                </TouchableOpacity>
+                              </View>
+
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedEvening==="10:00 pm"? "blue":"white",color:timePickedEvening===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=> [setTimePickedEvening("10:00 pm")]}>
+                                  <Text style={{color:timePickedEvening==="10:00 pm"? "white":"blue"}}>10:00 pm</Text>
+                                </TouchableOpacity>
+                              </View>
+
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedEvening==="10:30 pm"? "blue":"white",color:timePickedEvening===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=> [setTimePickedEvening("10:30 pm")]}>
+                                  <Text style={{color:timePickedEvening==="10:30 pm"? "white":"blue"}}>10:30 pm</Text>
+                                </TouchableOpacity>
+                              </View>
+
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedEvening==="11:00 pm"? "blue":"white",color:timePickedEvening===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=> [setTimePickedEvening("11:00 pm")]}>
+                                  <Text style={{color:timePickedEvening==="11:00 pm"? "white":"blue"}}>11:00 pm</Text>
+                                </TouchableOpacity>
+                              </View>
+
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedEvening==="11:30 pm"? "blue":"white",color:timePickedEvening===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=> [setTimePickedEvening("11:30 pm")]}>
+                                  <Text style={{color:timePickedEvening==="11:30 pm"? "white":"blue"}}>11:30 pm</Text>
+                                </TouchableOpacity>
+                              </View>
+
+                            </View>
+                          </View>
+                          <View style={{width:'100%',height:'50%',backgroundColor:'white',flexDirection:'column'}}>
+                            <Text style={{margin:'2%',fontWeight:700,color:'orange'}}>Midnight</Text>
+                            <View style={{width:'100%',height:'80%', backgroundColor:"transparent",flexDirection:'row',flexWrap:'wrap'}}>
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedMidnight==="1:00 am"? "blue":"white",color:timePickedMidnight===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=> [setTimePickedMidnight("1:00 am")]}>
+                                  <Text style={{color:timePickedMidnight==="1:00 am"? "white":"blue"}}>1:00 am</Text>
+                                </TouchableOpacity>
+                              </View>
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedMidnight==="1:30 am"? "blue":"white",color:timePickedMidnight===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=> [setTimePickedMidnight("1:30 am")]}>
+                                  <Text style={{color:timePickedMidnight==="1:30 am"? "white":"blue"}}>1:30 am</Text>
+                                </TouchableOpacity>
+                              </View>
+
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedMidnight==="2:00 am"? "blue":"white",color:timePickedMidnight===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=> [setTimePickedMidnight("2:00 am")]}>
+                                  <Text style={{color:timePickedMidnight==="2:00 am"? "white":"blue"}}>2:00 am</Text>
+                                </TouchableOpacity>
+                              </View>
+
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedMidnight==="2:30 am"? "blue":"white",color:timePickedMidnight===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=> [setTimePickedMidnight("2:30 am")]}>
+                                  <Text style={{color:timePickedMidnight==="2:30 am"? "white":"blue"}}>2:30 am</Text>
+                                </TouchableOpacity>
+                              </View>
+
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedMidnight==="3:00 am"? "blue":"white",color:timePickedMidnight===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=> [setTimePickedMidnight("3:00 am")]}>
+                                  <Text style={{color:timePickedMidnight==="3:00 am"? "white":"blue"}}>3:00 am</Text>
+                                </TouchableOpacity>
+                              </View>
+
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedMidnight==="3:30 am"? "blue":"white",color:timePickedMidnight===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=>  [setTimePickedMidnight("3:30 am")]}>
+                                  <Text style={{color:timePickedMidnight==="3:30 am"? "white":"blue"}}>3:30 am</Text>
+                                </TouchableOpacity>
+                              </View>
+
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedMidnight==="4:00 am"? "blue":"white",color:timePickedMidnight===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=> [setTimePickedMidnight("4:00 am")]}>
+                                  <Text style={{color:timePickedMidnight==="4:00 am"? "white":"blue"}}>4:00 am</Text>
+                                </TouchableOpacity>
+                              </View>
+
+                              <View style={{width:'23%',height:'40%', borderColor:'blue', borderRadius:10,borderWidth:1,margin:'1%', backgroundColor:timePickedMidnight==="4:30 am"? "blue":"white",color:timePickedMidnight===""? "white":"blue",alignItems:'center',justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=> [setTimePickedMidnight("4:30 am")]}>
+                                  <Text style={{color:timePickedMidnight==="4:30 am"? "white":"blue"}}>4:30 am</Text>
+                                </TouchableOpacity>
+                              </View>
+                              <Text style={{ fontSize: 13,marginLeft:'5%' }}>select the time within your covinience</Text>
+                              <View style={{width:'100%',height:190,marginBottom:'100%',alignItems:'center',justifyContent:'center'}}>
+                                <TextInput
+                                  placeholder="Add a note"
+                                  style={{ alignSelf: "center", marginTop: 50, marginBottom: 50, width:'80%',height:70,borderBottomColor:'black',borderBottomWidth:1 }}
+                                  onChangeText={(text) => setNote(text)}
+                                />
+                                <TouchableOpacity onPress={()=> handleReminder()} style={{width:'90%',height:40,alignSelf:'center',alignItems:'center',backgroundColor:'navy',justifyContent:'center'}}>
+                                    <Text style={{color:'white'}}>Submit</Text>
+                                </TouchableOpacity>
+                                </View>
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+              </View>
             </View>
           ) : null}
         </ScrollView>

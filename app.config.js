@@ -18,6 +18,8 @@ export default {
       "supportsTablet": true
     },
     "android": {
+      "package": "com.maternitycareapp2.app",
+      "googleServicesFile": "./google-services.json", 
       "adaptiveIcon": {
         "foregroundImage": "./assets/logo2.png",
         "backgroundColor": "#ffffff"

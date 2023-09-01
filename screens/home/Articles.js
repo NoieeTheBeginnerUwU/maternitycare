@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef  } from 'react';
 import { View, StyleSheet, Image, Text, FlatList, ScrollView, TouchableOpacity} from 'react-native';
 //Import Authentication
 import { authentication } from '../../config/firebase';
-import { getDocs, collection } from 'firebase/firestore';
+import { getDocs, collection, query } from 'firebase/firestore';
 //Import firestore
 import { database } from '../../config/firebase';
 
@@ -41,20 +41,13 @@ const Articles = () => {
       };
 
     useEffect(()=> {
-        try{
           async function fetchData(){
-            const querySnapshot = await getDocs(collection(database, 'articles'));
+            const querySnapshot = await getDocs(query(collection(database, 'articles')));
             const userData = [];
-            const data = querySnapshot.forEach(doc=>{
+            const data = querySnapshot.forEach((doc)=>{
               userData.push({id:doc.id, author:doc.data().author, content:doc.data().content,title:doc.data().title,author:doc.data().author,topic:doc.data().topic});
             })
             setDocument(userData);
-            if(userData.length<=0){
-              setNoData(true)
-            }
-          };
-        }catch(e){
-    
         }
         fetchData();
       },[]);

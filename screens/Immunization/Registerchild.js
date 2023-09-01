@@ -61,6 +61,11 @@ const Registerchild = () => {
   const [dob, setDob] = useState('');
   const [gender, setGender] = useState('');
   const [father, setFather] = useState('');
+  const [step, setStep] = useState(1);
+  const [step1, setStep1] = useState(false);
+  const [step2, setStep2] = useState(false);
+  const [step3, setStep3] = useState(false);
+  const [step4, setStep4] = useState(false);
   const nav= useNavigation()
 
   const id = authentication.currentUser.uid;
@@ -162,7 +167,7 @@ const Registerchild = () => {
             oralHealth3: "",//Oral Health/Dental Check-up (starting at 6 mos-1 yr old
             oralHealth4: "",//Oral Health/Dental Check-up (starting at 6 mos-1 yr old
             oralHealth5: "",//Oral Health/Dental Check-up (starting at 6 mos-1 yr old
-            disabilityScreening1: "",//Developmental Milestones Delay and Disability Screening
+            disabilityScreening1: "",//Developmental Milestones Delay and Disability  Screening
             disabilityScreening2: "",//Developmental Milestones Delay and Disability Screening
             disabilityScreening3: "",//Developmental Milestones Delay and Disability Screening
             disabilityScreening4: "",//Developmental Milestones Delay and Disability Screening
@@ -198,34 +203,88 @@ const Registerchild = () => {
       <Childregistered/>
       :
       <View style={styles.container}>
-        <ScrollView style={{width:'100%'}}>
-          <View style={{width:'80%',height:150,alignSelf:'center'}}>
-            <AnimatedLottieView ref={animationRef} style={{width:'55%',heigt:'55%',alignSelf:'center'}} source={lotties.babyWithPacifier}  autoPlay loop/>
+        <View style={{width:'100%',height:40,backgroundColor:'white',flexDirection:'row',justifyContent:'space-evenly',aliginItems:'center'}}>
+          <View style={{width:30,height:30,borderRadius:30,backgroundColor:step1===true?"greenyellow":'lightgrey',alignItems:'center',justifyContent:'center'}}>
+            <TouchableOpacity onPress={()=> setStep(1)}>
+              <Text style={{color:'white'}}>1</Text>
+            </TouchableOpacity>
           </View>
-          <View style={{marginTop:'4%',}}>
-            <View style={{flexDirection:'row', alignItems:'center',justifyContent:'space-between'}}>
-              <View style={{width:'50%',height:70,backgroundColor:'transparent',justifyContent:'center',alignItems:'center',}}>
+          <View style={{width:'10%',height:4,backgroundColor:step2===true?"greenyellow":'lightgrey',alignSelf:'center'}}/>
+          <View style={{width:30,height:30,borderRadius:30,backgroundColor:step2===true?"greenyellow":'lightgrey',alignItems:'center',justifyContent:'center'}}>
+            <TouchableOpacity onPress={()=> setStep(2)}>
+              <Text style={{color:'white'}}>2</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={{width:'10%',height:4,backgroundColor:step3===true?"greenyellow":'lightgrey',alignSelf:'center'}}/>
+          <View style={{width:30,height:30,borderRadius:30,backgroundColor:step3===true?"greenyellow":'lightgrey',alignItems:'center',justifyContent:'center'}}>
+            <TouchableOpacity onPress={()=> setStep(3)}>
+              <Text style={{color:'white'}}>3</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={{width:'10%',height:4,backgroundColor:step4===true?"greenyellow":'lightgrey',alignSelf:'center'}}/>
+          <View style={{width:30,height:30,borderRadius:30,backgroundColor:step4===true?"greenyellow":'lightgrey',alignItems:'center',justifyContent:'center'}}>
+            <TouchableOpacity onPress={()=> setStep(4)}>
+              <Text style={{color:'white'}}>4</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        {
+          step===1&&
+          <View style={{width:'100%',height:'100%',backgroundColor:'white ',alignItems:'center',justifyContent:"center"}}>
+            <Text>Welcome to our Immunization Service App. Before you register your child, please review and agree to the following:</Text>
+            <AnimatedLottieView ref={animationRef} style={{width:250,height:250,}} source={lotties.Antivirus3}  autoPlay loop/>
+            <View style={{width:"100%",height:80}}>
+              <Text style={{fontSize:18,fontWeight:500}}>Immunization Records Consent</Text>
+              <Text> By registering, you consent to sharing your child's immunization records with healthcare providers for vaccination management.</Text>
+            </View>
+            <View style={{width:"100%",height:40}}>
+              <Text style={{fontSize:18,fontWeight:500}}>Data Privacy</Text>
+              <Text> We prioritize your data privacy and will not share personal information.</Text>
+            </View>
+            <TouchableOpacity onPress={()=> [setStep(2),setStep1(true)]} style={{width:"80%",height:40,alignSelf:'center',borderRadius:20,backgroundColor:'orange',margin:50,alignItems:'center',justifyContent:'center' }}>
+              <Text>Okay, i agree</Text>
+            </TouchableOpacity>
+          </View> 
+        }
+                {
+          step===2&&
+          <View>
+            
+          </View>
+        }
+                {
+          step===3&&
+          <View>
+            
+          </View>
+        }
+        {
+          step===4&&
+          <ScrollView style={{width:'100%'}}>
+          <View style={{marginTop:'5%',}}>
+            <View style={{flexDirection:'column', backgroundColor:'pink', alignItems:'center',justifyContent:'space-between'}}>
+              <View style={{width:'100%',height:70,backgroundColor:'transparent',justifyContent:'center',alignItems:'center',}}>
                 <Text>First name</Text>
                 <TextInput placeholder='Enter first name' onChangeText={(text)=> setFname(text)} style={{width:'80%',borderWidth:1,borderColor:'black',textAlign:'center',height:35,borderRadius:4,backgroundColor:'white'}}/>
               </View>
-              <View style={{width:'50%',height:70,backgroundColor:'transparent',justifyContent:'center',alignItems:'center'}}>
+              <View style={{width:'100%',height:70,backgroundColor:'transparent',justifyContent:'center',alignItems:'center'}}>
                 <Text>Last name</Text>
                 <TextInput placeholder='Enter last name' onChangeText={(text)=> setLname(text)} style={{width:'80%',borderWidth:1,borderColor:'black',textAlign:'center',height:35,borderRadius:4,backgroundColor:'white'}}/>
               </View>
             </View>
-            <View style={{flexDirection:'row', alignItems:'center',justifyContent:'center'}}>
+            <View style={{flexDirection:'row', backgroundColor:'pink', alignItems:'center',justifyContent:'center'}}>
               <View style={{width:'100%',height:70,backgroundColor:'transparent',justifyContent:'center',alignItems:'center'}}>
                 <Text>Place of Birth</Text>
                 <TextInput placeholder='Enter Place of Birth' onChangeText={(text)=> setPlaceOfBirth(text)} style={{width:'90%',borderWidth:1,borderColor:'black',textAlign:'center',height:35,borderRadius:4,backgroundColor:'white'}}/>
               </View>
             </View>
-            <View style={{flexDirection:'row', alignItems:'center',justifyContent:'center'}}>
+            <View style={{flexDirection:'row', backgroundColor:'pink', alignItems:'center',justifyContent:'center'}}>
               <View style={{width:'100%',height:70,backgroundColor:'transparent',justifyContent:'center',alignItems:'center'}}>
                 <Text>Address</Text>
                 <TextInput placeholder='Enter Address' onChangeText={(text)=> setAddress(text)} style={{width:'90%',borderWidth:1,borderColor:'black',textAlign:'center',height:35,borderRadius:4,backgroundColor:'white'}}/>
               </View>
             </View>
-            <View style={{flexDirection:'row', alignItems:'center',justifyContent:'center'}}>
+            <View style={{flexDirection:'row', alignItems:'center', backgroundColor:'pink',justifyContent:'center'}}>
               <View style={{width:'40%',height:70,backgroundColor:'transparent',justifyContent:'center',alignItems:'center'}}>
                 <Text>Birthday</Text>
                 <TouchableOpacity  onPress={handleOnPressStartDate}>
@@ -251,18 +310,25 @@ const Registerchild = () => {
                 </View>
               </View>
             </View>
-            <View style={{flexDirection:'row', alignItems:'center',justifyContent:'center'}}>
+            <View style={{flexDirection:'row', backgroundColor:'pink', alignItems:'center',justifyContent:'center'}}>
               <View style={{width:'100%',height:70,backgroundColor:'transparent',justifyContent:'center',alignItems:'center'}}>
-                <Text>Father's name</Text>
-                <TextInput placeholder='Enter Father`s name' onChangeText={(e)=> setFather(e)} style={{width:'90%',borderWidth:1,borderColor:'black',textAlign:'center',height:35,borderRadius:4,backgroundColor:'white'}}/>
+                <Text>Father</Text>
+                <TextInput placeholder="Enter Father's name" onChangeText={(text)=> setFather(text)} style={{width:'90%',borderWidth:1,borderColor:'black',textAlign:'center',height:35,borderRadius:4,backgroundColor:'white'}}/>
               </View>
             </View>
-            <View style={{flexDirection:'row', alignItems:'center',justifyContent:'center'}}>
-              <TouchableOpacity onPress={()=> sendData()} style={{width:'90%',height:40,backgroundColor:"#486DF1",borderRadius:10,alignItems:'center',justifyContent:'center'}}>
-                <Text style={{color:'white',fontSize:16}}>Register</Text>
+            <View style={{flexDirection:'row', backgroundColor:'pink', alignItems:'center',justifyContent:'center'}}>
+              <View style={{width:'100%',height:70,backgroundColor:'transparent',justifyContent:'center',alignItems:'center'}}>
+                <Text>Father</Text>
+                <TextInput placeholder="Enter Father's name" onChangeText={(text)=> setFather(text)} style={{width:'90%',borderWidth:1,borderColor:'black',textAlign:'center',height:35,borderRadius:4,backgroundColor:'white'}}/>
+              </View>
+            </View>
+            <View style={{flexDirection:'row', backgroundColor:'pink', alignItems:'center',justifyContent:'center'}}>
+              <TouchableOpacity style={{width:"80%",height:50,margin:10,marginBottom:30,alignSelf:'center',alignItems:'center',justifyContent:'center',backgroundColor:"skyblue",borderRadius:20}} onPress={()=> sendData()}>
+                <Text>Submit</Text>
               </TouchableOpacity>
             </View>
-          </View>{/* Create modal for date picker */}
+          </View>
+          {/* Create modal for date picker */}
             <Modal
               animationType="slide"
               transparent={true}
@@ -295,6 +361,7 @@ const Registerchild = () => {
               </View>
             </Modal>
         </ScrollView>
+        }
       </View>
     }
     </>

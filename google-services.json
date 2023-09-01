@@ -1,0 +1,185 @@
+{
+  "project_info": {
+    "project_number": "969764838603",
+    "firebase_url": "https://it-projects-3rd-year-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "it-projects-3rd-year",
+    "storage_bucket": "it-projects-3rd-year.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:969764838603:android:6e2ff8d2dfb3ba0691cf4e",
+        "android_client_info": {
+          "package_name": "com.birthingcenterclient"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "969764838603-rb9kj9tqfutk7cfpsgkklpqoba4vonfi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUqii2QxagRwxtkSNEYpwXMbA14cikVAs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "969764838603-rb9kj9tqfutk7cfpsgkklpqoba4vonfi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:969764838603:android:078c5c0c64cf98fd91cf4e",
+        "android_client_info": {
+          "package_name": "com.birtingcenterclient"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "969764838603-rb9kj9tqfutk7cfpsgkklpqoba4vonfi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUqii2QxagRwxtkSNEYpwXMbA14cikVAs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "969764838603-rb9kj9tqfutk7cfpsgkklpqoba4vonfi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:969764838603:android:4ff79d9adcc97d3491cf4e",
+        "android_client_info": {
+          "package_name": "com.example.appointmentapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "969764838603-rb9kj9tqfutk7cfpsgkklpqoba4vonfi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUqii2QxagRwxtkSNEYpwXMbA14cikVAs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "969764838603-rb9kj9tqfutk7cfpsgkklpqoba4vonfi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:969764838603:android:a4ca398a96d8307a91cf4e",
+        "android_client_info": {
+          "package_name": "com.example.rantingstation"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "969764838603-rb9kj9tqfutk7cfpsgkklpqoba4vonfi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUqii2QxagRwxtkSNEYpwXMbA14cikVAs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "969764838603-rb9kj9tqfutk7cfpsgkklpqoba4vonfi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:969764838603:android:5a14706c6aa340c491cf4e",
+        "android_client_info": {
+          "package_name": "com.it3c.appointmentapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "969764838603-rb9kj9tqfutk7cfpsgkklpqoba4vonfi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUqii2QxagRwxtkSNEYpwXMbA14cikVAs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "969764838603-rb9kj9tqfutk7cfpsgkklpqoba4vonfi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:969764838603:android:ea101d8cf8fe6f8c91cf4e",
+        "android_client_info": {
+          "package_name": "com.maternitycareapp2.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "969764838603-rb9kj9tqfutk7cfpsgkklpqoba4vonfi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUqii2QxagRwxtkSNEYpwXMbA14cikVAs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "969764838603-rb9kj9tqfutk7cfpsgkklpqoba4vonfi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

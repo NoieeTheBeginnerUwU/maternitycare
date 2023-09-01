@@ -1,5 +1,5 @@
 import React,{ useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, AppRegistry } from 'react-native';
 import { style } from '../style'; 
 import { ScrollView } from 'react-native-gesture-handler';
 //Firebase
@@ -51,11 +51,19 @@ import { faConciergeBell } from '@fortawesome/free-solid-svg-icons';
 //Expo notif
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
+//cloud messaging
+import {
+  onValue,
+} from "firebase/database";
+import {
+  getMessaging,
+  sendMessage,
+} from "firebase/messaging";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
-    shouldPlaySound: false,
+    shouldPlaySound: true,
     shouldSetBadge: false,
   }),
 });
@@ -65,22 +73,37 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
   <View style={{flexDirection:'column'}}>
     <View style={{width:120,height:150, margin:10, backgroundColor,alignItems:'center',justifyContent:'center',borderRadius:5}}>     
       <View style={{width:'100%',height:'30%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-        <Text style={{fontSize:16,fontWeight:500,color:'white',}}>Appointment ID</Text>
-        <Text style={{fontSize:8,fontWeight:500,color:'white',}}>{item.id}</Text>
+        <Text style={{ fontSize:20,fontWeight:700,color,}}>{item.purpose}</Text>
       </View>
       <View style={{width:'100%',height:'70%',backgroundColor:'skyblue',alignItems:'center',justifyContent:'center'}}>
         <Text style={{fontSize:8,fontWeight:500,color,}}>date: {item.date}</Text>
         <Text style={{ fontSize:10,fontWeight:500,color,}}>Time:  {item.time}</Text>
-        <Text style={{ fontSize:10,fontWeight:500,color,}}>{item.purpose}</Text>
+        <Text style={{fontSize:8,fontWeight:500,color:'white',}}>Appointment ID</Text>
+        <Text style={{fontSize:8,fontWeight:500,color:'white',}}>{item.id}</Text>
+      </View>
+    </View>
+  </View>
+);
+
+const Reminders = ({item, onPress, height, width, color, backgroundColor,onTouchMove}) => (
+  <View style={{flexDirection:'column'}}>
+    <View style={{width:120,height:150, margin:10, backgroundColor,alignItems:'center',justifyContent:'center',borderRadius:5}}>     
+      <View style={{width:'100%',height:'30%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+        <Text style={{ fontSize:20,fontWeight:700,color,}}>{item.id}</Text>
+      </View>
+      <View style={{width:'100%',height:'70%',backgroundColor:'skyblue',alignItems:'center',justifyContent:'center'}}>
+        <Text style={{fontSize:8,fontWeight:500,color,}}>date: </Text>
       </View>
     </View>
   </View>
 );
 
 
+
  Home = () => {
 
   const [selectedId, setSelectedId] = useState();
+  const [reminders, setReminders] = useState([]);
   const [read, setRead] = useState(false);
   const [clicked, setClicked] = useState(false);
   const [weeksToggled, setWeeksToggled] = useState(true);
@@ -104,6 +127,21 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
     const width = '98%';
     return (
       <Item
+        item={item}
+        color = {color}
+        backgroundColor={backgroundColor}
+      />
+    );
+  };
+
+  const renderReminders = ({item}) => {
+    const backgroundColor2 = read===true? 'grey' : '#6e3b6e'
+    const color = 'white';
+    const height = !clicked &&  item.id === selectedId? "100%":130;
+    const backgroundColor = "#2E417E";
+    const width = '98%';
+    return (
+      <Reminders
         item={item}
         color = {color}
         backgroundColor={backgroundColor}
@@ -148,20 +186,20 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
   const today4 = moment(dateOfDelivery, "YYYY/MM/DD")
   const nowToThen = today4.diff(today1, "weeks");
   const [hasNotif, setHasNotif] = useState(false);
-
   useEffect(()=>{
     fetchEvents();
     fetchData();
+    fetchReminders();
   },[])
   
   async function fetchData(){
     let thisDay = moment(today1, "YYYY/MM/DD")
-    const querySnapshot = await getDocs(query(collection(database, 'appointments'),where("uid","==",id)));
+    const querySnapshot = await getDocs(query(collection(database, 'appointments'),where("uid","==",id),where("status","==","approved")));
     const userData = [];
     let i = 1;
     let appointments = querySnapshot;
     appointments.docs.map((doc)=>{
-      console.log("fetched" + i + " times")
+      console.log("fetched" + i + " times from appointments")
       if(moment(doc.data().appointmentDate,"YYYY/MM/DD").diff(thisDay,"days")<=7 && moment(doc.data().appointmentDate,"YYYY/MM/DD").diff(thisDay,"days")>0){
         userData.push({id:doc.id, date:doc.data().appointmentDate, time:doc.data().time, status:doc.data().status, purpose:doc.data().purpose});
       }
@@ -169,6 +207,33 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
     })
     setDocument(userData);
   };
+
+  const [reminderDate, setReminderDate] = useState([]);
+  const [reminderTimes, setReminderTime] = useState("");
+  const [reminderNote, setReminderNote] = useState(""); 
+
+  async function fetchReminders(){
+    let thisDay = moment(today1, "YYYY/MM/DD")
+    const querySnapshot = await getDocs(query(collection(database, 'reminders'),where("user","==",id),where("status","==","enabled")));
+    const userData = [];
+    let i = 1;
+    let reminders = querySnapshot;
+    reminders.docs.map((doc)=>{
+      console.log("fetched" + i + " times from reminders")
+      userData.push(doc.data().dates)
+      userData.map((date)=>{
+        for(let a = 0; a <= date.length-1; a++){
+          if(moment(date[a], "YYYY/MM/DD").diff(moment(today1, "YYYY/MM/DD"))===0){
+            console.log("HIT");
+            console.log(date[a]);
+          }
+        }
+      })
+      i++;
+    })
+    setReminders(userData);
+  };
+
 
   function fetchEvents(){
     try {
@@ -191,19 +256,27 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
     return JSON.stringify(string);
   }
 
-  // useEffect(()=>{
-  //   async function Fetchdata(){
-  //     let thisDay = moment(today1, "YYYY/MM/DD")
-  //       const querySnapshot = await getDocs(collection(database, 'appointments'),where("uid","==",id));
-  //       const userData = [];
-  //       const data = querySnapshot.forEach(doc=>{
-  //           userData.push({id:doc.id, date:doc.data().appointmentDate, time:doc.data().time, status:doc.data().status, purpose:doc.data().purpose});
-  //           console.log("fetched appointments");
-  //         },[])
-  //       setDocument(userData);
-  //     };
-  //     Fetchdata();
-  // },[])
+  //Notifications
+  const [expoPushToken, setExpoPushToken] = useState('');
+  const [notification, setNotification] = useState(false);
+  const notificationListener = useRef();
+  const responseListener = useRef();
+  useEffect(() => {
+    registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
+
+    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      setNotification(notification);
+    });
+
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log(response);
+    });
+
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener.current);
+      Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  }, []);
 
   try{
     useEffect(() => { 
@@ -300,6 +373,18 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
   var sayWeight = "Your weight is "+ weight_ + "kg . Date modified: " + last_period;
   var sayOtherInfo = other_info;
   var sayHeight = "Your height is " + height +" cm" + ". Date modified " + last_period;
+  
+  //get trimester
+  let trimester = "";
+  if(weeksDifference<=13&&weeksDifference>=0){
+    trimester = "1st";
+  }
+  if(weeksDifference<=27&&weeksDifference>=14){
+    trimester = "2nd";
+  }
+  if(weeksDifference<=40&&weeksDifference>=28){
+    trimester = "3rd";
+  }
 
   //this function is used for navigation across the app
   const nav = useNavigation();
@@ -310,6 +395,11 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
       animationRef.current?.play();
   }, []);
 
+
+  //First trimester: 1 to 13 weeks
+  // Second trimester: 14 to 27 weeks
+  // Third trimester: 28 to 40 weeks (or until delivery)
+  
   return (
     <>
       <ScrollView style={{width: '100%', height:'100%',backgroundColor:'#F0F2F5'}}>
@@ -552,24 +642,25 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
           </View>
           :
           <View style={{width: '96%', height:200, marginTop:'-20%',backgroundColor:'white',alignSelf:'center', justifyContent:'center', alignItems:'center',borderRadius: 30, borderWidth:1,overflow:'hidden'}}>
-            <View style={{width:'100%', height: '100%', borderTopRightRadius: 20, borderTopLeftRadius:20,backgroundColor: 'transparent',flexDirection:'row', justifyContent:'space-around'}}>
-            <View style={{width:'150%',height:'100%',backgroundColor:'transparent'}}>
+            <View style={{width:'100%', height: '100%', borderTopRightRadius: 20, borderTopLeftRadius:20,backgroundColor: 'transparent',flexDirection:'row', justifyContent:'center',alignItems:'center'}}>
+            <View style={{width:'100%',height:'100%',backgroundColor:'transparent'}}>
     
               <View style={{width:'100%',height:'100%',backgroundColor:'transparent', flexDirection:'row',justifyContent:'center',alignItems:'center'}}>
                 {
                   isNaN(weeksDifference)&&
-                  <AnimatedLottieView ref={animationRef} style={{width:200,height:200,alignSelf:'center'}} source={lotties.MotherBabyDoctor}  autoPlay loop/>
+                  <AnimatedLottieView ref={animationRef} style={{width:200,height:200,alignSelf:'center',justifyContent:'center',alignItems:'center'}} source={lotties.MotherBabyDoctor}  autoPlay loop/>
                 }
                                 {
                   weeksDifference===1&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -577,13 +668,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===2&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -591,13 +683,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===3&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -605,13 +698,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===4&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -619,13 +713,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===5&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -633,13 +728,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===6&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -647,13 +743,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===7&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -661,13 +758,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===8&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -675,13 +773,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===9&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -689,13 +788,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===10&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -703,13 +803,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===11&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -717,13 +818,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===12&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -731,13 +833,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===13&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -745,13 +848,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===14&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -759,13 +863,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===15&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -773,13 +878,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===16&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -787,13 +893,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===17&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -801,13 +908,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===18&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -815,13 +923,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===19&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -829,13 +938,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===20&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -843,13 +953,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===21&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -857,13 +968,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===22&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -871,13 +983,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===23&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -885,13 +998,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===24&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -899,13 +1013,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===25&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -913,13 +1028,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===26&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -927,13 +1043,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===27&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -941,13 +1058,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===28&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -955,13 +1073,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===29&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -969,13 +1088,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===30&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -983,13 +1103,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===31&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -997,13 +1118,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===32&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -1011,13 +1133,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===33&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -1025,13 +1148,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===34&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -1039,13 +1163,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===35&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -1053,13 +1178,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===36&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -1067,13 +1193,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===37&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -1081,13 +1208,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===38&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -1095,13 +1223,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===39&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -1109,13 +1238,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                 {
                   weeksDifference===40&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -1123,13 +1253,14 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
                                                                 {
                   weeksDifference===41&&
                   <View style={{width:'100%',height:'100%',backgroundColor:'ghostwhite',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
-                    
+                    <View style={{width:'50%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center'}}>
+                      <Text style={{fontSize:80, color:'white', fontWeight:800}}>{trimester}</Text>
+                      <Text style={{fontSize:20, color:'white', fontWeight:800}}>trimester</Text>
                     </View>
-                    <View style={{width:'40%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
+                    <View style={{width:'50%',height:'100%',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>WEEKS LEFT</Text>
                      <Text style={{fontSize:80, color:'#F9B1A6', fontWeight:800}}>{nowToThen}</Text>
-                     <Text style={{fontSize:20, color:'#F9B1A6', fontWeight:800}}>EDD</Text>
+                     <Text style={{fontSize:12, color:'#F9B1A6', fontWeight:500}}>ESTIMATED DUE DATE</Text>
                      <Text style={{fontSize:18, color:'#F9B1A6', fontWeight:400}}>{dateOfDelivery}</Text>
                     </View>
                   </View>
@@ -1140,7 +1271,7 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
           </View>
           }
         </TouchableOpacity>
-        <View style={{width:'100%',height:document.length>0?300:420,marginBottom:'5%'}}>
+        <View style={{width:'100%',height:document.length>0?250:420,marginBottom:'5%'}}>
          <View style={{width:'94%',height:70,marginTop:'5%',backgroundColor:'#E3EBF5',borderColor:'blue',flexDirection:'column',alignSelf:'center',}}>
           <TouchableOpacity onPress={()=> showTimeline(true)} style={{ flexDirection:'row',margin:10,justifyContent:'space-around', alignItems:'center', marginLeft:20}}>
             <View style={{width:'30%'}}>
@@ -1177,18 +1308,69 @@ const Item = ({item, onPress, height, width, color, backgroundColor,onTouchMove}
           }
          </View>
         </View>
-        <View style={{width: '90%', height:100, marginBottom:20,marginTop:80,backgroundColor:'transparent',alignSelf:'center',}}>
-        <View style={{width:"100%",height:50,alignSelf:'center',borderColor:'#F55670', borderTopWidth:4}}>
-          <Text style={{textAlign:'center',color:'pink',fontSize:16,marginTop:10,fontWeight:600}}>LATEST ARTICLES</Text>
-        </View>
-        <TouchableOpacity onPress={()=> nav.navigate("Articles")} style={{width:'80%',height:50,alignSelf:'center',alignItems:'center',justifyContent:'center',backgroundColor:'pink'}}>
-          <Text style={{color:'white'}}>Click here</Text>
-        </TouchableOpacity>
+        <View style={{width: '90%', height:100, marginBottom:20,marginTop:70,backgroundColor:'transparent',alignSelf:'center',}}>
+          <View style={{width:"100%",height:50,alignSelf:'center',borderColor:'#F55670', borderTopWidth:4}}>
+            <Text style={{textAlign:'center',color:'pink',fontSize:16,marginTop:10,fontWeight:600}}>LATEST ARTICLES</Text>
+          </View>
+          <TouchableOpacity onPress={()=> nav.navigate("Articles")} style={{width:'80%',height:50,alignSelf:'center',alignItems:'center',justifyContent:'center',backgroundColor:'pink'}}>
+            <Text style={{color:'white'}}>Click here</Text>
+          </TouchableOpacity>
         </View>
         <View style={{width:'90%',height:4,backgroundColor:'#F55670',marginBottom:'5%',alignSelf:'center'}}/>
+        <View style={{width:'100%',height:300,marginTop:20}}>
+          <TouchableOpacity  style={{width:'70%',height:60,backgroundColor:'navy',alignSelf:'center',alignItems:'center',justifyContent:'center'}} onPress={async () => {
+          await schedulePushNotification();
+        }}>
+            <Text style={{color:'white',alignSelf:'center'}}>Send notif</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </>
   )
+
+  async function schedulePushNotification() {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Drink medicine ",
+        body: 'paracetamol',
+        data: { data: 'twice a day' },
+      },
+      trigger: { seconds: 1 },
+    });
+  }
+  
+  async function registerForPushNotificationsAsync() {
+    let token;
+  
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync('default', {
+        name: 'default',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#FF231F7C',
+      });
+    }
+  
+    if (Device.isDevice) {
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (finalStatus !== 'granted') {
+        alert('Failed to get push token for push notification!');
+        return;
+      }
+      token = (await Notifications.getExpoPushTokenAsync()).data;
+      console.log(token);
+    } else {
+      alert('Must use physical device for Push Notifications');
+    }
+  
+    return token;
+  }
+
 }
 
 export default Home

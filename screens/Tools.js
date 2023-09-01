@@ -97,11 +97,9 @@ export default Tools
 const styles = StyleSheet.create({
   box1: {
     width: '45%', margin: '2%',height: 150,backgroundColor:'pink',borderRadius: 20, marginTop: '-100%',
-    borderBottomColor: '#8F5D65', borderBottomWidth: 4, borderWidth:1,borderColor:'#8F5D65'
   },
   box2: {
     width: '45%', margin: '1%',height: 150,backgroundColor:'pink',borderRadius: 20, marginTop: '10%',
-    borderBottomColor: '#8F5D65', borderBottomWidth: 4, borderWidth:1,borderColor:'#8F5D65'
   },
   boxPress: {
     width:'100%',height:'90%',flexDirection: 'column', marginTop: '10%', borderRadius: 20,
