@@ -95,8 +95,8 @@ const Notification = () => {
           <View style={{width:'100%',height:'100%'}}>
             {
               documents!==""?
-              <View style={{width:'100%',height:'100%'}}>
-                <ScrollView style={{width:'100%',height:'100%'}}>
+              <View style={{width:'100%',height:600,marginBottom:20}}>
+                <ScrollView style={{width:'100%',height:"100%",marginBottom:'2%'}}>
                   <FlatList 
                   data={documents}
                   renderItem={renderItem}

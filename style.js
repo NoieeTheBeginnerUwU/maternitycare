@@ -89,6 +89,13 @@ export const lotties = {
 
 //Edit Profile
 
+//Father and Child
+
+    FatherandChild:require("./assets/animation_lm1i1zgu.json"),
+    FatherandChild2:require("./assets/animation_lm1njo0y.json"),
+    FatherandChild3:require("./assets/animation_lm1nlrdp.json"),
+
+
 //Deleted
 
     Deleted:require("./assets/animation_llr7nfzt.json"),

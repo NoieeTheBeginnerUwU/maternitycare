@@ -29,6 +29,7 @@ export default Childimmunization = () => {
   const [reminders, setReminders] = useState([]);
   const [selectedId, setSelectedId] = useState();
   const [toggled, setToggled] = useState(false);
+  const [activeDot, setActiveDot] = useState(1);
   
     //Get age of the child by day
     var date = moment(); 
@@ -102,8 +103,8 @@ export default Childimmunization = () => {
       <TouchableOpacity onPress={()=> [setSelectedId(item.id),setToggled(!toggled)]}>
       {
         toggled && selectedId==item.id?
-          <View style={{width:'100%',height:600,flexDirection:'column',marginTop:1,marginBottom:10,overflow:'hidden'}}>
-            <View style={{width:'100%',height:'100%',flexDirection:'row',borderRadius:20,borderColor:'navy',borderBottomWidth:5,borderLeftWidth:1,borderRightWidth:1,borderTopWidth:.5}}>
+          <View style={{width:'100%',height:1000,flexDirection:'column',marginTop:1,marginBottom:10,overflow:'hidden'}}>
+            <View style={{width:'100%',height:'100%',flexDirection:'row',borderRadius:20}}>
               <View style={{width:'100%',height:'100%',backgroundColor:'white',flexDirection:'column',justifyContent:'center',overflow:'hidden',alignItems:'center',borderRadius:18}}>
                 <Text style={{fontSize:26,color:'navy',fontWeight:900,marginTop:'10%'}}>{item.childFname} {item.childLname}</Text>
                 <View style={{width:'100%',height:'100%',backgroundColor:'white',flexWrap:'wrap'}}>
@@ -166,10 +167,317 @@ export default Childimmunization = () => {
                       </View>
                     </View>
                   </View>
-                  <ScrollView style={{width:'100%',height:'65%',backgroundColor:'pink',borderTopWidth:1,borderColor:'grey'}}>
-                    <View style={{width:'100%',height:'100%',alignSelf:'center',alignItems:'center',justifyContent:'center'}}>
-                    <Text style={{alignSelf:'center',color:'white',fontSize:18,fontWeight:500,marginTop:10}}>Immunization History</Text>
+                  <ScrollView style={{width:'100%',height:'65%',backgroundColor:'pink',borderTopWidth:1,borderColor:'lightgrey'}}>
+                    <View style={{width:'100%',height:40,backgroundColor:'transparent',flexDirection:'row',alignItems:'center',justifyContent:'space-evenly',marginTop:'2%'}}>
+                      <TouchableOpacity onPress={()=> setActiveDot(1)} style={{width:40,height:40,borderRadius:40,backgroundColor:'skyblue',alignItems:'center',justifyContent:'center'}}>
+                        <Text style={{color:'white'}}>1</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={()=> setActiveDot(2)}  style={{width:40,height:40,borderRadius:40,backgroundColor:'skyblue',alignItems:'center',justifyContent:'center'}}>
+                        <Text style={{color:'white'}}>2</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={()=> setActiveDot(3)}  style={{width:40,height:40,borderRadius:40,backgroundColor:'skyblue',alignItems:'center',justifyContent:'center'}}>
+                        <Text style={{color:'white'}}>3</Text>
+                      </TouchableOpacity>
                     </View>
+                    {
+                      activeDot===1&&
+                      <>
+                        <View style={{width:'100%',height:80,alignSelf:'center',alignItems:'center',justifyContent:'center'}}>
+                          <Text style={{alignSelf:'center',color:'white',fontSize:25,fontWeight:700,marginTop:-20}}>Immunization History</Text>
+                        </View>
+                        <View style={{width:'100%',height:20,flexDirection:"row",alignItems:'center',justifyContent:'center'}}>
+                          <View style={{width:'50%',height:20,flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                            <View style={{width:16,height:16,borderRadius:16,backgroundColor:'lightgrey'}}>
+
+                            </View>
+                            <Text>not administered yet</Text>
+                          </View>
+                          <View style={{width:'50%',height:20,flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                          <View style={{width:16,height:16,borderRadius:16,backgroundColor:'greenyellow'}}>
+
+                          </View>
+                          <Text>vaccinated</Text>
+                          </View>
+                        </View>
+                        <View style={{width:'100%',height:600,backgroundColor:'white'}}>
+                          <ScrollView style={{width:'100%',height:'100%'}}>
+                            <View style={{width:'100%',height:600,alignSelf:'center',flexDirection:'column',alignItems:'start',justifyContent:'center',borderWidth:1,bordeColor:"black"}}>
+                              <View style={{width:'100%',height:68,borderColor:'black',flexDirection:'row',alignItems:'start',justifyContent:'center'}}>
+                                <View style={{width:'60%',height:68,borderColor:'black',borderWidth:2,alignItems:'center',justifyContent:'center'}}>
+                                  <Text style={{alignSelf:'center'}}>Immunization</Text>
+                                </View> 
+                                <View style={{width:'40%',height:68,borderColor:'black',borderWidth:1,flexDirection:'row',alignItems:'center',justifyContent:"center"}}>
+                                  <View style={{width:'33%',height:68,borderLeftColor:"black",borderLeftWidth:1,alignItems:"center",justifyContent:'center'}}>
+                                    <Text style={{fontSize:12,fontWeight:680}}>1st Dose</Text>
+                                  </View>
+                                  <View style={{width:'33%',height:68,borderLeftColor:"black",borderLeftWidth:1,alignItems:"center",justifyContent:'center'}}>
+                                    <Text style={{fontSize:12,fontWeight:680}}>2nd Dose</Text>
+                                  </View>
+                                  <View style={{width:'33%',height:68,borderLeftColor:"black",borderLeftWidth:1,alignItems:"center",justifyContent:'center'}}>
+                                    <Text style={{fontSize:12,fontWeight:680}}>3rd Dose</Text>
+                                  </View>
+                                </View>
+                              </View>
+                              <View style={{width:'100%',height:68,borderColor:'black',flexDirection:'row',alignItems:'start',justifyContent:'center'}}>
+                                <View style={{width:'60%',height:68,borderColor:'black',borderWidth:2,alignItems:'center',justifyContent:'center'}}>
+                                  <Text style={{alignSelf:'center'}}>BCG</Text>
+                                </View> 
+                                <View style={{width:'40%',height:68,borderColor:'black',borderWidth:1,flexDirection:'row',alignItems:'center',justifyContent:"center"}}>
+                                  <View style={{width:'33%',height:68,borderLeftColor:"black",borderLeftWidth:1,alignItems:"center",justifyContent:'center'}}>
+                                    <TouchableOpacity style={{width:'100%',height:'100%',backgroundColor:selectedId===item.id&&item.bcg1===true?'greenyellow':'lightgrey'}}>
+                                      <Text style={{}}></Text>
+                                    </TouchableOpacity>
+                                  </View>
+                                  <View style={{width:'33%',height:68,borderLeftColor:"black",borderLeftWidth:1,alignItems:"center",justifyContent:'center'}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%',backgroundColor:selectedId===item.id&&item.bcg2===true?'greenyellow':'lightgrey'}}>
+                                      <Text style={{}}></Text>
+                                    </TouchableOpacity>
+                                  </View>
+                                  <View style={{width:'33%',height:68,borderLeftColor:"black",borderLeftWidth:1,alignItems:"center",justifyContent:'center'}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%',backgroundColor:selectedId===item.id&&item.bcg3===true?'greenyellow':'lightgrey'}}>
+                                      <Text style={{}}></Text>
+                                    </TouchableOpacity>
+                                  </View>
+                                </View>
+                              </View>
+                              <View style={{width:'100%',height:68,borderColor:'black',flexDirection:'row',alignItems:'start',justifyContent:'center'}}>
+                                <View style={{width:'60%',height:68,borderColor:'black',borderWidth:2,alignItems:'center',justifyContent:'center'}}>
+                                  <Text style={{alignSelf:'center'}}>Hepatitis B Vaccine</Text>
+                                </View> 
+                                <View style={{width:'40%',height:68,borderColor:'black',borderWidth:1,flexDirection:'row',alignItems:'center',justifyContent:"center"}}>
+                                  <View style={{width:'33%',height:68,borderLeftColor:"black",borderLeftWidth:1,alignItems:"center",justifyContent:'center'}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%',backgroundColor:selectedId===item.id&&item.hepatitisB1===true?'greenyellow':'lightgrey'}}>
+                                      <Text style={{}}></Text>
+                                    </TouchableOpacity>
+                                  </View>
+                                  <View style={{width:'33%',height:68,borderLeftColor:"black",borderLeftWidth:1,alignItems:"center",justifyContent:'center'}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%',backgroundColor:selectedId===item.id&&item.hepatitisB1===true?'greenyellow':'lightgrey'}}>
+                                      <Text style={{}}></Text>
+                                    </TouchableOpacity>
+                                  </View>
+                                  <View style={{width:'33%',height:68,borderLeftColor:"black",borderLeftWidth:1,alignItems:"center",justifyContent:'center'}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%',backgroundColor:selectedId===item.id&&item.hepatitisB1===true?'greenyellow':'lightgrey'}}>
+                                      <Text style={{}}></Text>
+                                    </TouchableOpacity>
+                                  </View>
+                                </View>
+                              </View>
+                              <View style={{width:'100%',height:68,borderColor:'black',flexDirection:'row',alignItems:'start',justifyContent:'center'}}>
+                                <View style={{width:'60%',height:68,borderColor:'black',borderWidth:2,alignItems:'center',justifyContent:'center'}}>
+                                  <Text style={{alignSelf:'center'}}>Pentavalent Vaccine</Text>
+                                </View> 
+                                <View style={{width:'40%',height:68,borderColor:'black',borderWidth:1,flexDirection:'row',alignItems:'center',justifyContent:"center"}}>
+                                  <View style={{width:'33%',height:68,borderLeftColor:"black",borderLeftWidth:1,alignItems:"center",justifyContent:'center'}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%',backgroundColor:selectedId===item.id&&item.pentavalent1===true?'greenyellow':'lightgrey'}}>
+                                      <Text style={{}}></Text>
+                                    </TouchableOpacity>
+                                  </View>
+                                  <View style={{width:'33%',height:68,borderLeftColor:"black",borderLeftWidth:1,alignItems:"center",justifyContent:'center'}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%',backgroundColor:selectedId===item.id&&item.pentavalent2===true?'greenyellow':'lightgrey'}}>
+                                      <Text style={{}}></Text>
+                                    </TouchableOpacity>
+                                  </View>
+                                  <View style={{width:'33%',height:68,borderLeftColor:"black",borderLeftWidth:1,alignItems:"center",justifyContent:'center'}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%',backgroundColor:selectedId===item.id&&item.pentavalent3===true?'greenyellow':'lightgrey'}}>
+                                      <Text style={{}}></Text>
+                                    </TouchableOpacity>
+                                  </View>
+                                </View>
+                              </View>
+                              <View style={{width:'100%',height:68,borderColor:'black',flexDirection:'row',alignItems:'start',justifyContent:'center'}}>
+                                <View style={{width:'60%',height:68,borderColor:'black',borderWidth:2,alignItems:'center',justifyContent:'center'}}>
+                                  <Text style={{alignSelf:'center'}}>Oral Polio Vaccine</Text>
+                                </View> 
+                                <View style={{width:'40%',height:68,borderColor:'black',borderWidth:1,flexDirection:'row',alignItems:'center',justifyContent:"center"}}>
+                                  <View style={{width:'33%',height:68,borderLeftColor:"black",borderLeftWidth:1,alignItems:"center",justifyContent:'center'}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%',backgroundColor:selectedId===item.id&&item.oralPolio1===true?'greenyellow':'lightgrey'}}>
+                                      <Text style={{}}></Text>
+                                    </TouchableOpacity>
+                                  </View>
+                                  <View style={{width:'33%',height:68,borderLeftColor:"black",borderLeftWidth:1,alignItems:"center",justifyContent:'center'}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%',backgroundColor:selectedId===item.id&&item.oralPolio2===true?'greenyellow':'lightgrey'}}>
+                                      <Text style={{}}></Text>
+                                    </TouchableOpacity>
+                                  </View>
+                                  <View style={{width:'33%',height:68,borderLeftColor:"black",borderLeftWidth:1,alignItems:"center",justifyContent:'center'}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%',backgroundColor:selectedId===item.id&&item.oralPolio3===true?'greenyellow':'lightgrey'}}>
+                                      <Text style={{}}></Text>
+                                    </TouchableOpacity>
+                                  </View>
+                                </View>
+                              </View>
+                              <View style={{width:'100%',height:68,borderColor:'black',flexDirection:'row',alignItems:'start',justifyContent:'center'}}>
+                                <View style={{width:'60%',height:68,borderColor:'black',borderWidth:2,alignItems:'center',justifyContent:'center'}}>
+                                  <Text style={{alignSelf:'center'}}>Inactive Polio Vaccine</Text>
+                                </View> 
+                                <View style={{width:'40%',height:68,borderColor:'black',borderWidth:1,flexDirection:'row',alignItems:'center',justifyContent:"center"}}>
+                                  <View style={{width:'33%',height:68,borderLeftColor:"black",borderLeftWidth:1,alignItems:"center",justifyContent:'center'}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%',backgroundColor:selectedId===item.id&&item.inactivePolio1===true?'greenyellow':'lightgrey'}}>
+                                      <Text style={{}}></Text>
+                                    </TouchableOpacity>
+                                  </View>
+                                  <View style={{width:'33%',height:68,borderLeftColor:"black",borderLeftWidth:1,alignItems:"center",justifyContent:'center'}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%',backgroundColor:selectedId===item.id&&item.inactivePolio2===true?'greenyellow':'lightgrey'}}>
+                                      <Text style={{}}></Text>
+                                    </TouchableOpacity>
+                                  </View>
+                                  <View style={{width:'33%',height:68,borderLeftColor:"black",borderLeftWidth:1,alignItems:"center",justifyContent:'center'}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%',backgroundColor:selectedId===item.id&&item.inactivePolio3===true?'greenyellow':'lightgrey'}}>
+                                      <Text style={{}}></Text>
+                                    </TouchableOpacity>
+                                  </View>
+                                </View>
+                              </View>
+                              <View style={{width:'100%',height:68,borderColor:'black',flexDirection:'row',alignItems:'start',justifyContent:'center'}}>
+                                <View style={{width:'60%',height:68,borderColor:'black',borderWidth:2,alignItems:'center',justifyContent:'center'}}>
+                                  <Text style={{alignSelf:'center'}}>Pneumococcal Vaccine</Text>
+                                </View> 
+                                <View style={{width:'40%',height:68,borderColor:'black',borderWidth:1,flexDirection:'row',alignItems:'center',justifyContent:"center"}}>
+                                  <View style={{width:'33%',height:68,borderLeftColor:"black",borderLeftWidth:1,alignItems:"center",justifyContent:'center'}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%',backgroundColor:selectedId===item.id&&item.pneumococcal1===true?'greenyellow':'lightgrey'}}>
+                                      <Text style={{}}></Text>
+                                    </TouchableOpacity>
+                                  </View>
+                                  <View style={{width:'33%',height:68,borderLeftColor:"black",borderLeftWidth:1,alignItems:"center",justifyContent:'center'}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%',backgroundColor:selectedId===item.id&&item.pneumococcal2===true?'greenyellow':'lightgrey'}}>
+                                      <Text style={{}}></Text>
+                                    </TouchableOpacity>
+                                  </View>
+                                  <View style={{width:'33%',height:68,borderLeftColor:"black",borderLeftWidth:1,alignItems:"center",justifyContent:'center'}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%',backgroundColor:selectedId===item.id&&item.pneumococcal3===true?'greenyellow':'lightgrey'}}>
+                                      <Text style={{}}></Text>
+                                    </TouchableOpacity>
+                                  </View>
+                                </View>
+                              </View>
+                              <View style={{width:'100%',height:68,borderColor:'black',flexDirection:'row',alignItems:'start',justifyContent:'center'}}>
+                                <View style={{width:'60%',height:68,borderColor:'black',borderWidth:2,alignItems:'center',justifyContent:'center'}}>
+                                  <Text style={{alignSelf:'center'}}>Measles-Rubella Vaccine</Text>
+                                </View> 
+                                <View style={{width:'40%',height:68,borderColor:'black',borderWidth:1,flexDirection:'row',alignItems:'center',justifyContent:"center"}}>
+                                  <View style={{width:'33%',height:68,borderLeftColor:"black",borderLeftWidth:1,alignItems:"center",justifyContent:'center'}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%',backgroundColor:selectedId===item.id&&item.measlesRubella1===true?'greenyellow':'lightgrey'}}>
+                                      <Text style={{}}></Text>
+                                    </TouchableOpacity>
+                                  </View>
+                                  <View style={{width:'33%',height:68,borderLeftColor:"black",borderLeftWidth:1,alignItems:"center",justifyContent:'center'}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%',backgroundColor:selectedId===item.id&&item.measlesRubella2===true?'greenyellow':'lightgrey'}}>
+                                      <Text style={{}}></Text>
+                                    </TouchableOpacity>
+                                  </View>
+                                  <View style={{width:'33%',height:68,borderLeftColor:"black",borderLeftWidth:1,alignItems:"center",justifyContent:'center'}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%',backgroundColor:selectedId===item.id&&item.measlesRubella3===true?'greenyellow':'lightgrey'}}>
+                                      <Text style={{}}></Text>
+                                    </TouchableOpacity>
+                                  </View>
+                                </View>
+                              </View>
+                            </View>
+                          </ScrollView>
+                        </View>
+                        <View style={{}}>
+
+                        </View>
+                      </>
+                    }
+                                        {
+                      activeDot===2&&
+                      <>
+                      <View style={{width:'100%',height:80,alignSelf:'center',alignItems:'center',justifyContent:'center'}}>
+                        <Text style={{alignSelf:'center',color:'white',fontSize:20,fontWeight:700,marginTop:-20}}>Micronutrient Supplementation</Text>
+                      </View>
+                      <View style={{width:'100%',height:500,backgroundColor:'white'}}>
+                        <ScrollView style={{width:'100%',height:'100%'}}>
+                         <View style={{width:'96%',height:'100%',borderWidth:1,borderColor:"black",alignSelf:'center'}}>
+                          <View style={{width:'100%',height:480,borderColor:'black',borderWidth:1,flexDirection:'column',alignItems:'center',justifyContent:'center'}}>
+                            <View style={{width:'100%',height:180,flexDirection:'row'}}>
+                              <View style={{width:'50%',height:180,flexDirection:'column',alignItems:'center',justifyContent:'center'}}>
+                               <Text>Vitamin A capsule1 </Text>
+                               <Text>for 6 months to 1 year old</Text>
+                              </View>
+                              <View style={{width:'50%',height:180,flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                                <View style={{width:'50%',height:'100%',backgroundColor:'lightgrey',borderColor:'grey',borderWidth:1}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%'}}>
+                                    
+                                  </TouchableOpacity>
+                                </View>
+                                <View style={{width:'50%',height:'100%',backgroundColor:'lightgrey',borderColor:'grey',borderWidth:1}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%'}}>
+                                    
+                                    </TouchableOpacity>
+                                </View>
+                              </View>
+                            </View>
+                            <View style={{width:'100%',height:180,flexDirection:'row'}}>
+                              <View style={{width:'50%',height:180,flexDirection:'column',alignItems:'center',justifyContent:'center'}}>
+                               <Text>Vitamin A capsule 2</Text>
+                               <Text>for 1 to 2 years old</Text>
+                              </View>
+                              <View style={{width:'50%',height:180,flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                                <View style={{width:'50%',height:'100%',backgroundColor:'lightgrey',borderColor:'grey',borderWidth:1}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%'}}>
+                                      
+                                  </TouchableOpacity>
+                                </View>
+                                <View style={{width:'50%',height:'100%',backgroundColor:'lightgrey',borderColor:'grey',borderWidth:1}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%'}}>
+                                      
+                                  </TouchableOpacity>
+                                </View>
+                              </View>
+                            </View>
+                            <View style={{width:'100%',height:180,flexDirection:'row'}}>
+                              <View style={{width:'50%',height:180,alignItems:'center',justifyContent:'center'}}>
+                               <Text>Deworming</Text>
+                              </View>
+                              <View style={{width:'50%',height:180,flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                                <View style={{width:'25%',height:'100%',backgroundColor:'lightgrey',borderColor:'grey',borderWidth:1}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%'}}>
+                                      
+                                  </TouchableOpacity>
+                                </View>
+                                <View style={{width:'25%',height:'100%',backgroundColor:'lightgrey',borderColor:'grey',borderWidth:1}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%'}}>
+                                      
+                                  </TouchableOpacity>
+                                </View>
+                                <View style={{width:'25%',height:'100%',backgroundColor:'lightgrey',borderColor:'grey',borderWidth:1}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%'}}>
+                                      
+                                  </TouchableOpacity>
+                                </View>
+                                <View style={{width:'25%',height:'100%',backgroundColor:'lightgrey',borderColor:'grey',borderWidth:1}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%'}}>
+                                      
+                                  </TouchableOpacity>
+                                </View> 
+                              </View>
+                            </View>
+                          </View>
+                         </View>
+                        </ScrollView>
+                      </View>
+                      <View style={{}}>
+
+                      </View>
+                    </>
+                    }
+                                        {
+                      activeDot===3&&
+                      <>
+                      <View style={{width:'100%',height:80,alignSelf:'center',alignItems:'center',justifyContent:'center'}}>
+                        <Text style={{alignSelf:'center',color:'white',fontSize:25,fontWeight:700,marginTop:-20}}>Counselling</Text>
+                      </View>
+                      <View style={{width:'100%',height:500,backgroundColor:'white'}}>
+                        <ScrollView style={{width:'100%',height:'100%'}}>
+
+                        </ScrollView>
+                      </View>
+                      <View style={{}}>
+
+                      </View>
+                    </>
+                    }
                   </ScrollView>
                   </View>
               </View>
@@ -183,7 +491,7 @@ export default Childimmunization = () => {
                 null
                 :
                 <View style={{width:'100%',height:200,flexDirection:'column',marginTop:1,marginBottom:10}}>
-                  <View style={{width:'100%',height:200,flexDirection:'row',borderRadius:20,borderColor:'navy',borderBottomWidth:5,borderLeftWidth:1,borderRightWidth:1,borderTopWidth:.5}}>
+                  <View style={{width:'100%',height:200,flexDirection:'row',borderRadius:20,}}>
                     <View style={{width:'35%',height:'100%',backgroundColor:'pink',alignItems:'center',justifyContent:'center',borderTopLeftRadius:20,borderBottomLeftRadius:12}}>
                       <View style={{width:100,height:100,borderRadius:50,backgroundColor:'white',overflow:'hidden',flexDirection:'column'}}>
                         <Image source={images.imageTemp} style={{width:'100%',height:'100%',}}/>            
@@ -231,6 +539,7 @@ export default Childimmunization = () => {
                           </View>
                         </View>
                       </View>
+                      <Text style={{fontSize:10,fontWeight:400,marginTop:-10}}>press to view or update details</Text>
                     </View>
                   </View>
                 </View>
@@ -253,11 +562,7 @@ export default Childimmunization = () => {
       <View style={styles.container}>
         {
           toggled?
-          <View style={{width:'100%',height:60, backgroundColor:'transparent',alignItems:'center',justifyContent:'center'}}>
-            <TouchableOpacity onPress={()=>setToggled(!toggled)} style={{width:160,height:40,flexDirection:'row',alignSelf:'flex-start',alignItems:'center',justifyContent:'center',marginLeft:20,borderRadius:10,backgroundColor:"navy"}}>
-              <FontAwesomeIcon icon={faArrowLeft} size={24} color="white"/>
-              <Text style={{color:'white',marginLeft:10}}>go back</Text>
-            </TouchableOpacity>
+          <View style={{width:'100%',height:10, backgroundColor:'transparent',alignItems:'center',justifyContent:'center'}}>
           </View>
           :
           <View style={{width:'100%',height:60, backgroundColor:'transparent',alignItems:'center',justifyContent:'center'}}>

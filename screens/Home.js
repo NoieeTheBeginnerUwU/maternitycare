@@ -216,11 +216,13 @@ const Reminders = ({item, onPress, height, width, color, backgroundColor,onTouch
     let thisDay = moment(today1, "YYYY/MM/DD")
     const querySnapshot = await getDocs(query(collection(database, 'reminders'),where("user","==",id),where("status","==","enabled")));
     const userData = [];
+    const times = [];
     let i = 1;
     let reminders = querySnapshot;
     reminders.docs.map((doc)=>{
       console.log("fetched" + i + " times from reminders")
-      userData.push(doc.data().dates)
+      userData.push(doc.data().dates);
+      times.push(doc.data().times);
       userData.map((date)=>{
         for(let a = 0; a <= date.length-1; a++){
           if(moment(date[a], "YYYY/MM/DD").diff(moment(today1, "YYYY/MM/DD"))===0){

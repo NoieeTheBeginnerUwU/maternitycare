@@ -36,7 +36,7 @@ const Child = () => {
 
   return (
     <ScrollView style={{width: '100%', height:'100%'}}>
-      {hasData? 
+      {documents.length>0? 
         <Childimmunization/>:<Nochild/>
       }
     </ScrollView>

@@ -20,6 +20,8 @@ import { useNavigation } from '@react-navigation/native';
 import moment from 'moment/moment';
 //Child Registered Animation
 import Childregistered from '../animations/Childregistered';
+import { faUser } from '@fortawesome/free-regular-svg-icons';
+import { faUserAlt, faUserGraduate } from '@fortawesome/free-solid-svg-icons';
 
 const Registerchild = () => {
   const [openStartDatePicker, setOpenStartDatePicker] = useState(false);
@@ -61,6 +63,8 @@ const Registerchild = () => {
   const [dob, setDob] = useState('');
   const [gender, setGender] = useState('');
   const [father, setFather] = useState('');
+  const [fathersOccupation, setFathersOccupation] = useState("");
+  const [fathersEducationalLevel, setFathersEducationalLevel] = useState("");
   const [step, setStep] = useState(1);
   const [step1, setStep1] = useState(false);
   const [step2, setStep2] = useState(false);
@@ -190,7 +194,19 @@ const Registerchild = () => {
       
   }
   //console.log(father);
- 
+
+  const stepTwoDone = () => {
+    if(father===""||fathersOccupation===""||fathersEducationalLevel===""){
+      setStep2(false);
+      alert("Please fill all the necessary requirements.")
+    }
+    else{
+      setStep(3);
+      setStep2(true)
+    }
+  }
+
+
   const animationRef = useRef();
   useEffect(() => {
       animationRef.current?.play();
@@ -209,36 +225,30 @@ const Registerchild = () => {
               <Text style={{color:'white'}}>1</Text>
             </TouchableOpacity>
           </View>
-          <View style={{width:'10%',height:4,backgroundColor:step2===true?"greenyellow":'lightgrey',alignSelf:'center'}}/>
+          <View style={{width:'10%',height:4,backgroundColor:step1===true?"greenyellow":'lightgrey',alignSelf:'center'}}/>
           <View style={{width:30,height:30,borderRadius:30,backgroundColor:step2===true?"greenyellow":'lightgrey',alignItems:'center',justifyContent:'center'}}>
             <TouchableOpacity onPress={()=> setStep(2)}>
               <Text style={{color:'white'}}>2</Text>
             </TouchableOpacity>
           </View>
-          <View style={{width:'10%',height:4,backgroundColor:step3===true?"greenyellow":'lightgrey',alignSelf:'center'}}/>
+          <View style={{width:'10%',height:4,backgroundColor:step2===true?"greenyellow":'lightgrey',alignSelf:'center'}}/>
           <View style={{width:30,height:30,borderRadius:30,backgroundColor:step3===true?"greenyellow":'lightgrey',alignItems:'center',justifyContent:'center'}}>
             <TouchableOpacity onPress={()=> setStep(3)}>
               <Text style={{color:'white'}}>3</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={{width:'10%',height:4,backgroundColor:step4===true?"greenyellow":'lightgrey',alignSelf:'center'}}/>
-          <View style={{width:30,height:30,borderRadius:30,backgroundColor:step4===true?"greenyellow":'lightgrey',alignItems:'center',justifyContent:'center'}}>
-            <TouchableOpacity onPress={()=> setStep(4)}>
-              <Text style={{color:'white'}}>4</Text>
             </TouchableOpacity>
           </View>
         </View>
         {
           step===1&&
           <View style={{width:'100%',height:'100%',backgroundColor:'white ',alignItems:'center',justifyContent:"center"}}>
-            <Text>Welcome to our Immunization Service App. Before you register your child, please review and agree to the following:</Text>
+            <Text style={{textAlign:"center",fontSize:17,fontWeight:300}}>Welcome to our Child Immunization Service. Before you register your child, please review and agree to the following:</Text>
             <AnimatedLottieView ref={animationRef} style={{width:250,height:250,}} source={lotties.Antivirus3}  autoPlay loop/>
             <View style={{width:"100%",height:80}}>
-              <Text style={{fontSize:18,fontWeight:500}}>Immunization Records Consent</Text>
+              <Text style={{fontSize:18,fontWeight:500,color:'skyblue'}}>Immunization Records Consent</Text>
               <Text> By registering, you consent to sharing your child's immunization records with healthcare providers for vaccination management.</Text>
             </View>
             <View style={{width:"100%",height:40}}>
-              <Text style={{fontSize:18,fontWeight:500}}>Data Privacy</Text>
+              <Text style={{fontSize:18,fontWeight:500,color:"skyblue"}}>Data Privacy</Text>
               <Text> We prioritize your data privacy and will not share personal information.</Text>
             </View>
             <TouchableOpacity onPress={()=> [setStep(2),setStep1(true)]} style={{width:"80%",height:40,alignSelf:'center',borderRadius:20,backgroundColor:'orange',margin:50,alignItems:'center',justifyContent:'center' }}>
@@ -248,18 +258,36 @@ const Registerchild = () => {
         }
                 {
           step===2&&
-          <View>
-            
+          <View style={{width:"100%",height:"100%",flexDirection:"column",alignItems:"center",justifyContent:"start"}}>
+            <AnimatedLottieView ref={animationRef} style={{width:200,height:200,}} source={lotties.FatherandChild}  autoPlay loop/>
+            <View style={{width:'100%',height:340,backgroundColor:'pink',marginTop:'1%',borderRadius:20,alignItems:'center',justifyContent:'center'}}>
+              <Text style={{color:'white',fontSize:18,fontWeight:500}}>Father's Profile</Text>
+                <View style={{flexDirection:'row', backgroundColor:'pink', alignItems:'center',justifyContent:'center'}}>
+                <View style={{width:'100%',height:70,backgroundColor:'transparent',flexDirection:'row',justifyContent:'center',alignItems:'center'}}>
+                  <FontAwesomeIcon icon={faUser} size={24} color="white"/>
+                  <TextInput placeholder="Enter Father's name" onChangeText={(text)=> setFather(text)} style={{width:'75%',borderWidth:1,borderColor:'black',textAlign:'center',height:40,marginLeft:10,borderRadius:4,backgroundColor:'white'}}/>
+                </View>
+              </View>
+              <View style={{flexDirection:'row', backgroundColor:'pink', alignItems:'center',justifyContent:'center'}}>
+                <View style={{width:'100%',height:70,backgroundColor:'transparent',flexDirection:'row',justifyContent:'center',alignItems:'center'}}>
+                  <FontAwesomeIcon icon={faUserAlt} size={24} color="white"/>
+                  <TextInput placeholder="Enter Father's Occupation" onChangeText={(text)=> setFathersOccupation(text)} style={{width:'75%',borderWidth:1,borderColor:'black',textAlign:'center',height:40,marginLeft:10,borderRadius:4,backgroundColor:'white'}}/>
+                </View>
+              </View>
+              <View style={{flexDirection:'row', backgroundColor:'pink', alignItems:'center',justifyContent:'center'}}>
+                <View style={{width:'100%',height:70,backgroundColor:'transparent',flexDirection:'row',justifyContent:'center',alignItems:'center'}}>
+                  <FontAwesomeIcon icon={faUserGraduate} size={24} color="white"/>
+                  <TextInput placeholder="Enter Father's Educational attainment" onChangeText={(text)=> setFathersEducationalLevel(text)} style={{width:'75%',borderWidth:1,borderColor:'black',textAlign:'center',height:40,marginLeft:10,borderRadius:4,backgroundColor:'white'}}/>
+                </View>
+              </View>
+              <TouchableOpacity onPress={()=> stepTwoDone()} style={{width:'90%',height:40,alignSelf:"center",alignItems:'center',justifyContent:"center",backgroundColor:'skyblue',borderRadius:10}}>
+                <Text style={{color:'white',fontSize:20,fontWeight:600}}>next step</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        }
-                {
-          step===3&&
-          <View>
-            
-          </View>
-        }
+        }            
         {
-          step===4&&
+          step===3&&
           <ScrollView style={{width:'100%'}}>
           <View style={{marginTop:'5%',}}>
             <View style={{flexDirection:'column', backgroundColor:'pink', alignItems:'center',justifyContent:'space-between'}}>
@@ -311,18 +339,6 @@ const Registerchild = () => {
               </View>
             </View>
             <View style={{flexDirection:'row', backgroundColor:'pink', alignItems:'center',justifyContent:'center'}}>
-              <View style={{width:'100%',height:70,backgroundColor:'transparent',justifyContent:'center',alignItems:'center'}}>
-                <Text>Father</Text>
-                <TextInput placeholder="Enter Father's name" onChangeText={(text)=> setFather(text)} style={{width:'90%',borderWidth:1,borderColor:'black',textAlign:'center',height:35,borderRadius:4,backgroundColor:'white'}}/>
-              </View>
-            </View>
-            <View style={{flexDirection:'row', backgroundColor:'pink', alignItems:'center',justifyContent:'center'}}>
-              <View style={{width:'100%',height:70,backgroundColor:'transparent',justifyContent:'center',alignItems:'center'}}>
-                <Text>Father</Text>
-                <TextInput placeholder="Enter Father's name" onChangeText={(text)=> setFather(text)} style={{width:'90%',borderWidth:1,borderColor:'black',textAlign:'center',height:35,borderRadius:4,backgroundColor:'white'}}/>
-              </View>
-            </View>
-            <View style={{flexDirection:'row', backgroundColor:'pink', alignItems:'center',justifyContent:'center'}}>
               <TouchableOpacity style={{width:"80%",height:50,margin:10,marginBottom:30,alignSelf:'center',alignItems:'center',justifyContent:'center',backgroundColor:"skyblue",borderRadius:20}} onPress={()=> sendData()}>
                 <Text>Submit</Text>
               </TouchableOpacity>
@@ -338,9 +354,8 @@ const Registerchild = () => {
                 <View style={styles.modalView}>
                   <DatePicker
                     mode="calendar"
-                    minimumDate={startDate}
+                    minimumDate={dateNow}
                     maximumDate={today}
-                    selected={startedDate}
                     onDateChanged={handleChangeStartDate}
                     onSelectedChange={(date) => setSelectedStartDate(date)}
                     options={{
