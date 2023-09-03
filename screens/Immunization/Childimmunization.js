@@ -468,9 +468,141 @@ export default Childimmunization = () => {
                       <View style={{width:'100%',height:80,alignSelf:'center',alignItems:'center',justifyContent:'center'}}>
                         <Text style={{alignSelf:'center',color:'white',fontSize:25,fontWeight:700,marginTop:-20}}>Counselling</Text>
                       </View>
-                      <View style={{width:'100%',height:500,backgroundColor:'white'}}>
+                      <View style={{width:'100%',height:600,backgroundColor:'white'}}>
                         <ScrollView style={{width:'100%',height:'100%'}}>
-
+                          <View style={{width:'100%',height:'100%',flexDirection:'column',alignItems:'center',justifyContent:'center',}}>
+                            <View style={{width:'96%',height:100,flexDirection:'row',borderColor:'grey',borderWidth:1}}>
+                              <View style={{width:'40%',height:'100%',alignItems:'center',justifyContent:'center'}}>
+                                <Text>Exclusive Breast Feeding </Text>
+                              </View>
+                              <View style={{width:'60%',height:'100%', flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                                <View style={{width:'20%',height:'100%',backgroundColor:'lightgrey',borderColor:'grey',borderWidth:1}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%'}}>
+                                      
+                                  </TouchableOpacity>
+                                </View>
+                                <View style={{width:'20%',height:'100%',backgroundColor:'lightgrey',borderColor:'grey',borderWidth:1}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%'}}>
+                                      
+                                  </TouchableOpacity>
+                                </View>
+                                <View style={{width:'20%',height:'100%',backgroundColor:'lightgrey',borderColor:'grey',borderWidth:1}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%'}}>
+                                      
+                                  </TouchableOpacity>
+                                </View>
+                                <View style={{width:'20%',height:'100%',backgroundColor:'lightgrey',borderColor:'grey',borderWidth:1}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%'}}>
+                                      
+                                  </TouchableOpacity>
+                                </View>
+                                <View style={{width:'20%',height:'100%',backgroundColor:'lightgrey',borderColor:'grey',borderWidth:1}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%'}}>
+                                      
+                                  </TouchableOpacity>
+                                </View>
+                              </View>
+                            </View>
+                            <View style={{width:'96%',height:100,flexDirection:'row',borderColor:'grey',borderWidth:1}}>
+                              <View style={{width:'40%',height:'100%',alignItems:'center',justifyContent:'center'}}>
+                                <Text>Complementary Feeding </Text>
+                              </View>
+                              <View style={{width:'60%',height:'100%', flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                                <View style={{width:'20%',height:'100%',backgroundColor:'lightgrey',borderColor:'grey',borderWidth:1}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%'}}>
+                                      
+                                  </TouchableOpacity>
+                                </View>
+                                <View style={{width:'20%',height:'100%',backgroundColor:'lightgrey',borderColor:'grey',borderWidth:1}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%'}}>
+                                      
+                                  </TouchableOpacity>
+                                </View>
+                                <View style={{width:'20%',height:'100%',backgroundColor:'lightgrey',borderColor:'grey',borderWidth:1}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%'}}>
+                                      
+                                  </TouchableOpacity>
+                                </View>
+                                <View style={{width:'20%',height:'100%',backgroundColor:'lightgrey',borderColor:'grey',borderWidth:1}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%'}}>
+                                      
+                                  </TouchableOpacity>
+                                </View>
+                                <View style={{width:'20%',height:'100%',backgroundColor:'lightgrey',borderColor:'grey',borderWidth:1}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%'}}>
+                                      
+                                  </TouchableOpacity>
+                                </View>
+                              </View>
+                            </View>
+                            <View style={{width:'96%',height:100,flexDirection:'row',borderColor:'grey',borderWidth:1}}>
+                              <View style={{width:'40%',height:'100%',alignItems:'center',justifyContent:'center'}}>
+                                <Text>Oral / Dental Health  </Text>
+                              </View>
+                              <View style={{width:'60%',height:'100%', flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                                <View style={{width:'20%',height:'100%',backgroundColor:'lightgrey',borderColor:'grey',borderWidth:1}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%'}}>
+                                      
+                                  </TouchableOpacity>
+                                </View>
+                                <View style={{width:'20%',height:'100%',backgroundColor:'lightgrey',borderColor:'grey',borderWidth:1}}>
+                                <TouchableOpacity style={{width:'100%',height:'100%'}}>
+                                      
+                                      </TouchableOpacity>
+                                </View>
+                                <View style={{width:'20%',height:'100%',backgroundColor:'lightgrey',borderColor:'grey',borderWidth:1}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%'}}>
+                                      
+                                  </TouchableOpacity>
+                                </View>
+                                <View style={{width:'20%',height:'100%',backgroundColor:'lightgrey',borderColor:'grey',borderWidth:1}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%'}}>
+                                      
+                                  </TouchableOpacity>
+                                </View>
+                                <View style={{width:'20%',height:'100%',backgroundColor:'lightgrey',borderColor:'grey',borderWidth:1}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%'}}>
+                                      
+                                  </TouchableOpacity>
+                                </View>
+                              </View>
+                            </View>
+                            <View style={{width:'96%',height:100,flexDirection:'row',borderColor:'grey',borderWidth:1}}>
+                              <View style={{width:'40%',height:'100%',alignItems:'center',justifyContent:'center'}}>
+                                <Text>Disability Screening </Text>
+                              </View>
+                              <View style={{width:'60%',height:'100%', flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                                <View style={{width:'20%',height:'100%',backgroundColor:'lightgrey',borderColor:'grey',borderWidth:1}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%'}}>
+                                      
+                                  </TouchableOpacity>
+                                </View>
+                                <View style={{width:'20%',height:'100%',backgroundColor:'lightgrey',borderColor:'grey',borderWidth:1}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%'}}>
+                                      
+                                  </TouchableOpacity>
+                                </View>
+                                <View style={{width:'20%',height:'100%',backgroundColor:'lightgrey',borderColor:'grey',borderWidth:1}}>
+                                <TouchableOpacity style={{width:'100%',height:'100%'}}>
+                                      
+                                      </TouchableOpacity>
+                                </View>
+                                <View style={{width:'20%',height:'100%',backgroundColor:'lightgrey',borderColor:'grey',borderWidth:1}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%'}}>
+                                      
+                                  </TouchableOpacity>
+                                </View>
+                                <View style={{width:'20%',height:'100%',backgroundColor:'lightgrey',borderColor:'grey',borderWidth:1}}>
+                                  <TouchableOpacity style={{width:'100%',height:'100%'}}>
+                                        
+                                  </TouchableOpacity>
+                                </View>
+                              </View>
+                            </View>
+                            <View style={{width:'96%',height:100,flexDirection:'row',borderColor:'grey',borderWidth:1}}>
+                              
+                            </View>
+                          </View>
                         </ScrollView>
                       </View>
                       <View style={{}}>

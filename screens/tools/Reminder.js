@@ -47,7 +47,6 @@ export default Reminder = () => {
       setSelectedId("");
     }
     setLoading(true);
-    fetchData()
   },[]);
 
   setTimeout(()=>{
@@ -59,25 +58,21 @@ export default Reminder = () => {
       const querySnapshot = await updateDoc(doc(database,"reminders",id),{
         status: "enabled"
       });
-
-  };
-
+      fetchData();
+      };
     async function handleDisabled (id) {
       const querySnapshot = await updateDoc(doc(database,"reminders",id),{
         status: "disabled"
       });
-
-    };
-
-    if(active===true&&selectedId!==""){
-      console.log(selectedId + " is disabled");
-      handleEnabled(selectedId);
       fetchData();
+    };
+    if(active===true&&selectedId!==""){
+      console.log(selectedId + " is enabled");
+      handleEnabled(selectedId);
     }
     if(active===false&&selectedId!==""){
-      console.log(selectedId + " is enabled");
+      console.log(selectedId + " is disabled");
       handleDisabled(selectedId);
-      fetchData();
     }
   }
 
@@ -92,7 +87,6 @@ export default Reminder = () => {
       nav.navigate("Tools");
     },2000)
 
-    
   }
 
   const renderItem = ({ item }) => (

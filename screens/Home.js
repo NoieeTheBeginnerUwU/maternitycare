@@ -175,7 +175,7 @@ const Reminders = ({item, onPress, height, width, color, backgroundColor,onTouch
   var height = "";
 
   //Date related code (var date = moment().utcOffset('+08:00').format(' hh:mm:ss a');)
-  const today1 = moment(currentDate,"YYYY/MM/DD");
+  const today1 = moment(currentDate,"YYYY/MM/DD hh:mm a");
   const today2 = moment(lastPeriodPlaceholder, "YYYY/MM/DD");
   const weeksDifference = today1.diff(today2, "weeks");
   const [greeting, setGreeting] = useState('');
@@ -186,6 +186,7 @@ const Reminders = ({item, onPress, height, width, color, backgroundColor,onTouch
   const today4 = moment(dateOfDelivery, "YYYY/MM/DD")
   const nowToThen = today4.diff(today1, "weeks");
   const [hasNotif, setHasNotif] = useState(false);
+
   useEffect(()=>{
     fetchEvents();
     fetchData();
@@ -208,8 +209,9 @@ const Reminders = ({item, onPress, height, width, color, backgroundColor,onTouch
     setDocument(userData);
   };
 
-  const [reminderDate, setReminderDate] = useState([]);
+  const [reminderDate, setReminderDate] = useState("");
   const [reminderTimes, setReminderTime] = useState("");
+  const [timesIn, setTimesIn] = useState([]);
   const [reminderNote, setReminderNote] = useState(""); 
 
   async function fetchReminders(){
@@ -220,21 +222,56 @@ const Reminders = ({item, onPress, height, width, color, backgroundColor,onTouch
     let i = 1;
     let reminders = querySnapshot;
     reminders.docs.map((doc)=>{
-      console.log("fetched" + i + " times from reminders")
+      console.log("fetched " + i + " times from reminders")
       userData.push(doc.data().dates);
       times.push(doc.data().times);
       userData.map((date)=>{
         for(let a = 0; a <= date.length-1; a++){
           if(moment(date[a], "YYYY/MM/DD").diff(moment(today1, "YYYY/MM/DD"))===0){
+            setReminderDate(date[a]);
+            setReminderNote(doc.data().note);
             console.log("HIT");
-            console.log(date[a]);
+            //console.log("date: "+ reminderDate + " times: "  + reminderTimes);
+           // console.log(date[a]);
+           times.map((time)=>{ 
+              for(let b = 0; b <= time.length-1; b++){
+                //console.log(time[b]);
+                    if(moment(time[b], "hh:mm a")===moment(today1,"hh:mm a")){
+                      setReminderDate(date[a]);
+                      setReminderTime(time[b]);
+                      schedulePushNotification();
+                      sendReminder();
+                    }
+                    
+                } 
+            })
           }
         }
       })
+      setTimesIn(times) 
       i++;
     })
     setReminders(userData);
   };
+
+  //console.log("times: " + timesIn + " reminder: " + reminderNote + " Date: " + reminderDate);
+
+  const sendReminder = async () => {
+    //console.log("reminder was fetched");
+    timesIn.map((time)=>{
+      for(let a = 0; a <= time.length-1; a++){
+        if(moment(reminderDate, "YYYY/MM/DD").diff(today1,"YYYY/MM/DD")===0 && moment(time[a],"hh:mm a")===moment(today1,"hh:mm a")){
+          console.log("times: " + time[a] + " reminder: " + reminderNote + " Date: " + reminderDate);
+          fetchReminders();
+          schedulePushNotification();
+        }
+        console.log(time[a])
+      } 
+    })
+    
+  }
+
+  sendReminder()
 
 
   function fetchEvents(){
@@ -1319,13 +1356,6 @@ const Reminders = ({item, onPress, height, width, color, backgroundColor,onTouch
           </TouchableOpacity>
         </View>
         <View style={{width:'90%',height:4,backgroundColor:'#F55670',marginBottom:'5%',alignSelf:'center'}}/>
-        <View style={{width:'100%',height:300,marginTop:20}}>
-          <TouchableOpacity  style={{width:'70%',height:60,backgroundColor:'navy',alignSelf:'center',alignItems:'center',justifyContent:'center'}} onPress={async () => {
-          await schedulePushNotification();
-        }}>
-            <Text style={{color:'white',alignSelf:'center'}}>Send notif</Text>
-          </TouchableOpacity>
-        </View>
       </ScrollView>
     </>
   )
@@ -1334,8 +1364,8 @@ const Reminders = ({item, onPress, height, width, color, backgroundColor,onTouch
     await Notifications.scheduleNotificationAsync({
       content: {
         title: "Drink medicine ",
-        body: 'paracetamol',
-        data: { data: 'twice a day' },
+        body: reminderNote,
+        data: { data: 'dont forget~' },
       },
       trigger: { seconds: 1 },
     });

@@ -472,16 +472,6 @@ const handleReminder = () => {
                                 </TouchableOpacity>
                               </View>
                               <Text style={{ fontSize: 13,marginLeft:'5%' }}>select the time within your covinience</Text>
-                              <View style={{width:'100%',height:190,marginBottom:'100%',alignItems:'center',justifyContent:'center'}}>
-                                <TextInput
-                                  placeholder="Add a note"
-                                  style={{ alignSelf: "center", marginTop: 50, marginBottom: 50, width:'80%',height:70,borderBottomColor:'black',borderBottomWidth:1 }}
-                                  onChangeText={(text) => setNote(text)}
-                                />
-                                <TouchableOpacity onPress={()=> handleReminder()} style={{width:'90%',height:40,alignSelf:'center',alignItems:'center',backgroundColor:'navy',justifyContent:'center'}}>
-                                    <Text style={{color:'white'}}>Submit</Text>
-                                </TouchableOpacity>
-                                </View>
                             </View>
                           </View>
                         </View>
@@ -489,6 +479,12 @@ const handleReminder = () => {
               </View>
             </View>
           ) : null}
+                        <View style={{width:'100%' ,height:120,marginBottom:'100%',alignItems:'center',justifyContent:'center'}}>
+                          <TextInput placeholder="Add a note" style={{ alignSelf: "center", marginTop: 50, marginBottom: 50, width:'80%',height:70,borderBottomColor:'black',borderBottomWidth:1 }} onChangeText={(text) => setNote(text)}/>
+                            <TouchableOpacity onPress={()=> handleReminder()} style={{width:'90%',height:40,alignSelf:'center',alignItems:'center',backgroundColor:'navy',justifyContent:'center'}}>
+                            <Text style={{color:'white'}}>Submit</Text>
+                           </TouchableOpacity>
+                          </View>
         </ScrollView>
       </View>
     }

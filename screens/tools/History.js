@@ -43,7 +43,7 @@ const History = () => {
 
     useEffect(()=> {
       async function fetchData(){
-        const querySnapshot = await getDocs(query(collection(database, 'appointments'),orderBy("dateMade","desc")));
+        const querySnapshot = await getDocs(query(collection(database, 'appointments'),where("uid","==",id),where("status","==","approved"),orderBy("dateMade","desc")));
         const userData = [];
         const data = querySnapshot.forEach(doc=>{
           if(doc.data().uid===id){
