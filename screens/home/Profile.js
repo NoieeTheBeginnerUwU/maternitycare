@@ -141,18 +141,9 @@ const Profile = () => {
         <Loading />
       ) : (
         <ScrollView>
-          <View style={{ backgroundColor: "white", height: 650 }}>
-            <View
-              style={{
-                width: "100%",
-                height: 70,
-                backgroundColor: "transparent",
-                marginBottom: -100,
-                borderBottomLeftRadius: 70,
-                borderBottomRightRadius: 70,
-              }}
-            ></View>
-            <TouchableOpacity>
+          <View style={{ backgroundColor: "white", height: 700,alignItems:'center',justifyContent:'start' }}>
+            <View style={{width:'96%',height:134,flexDirection:'row',justifyContent:'center',alignItems:'center',borderTopRadius:70,backgroundColor:"pink",margin:'4%',borderTopLeftRadius:65,borderBottomLeftRadius:65}}>
+            <TouchableOpacity  style={{width:120,height:120,borderRadius:140}}>
                 {
                   !profilePicPlaceholder?
                   <Image
@@ -160,51 +151,51 @@ const Profile = () => {
                   source={require('../../assets/usertemplate.png')}/>
                 :
                 <Image
-                style={{width:120,height:120,marginTop:40,alignSelf:'center',borderRadius:140}}
+                style={{width:120,height:120,borderRadius:140}}
                 source={{uri:profilePicPlaceholder}}/>
                 }
-            </TouchableOpacity>
-            <View style={style.container}>
+              </TouchableOpacity>
               <View
-                style={{
-                  width: "80%",
-                  height: 60,
-                  backgroundColor: "transparent",
-                  marginTop: -12,
-                  alignSelf: "center",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
+                  style={{
+                    width: "60%",
+                    height: 60,
+                    backgroundColor: "transparent",
+                    alignSelf: "center",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
                 <Text
-                  style={{ color: "#2E417E", fontSize: 27, fontWeight: 800 }}
+                  style={{ color: "white", fontSize: 20, fontWeight: 800 }}
                 >
                   {fnamePlaceholder} {mnamePlaceholder} {lnamePlaceholder}
                 </Text>
               </View>
-              <View style={{width:'96%',height:60,borderColor:'pink',borderWidth:2.4,alignSelf:'center',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                <View style={{width:'25%',height:'100%',borderColor:'skyblue',borderWidth:1,flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+            </View>
+            <View style={style.container}>
+              <View style={{width:'96%',height:60,alignSelf:'center',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                <View style={{width:'25%',height:'100%',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
                   <FontAwesomeIcon icon={faPersonPregnant} size={22} color="pink"/>
                   <View style={{width:'70%',height:'100%',alignItems:'center',justifyContent:'center'}}>
                     <Text style={{}}>BMI</Text>
                     <Text style={{}}>{bm}</Text>
                   </View>
                 </View>
-                <View style={{width:'25%',height:'100%',borderColor:'skyblue',borderWidth:1,flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                <View style={{width:'25%',height:'100%',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
                 <FontAwesomeIcon icon={faWeightScale} size={22} color="orange"/>
                   <View style={{width:'70%',height:'100%',alignItems:'center',justifyContent:'center'}}>
                     <Text style={{}}>Weight</Text>
                     <Text style={{}}>{weightPlaceholder}</Text>
                   </View>
                 </View>
-                <View style={{width:'25%',height:'100%',borderColor:'skyblue',borderWidth:1,flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                <View style={{width:'25%',height:'100%',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
                 <FontAwesomeIcon icon={faRuler} size={22} color="yellow"/>
                   <View style={{width:'70%',height:'100%',alignItems:'center',justifyContent:'center'}}>
                     <Text style={{}}>Height</Text>
                     <Text style={{}}>{heightPlaceholder}</Text>
                   </View>
                 </View>
-                <View style={{width:'25%',height:'100%',borderColor:'skyblue',borderWidth:1,flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                <View style={{width:'25%',height:'100%',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
                 <FontAwesomeIcon icon={faDroplet} size={22} color="red"/>
                   <View style={{width:'70%',height:'100%',alignItems:'center',justifyContent:'center'}}>
                     <Text style={{}}>BP</Text>

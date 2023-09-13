@@ -18,6 +18,7 @@ import Reminderadded from "../animations/Reminderadded";
 import { addDoc,getDocs,query,collection } from "firebase/firestore";
 import { Dropdown } from "react-native-element-dropdown";
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { Audio } from "expo-av";
 
 const data = [
   { label: 'once a day', value: 'once a day' },
@@ -27,6 +28,27 @@ const data = [
 
 
 export default Addreminder = () => {
+
+  const [sound, setSound] = useState();
+  async function playSound() {
+    console.log('Loading Sound');
+    const { sound } = await Audio.Sound.createAsync(require('../../assets/success3.wav')
+    );
+    setSound(sound);
+    console.log('Playing Sound');
+    await sound.playAsync();
+  }
+
+  useEffect(() => {
+    return sound
+      ? () => {
+          console.log('Unloading Sound');
+          sound.unloadAsync();
+          ;
+        }
+      : undefined;
+  }, [sound]);
+
   const nav = useNavigation();
   const id = authentication.currentUser.uid;
   const [value, setValue] = useState(null);
@@ -124,8 +146,11 @@ const handleReminder = () => {
           times: multipleTimes,
           note: note,
           dateMade: startDate,
-          status:'disabled',
-        }).then(setAddedReminder(true))
+          status:'enabled',
+        }).then(setAddedReminder(true));
+        setTimeout(()=>{
+          playSound();
+        },1200)
         setMultipleDates([]);
         setMultipleTimes([]);
         setTimeout(()=>{

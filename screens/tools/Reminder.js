@@ -10,12 +10,35 @@ import { useNavigation } from "@react-navigation/native";
 //import firebase
 import { authentication } from "../../config/firebase";
 import { database } from "../../config/firebase";
-import { addDoc,getDocs,query,collection,where, doc,updateDoc,deleteDoc } from "firebase/firestore";
+import { addDoc,getDocs,query,collection,where, doc,updateDoc,deleteDoc, orderBy } from "firebase/firestore";
 //import loading
 import Loading from "../animations/Loading";
 import Deleted from "../animations/Deleted";
+//import sound
+import { Audio } from "expo-av";
 
 export default Reminder = () => {
+
+  const [sound, setSound] = useState();
+  async function playSound() {
+    console.log('Loading Sound');
+    const { sound } = await Audio.Sound.createAsync(require('../../assets/success1.wav')
+    );
+    setSound(sound);
+    console.log('Playing Sound');
+    await sound.playAsync();
+  }
+
+  useEffect(() => {
+    return sound
+      ? () => {
+          console.log('Unloading Sound');
+          sound.unloadAsync();
+          ;
+        }
+      : undefined;
+  }, [sound]);
+
   const id = authentication.currentUser.uid;
   const nav = useNavigation();
   const [active, setActive] = useState(false);
@@ -27,7 +50,7 @@ export default Reminder = () => {
   const [hasDeleted, setHasDeleted] = useState(false);
 
   async function fetchData(){
-    const querySnapshot = await getDocs(query(collection(database, 'reminders'),where("user", "==", id)));
+    const querySnapshot = await getDocs(query(collection(database, 'reminders'),where("user", "==", id)),orderBy("dateMade","desc"));
     const userData = [];
     const data = querySnapshot.forEach(doc=>{
       userData.push({id:doc.id, dateMade:doc.data().dateMade, dates:doc.data().dates,times:doc.data().times,note:doc.data().note,status:doc.data().status});
@@ -81,6 +104,9 @@ export default Reminder = () => {
     setToDelete(false);
 
     setHasDeleted(true);
+    setTimeout(()=>{
+      playSound();
+    },300)
     setTimeout(()=>{
       setHasDeleted(false);
       alert("Reminder deleted successfully")
@@ -144,7 +170,7 @@ export default Reminder = () => {
       <>
         {
           toDelete?
-          <View style={{width:'60%',height:'40%',marginTop:'20%',backgroundColor:'white',alignSelf:'center',borderRadius:20}}>
+          <View style={{width:'70%',height:'80%',marginTop:'20%',backgroundColor:'white',alignSelf:'center',borderRadius:20}}>
             <View style={{width:'100%',height:'70%',alignItems:'center',justifyContent:'center',color:'skyblue',fontSize:24,fontWeight:600}}>
               <Text style={{width:'80%'}}>Are you sure you want to delete this reminder?</Text>
             </View>

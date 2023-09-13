@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Dimensions } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { StyleSheet, Text, View, Dimensions, AppState } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 //Firebase
 import { authentication } from '../config/firebase';
-
+import { database } from '../config/firebase';
 //Pages
 import GetStarted from './getstarted/Getstarted';
 import Dashboard from './Dashboard';
@@ -21,12 +21,15 @@ export default function App() {
 
   // Initialize Firebase with your config
   const [user, setUser] = useState(null);
+  const [document, setDocument] = useState([]);
+  let id = "";
 
-  // Listen for auth state changes
+  // Listen   for auth state changes
   try{
     useEffect(() => {
       const unsubscribe = authentication.onAuthStateChanged((authenticatedUser) => {
         setUser(authenticatedUser);
+        id = authentication.currentUser.uid;
       });
   
       // Unsubscribe when component unmounts
@@ -35,7 +38,6 @@ export default function App() {
   }catch(e){
     console.log(e);
   }
-
 
   return (
     <NavigationContainer screenOptions={{headerShown: false}}> 

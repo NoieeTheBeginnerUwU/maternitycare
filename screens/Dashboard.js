@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Touchable, StatusBar } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, Touchable, StatusBar, AppRegistry } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
- //Firebase
-import { authentication } from '../config/firebase';
 //Navigation
 import { createStackNavigator } from '@react-navigation/stack';
 //Pages
@@ -41,37 +39,269 @@ import { faHome } from '@fortawesome/free-solid-svg-icons/faHome';
 import { useNavigation } from '@react-navigation/native';
 import LoggingIn from './animations/LoggingIn';
 //import firebase
-import { getDocs, collection, doc, where, query } from 'firebase/firestore';
+import { getDocs, collection, getDoc, doc, where, query } from 'firebase/firestore';
+import { authentication } from '../config/firebase';
+import { database } from '../config/firebase';
+import messaging from '@react-native-firebase/messaging';
 //animation
 import Fetchdata from './animations/Fetchdata';
+import Suspended from './animations/Suspended';
+import Notfound from './animations/Notfound';
+import Loading from './animations/Loading';
+//import moment js
+import moment from 'moment'
+//Expo notif
+import * as Device from 'expo-device';
+import * as Notifications from 'expo-notifications';
+import { Audio } from 'expo-av';
+//import background handler
+import BackgroundFetch from 'react-native-background-fetch';
+import { getFormatedDate } from 'react-native-modern-datepicker';
+//permission
+import { AppState } from 'react-native';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
 const Dashboard = () => {
   const id = authentication.currentUser.uid;
   const navigation = useNavigation();
   const [active, setActive] = useState("");
   const [signIn, setSignIn] = useState(false);
+  const [documents, setDocument] = useState([]);
+  const [accountStatus, setAccountStatus] = useState("");
   const [registered, isRegistered] = useState(false);
+  let today = new Date();
+  const today1 = moment(today, "YYYY/MM/DD");
+ 
+  const appState = useRef(AppState.currentState);
+  const [appStateVisible, setAppStateVisible] = useState(appState.current);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (
+        appState.current === "inactive"|"background" &&
+        nextAppState === 'active'
+      ) {
+        console.log('App has come to the foreground!');
+      } 
+
+      appState.current = nextAppState;
+      setAppStateVisible(appState.current);
+      if(nextAppState==="active"){
+        try{
+          schedulePushNotificationForeground();
+        }catch(e){
+          console.log(e);
+        }
+      }
+      console.log('AppState', appState.current);
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
   useEffect(()=>{
-    setSignIn(true)
+    async function fetchData(){
+      const querySnapshot = await getDoc(doc(database, "userData", id));;
+      console.log(querySnapshot.data().status);
+      setAccountStatus(querySnapshot.data().status);
+    };
+    fetchData();
+  },[])
+
+  useEffect(()=>{
+    setSignIn(true);
     setTimeout(()=>{
       setSignIn(false)
     },2000)
-  },[])
+  },[]);
+  
+  // async function requestUserPermission() {
+  //   const authStatus = await messaging().requestPermission();
+  //   const enabled =
+  //     authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+  //     authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+  
+  //   if (enabled) {
+  //     console.log('Authorization status:', authStatus);
+  //   }
+  // }
 
+  // useEffect(() => {
+  //   // Assume a message-notification contains a "type" property in the data payload of the screen to open
+
+  //   const unsubscribe = messaging().onMessage(async remoteMessage => {
+  //     Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
+  //   });
+
+  //   return unsubscribe;
+
+  //   messaging().onNotificationOpenedApp(remoteMessage => {
+  //     console.log(
+  //       'Notification caused app to open from background state:',
+  //       remoteMessage.notification,
+  //     );
+  //     navigation.navigate("Home");
+  //   });
+
+  //   // Check whether an initial notification is available
+  //   messaging()
+  //     .getInitialNotification()
+  //     .then(async(remoteMessage) => {
+  //       if (remoteMessage) {
+  //         console.log(
+  //           'Notification caused app to open from quit state:',
+  //           remoteMessage.notification,
+  //         );
+  //       }
+  //     });
+
+  //   // Register background handler
+  //   messaging().setBackgroundMessageHandler(async remoteMessage => {
+  //     console.log('Message handled in the background!', remoteMessage);
+  //   });
+
+  // }, []);
+
+
+
+  console.log(accountStatus)
   const navigateTo = (active) => { 
     navigation.navigate(active)
     setActive(active);
   }
+  //Reminders 
+  const [sound, setSound] = useState();
+  async function playSound() {
+    console.log('Loading Sound');
+    const { sound } = await Audio.Sound.createAsync(require('../assets/notif2.wav')
+    );
+    setSound(sound);
+    console.log('Playing Sound');
+    await sound.playAsync();
+  }
+
+  useEffect(() => {
+    return sound
+      ? () => {
+          console.log('Unloading Sound');
+          sound.unloadAsync();
+          ;
+        }
+      : undefined;
+  }, [sound]);
+
+  const [reminderDate, setReminderDate] = useState("");
+  const [reminderTimes, setReminderTime] = useState("");
+  const [timesIn, setTimesIn] = useState([]);
+  const [reminderNote, setReminderNote] = useState(""); 
+
+  async function fetchReminders(){
+    let thisDay = moment(today1, "YYYY/MM/DD")
+    const querySnapshot = await getDocs(query(collection(database, 'reminders'),where("user","==",id),where("status","==","enabled")));
+    const userData = [];
+    const times = [];
+    let i = 1;
+    let reminders = querySnapshot;
+    reminders.docs.map((doc)=>{
+      //console.log("fetched " + i + " times from reminders")
+      userData.push(doc.data().dates);
+      if(moment(doc.data().times,"hh:mm a").diff(moment(today,"hh:mm a"),"minutes")>0){
+        setReminderNote(doc.data().note); 
+        times.push(doc.data().times);
+      userData.map((date)=>{
+        for(let a = 0; a <= date.length-1; a++){
+          let dateNowYeah = new Date();
+          const startDate = getFormatedDate(
+            dateNowYeah.setDate(dateNowYeah.getDate()),
+            "YYYY-MM-DD"
+          );
+          if(date[a]===startDate){
+            setReminderDate(date[a]);
+            //console.log("HIT");
+            //console.log("date: "+ reminderDate + " times: "  + reminderTimes);
+            //console.log(date[a]);
+           times.map((time)=>{ 
+              for(let b = 0; b <= time.length-1; b++){
+                var hours = moment().utcOffset('+08:00').format('hh:mm a');
+                console.log("date[a]: "+date[a] + " | startDate: " + startDate+" | " + moment(time[b],"hh:mm a").diff(moment(today1,"hh:mm a"),'minutes')+" minutes: "+ time[b]+ " | note: " + reminderNote)
+                let hour = startDate+" "+time[b];
+                //console.log(moment(hour, "YYYY/mm/dd hh:mm a").diff(moment(startDate,"YYYY/MM/DD hh:mm a"),"minutes")+" minutes: "+ time[b]);
+                //console.log(moment(date[a]+" "+time[b],"YYYY/MM/DD hh:mm a")+ " "+(moment(today1,"YYYY/MM/DD hh:mm a")));
+                    if(moment(time[b],"hh:mm a").diff(moment(today1,"hh:mm a"),'minutes')<10&&moment(time[b],"hh:mm a").diff(moment(today1,"hh:mm a"),'minutes')>0){
+                        try{
+                          setInterval(sendNotifNow(date[a],time[b]),60000)
+                        }catch(e){
+                          console.log(e);
+                        }
+                    }
+                } 
+            })
+          }
+        }
+      })
+      }
+      setTimesIn(times) 
+      i++;
+    })
+  };
+
+  function printDate(){
+    let dateNowYeah = new Date();
+    const startDate = getFormatedDate(
+      dateNowYeah.setDate(dateNowYeah.getDate()),
+      "YYYY/MM/DD"
+    );
+     console.log(startDate);
+  }
+
+  function sendNotifNow(date,time){
+    try{
+      setReminderDate(date);
+      setReminderTime(time);
+      schedulePushNotification();
+    }catch(e){
+      console.log(e);
+    }
+  }
+
+  //console.log("times: " + timesIn + " reminder: " + reminderNote + " Date: " + reminderDate);
+
+  useEffect(()=>{
+    try{
+      fetchReminders();
+    }catch(e){  
+      console.log(e);
+    }
+  },[])
 
   return (
     <>
       <>
-          {
-          signIn?
-            <LoggingIn/>
-          :
-            <>
+      {
+        accountStatus==="pending"&&
+        <Fetchdata/>
+      }
+            {
+        accountStatus==="suspended"&&
+        <Suspended/>
+      }
+        {
+          accountStatus==="approved"&&
+          <>
+            {
+            signIn?
+              <LoggingIn/>
+            :
+              <>
               <StatusBar animated={true} backgroundColor="black"/>
                 <Stack.Navigator screenOptions={{headerTitleAlign: 'center', headerTintColor: 'white',headerStyle:{backgroundColor: 'pink',}}}>  
                   <Stack.Screen name='Home' component={Home}/>
@@ -132,9 +362,71 @@ const Dashboard = () => {
                 </>
               }
           </>
+        }    
+      </>
     </>
   )
+  
+
+async function schedulePushNotification() {
+  try{
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Drink medicine ",
+        body: reminderNote,
+        data: { data: 'dont forget~' },
+      },
+      trigger: { seconds: 1 },
+    });
+  }catch(e){
+    console.log(e);
+  }
 }
+
+async function schedulePushNotificationForeground() {
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "Welcome Back!",
+      body: documents.length>0? "You have appointments this week":"You don't have appointments this week",
+      data: { data: 'dont forget~' },
+    },
+    trigger: { seconds: 1 },
+  });
+}
+
+async function registerForPushNotificationsAsync() {
+  let token;
+
+  if (Platform.OS === 'android') {
+    await Notifications.setNotificationChannelAsync('default', {
+      name: 'default',
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#FF231F7C',
+    });
+  }
+
+  if (Device.isDevice) {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== 'granted') {
+      alert('Failed to get push token for push notification!');
+      return;
+    }
+    token = (await Notifications.getExpoPushTokenAsync()).data;
+    console.log(token);
+  } else {
+    alert('Must use physical device for Push Notifications');
+  }
+
+  return token;
+}
+}
+
 
 export default Dashboard
 

@@ -59,6 +59,9 @@ import {
   getMessaging,
   sendMessage,
 } from "firebase/messaging";
+//play sound notification
+import { Audio } from 'expo-av';
+//Date formatter
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -101,6 +104,26 @@ const Reminders = ({item, onPress, height, width, color, backgroundColor,onTouch
 
 
  Home = () => {
+
+  const [sound, setSound] = useState();
+  async function playSound() {
+    console.log('Loading Sound');
+    const { sound } = await Audio.Sound.createAsync(require('../assets/notif2.wav')
+    );
+    setSound(sound);
+    console.log('Playing Sound');
+    await sound.playAsync();
+  }
+
+  useEffect(() => {
+    return sound
+      ? () => {
+          console.log('Unloading Sound');
+          sound.unloadAsync();
+          ;
+        }
+      : undefined;
+  }, [sound]);
 
   const [selectedId, setSelectedId] = useState();
   const [reminders, setReminders] = useState([]);
@@ -190,7 +213,6 @@ const Reminders = ({item, onPress, height, width, color, backgroundColor,onTouch
   useEffect(()=>{
     fetchEvents();
     fetchData();
-    fetchReminders();
   },[])
   
   async function fetchData(){
@@ -200,7 +222,7 @@ const Reminders = ({item, onPress, height, width, color, backgroundColor,onTouch
     let i = 1;
     let appointments = querySnapshot;
     appointments.docs.map((doc)=>{
-      console.log("fetched" + i + " times from appointments")
+      //console.log("fetched" + i + " times from appointments")
       if(moment(doc.data().appointmentDate,"YYYY/MM/DD").diff(thisDay,"days")<=7 && moment(doc.data().appointmentDate,"YYYY/MM/DD").diff(thisDay,"days")>0){
         userData.push({id:doc.id, date:doc.data().appointmentDate, time:doc.data().time, status:doc.data().status, purpose:doc.data().purpose});
       }
@@ -209,69 +231,21 @@ const Reminders = ({item, onPress, height, width, color, backgroundColor,onTouch
     setDocument(userData);
   };
 
-  const [reminderDate, setReminderDate] = useState("");
-  const [reminderTimes, setReminderTime] = useState("");
-  const [timesIn, setTimesIn] = useState([]);
-  const [reminderNote, setReminderNote] = useState(""); 
-
-  async function fetchReminders(){
-    let thisDay = moment(today1, "YYYY/MM/DD")
-    const querySnapshot = await getDocs(query(collection(database, 'reminders'),where("user","==",id),where("status","==","enabled")));
-    const userData = [];
-    const times = [];
-    let i = 1;
-    let reminders = querySnapshot;
-    reminders.docs.map((doc)=>{
-      console.log("fetched " + i + " times from reminders")
-      userData.push(doc.data().dates);
-      times.push(doc.data().times);
-      userData.map((date)=>{
-        for(let a = 0; a <= date.length-1; a++){
-          if(moment(date[a], "YYYY/MM/DD").diff(moment(today1, "YYYY/MM/DD"))===0){
-            setReminderDate(date[a]);
-            setReminderNote(doc.data().note);
-            console.log("HIT");
-            //console.log("date: "+ reminderDate + " times: "  + reminderTimes);
-           // console.log(date[a]);
-           times.map((time)=>{ 
-              for(let b = 0; b <= time.length-1; b++){
-                //console.log(time[b]);
-                    if(moment(time[b], "hh:mm a")===moment(today1,"hh:mm a")){
-                      setReminderDate(date[a]);
-                      setReminderTime(time[b]);
-                      schedulePushNotification();
-                      sendReminder();
-                    }
-                    
-                } 
-            })
-          }
-        }
-      })
-      setTimesIn(times) 
-      i++;
-    })
-    setReminders(userData);
-  };
-
-  //console.log("times: " + timesIn + " reminder: " + reminderNote + " Date: " + reminderDate);
-
-  const sendReminder = async () => {
-    //console.log("reminder was fetched");
-    timesIn.map((time)=>{
-      for(let a = 0; a <= time.length-1; a++){
-        if(moment(reminderDate, "YYYY/MM/DD").diff(today1,"YYYY/MM/DD")===0 && moment(time[a],"hh:mm a")===moment(today1,"hh:mm a")){
-          console.log("times: " + time[a] + " reminder: " + reminderNote + " Date: " + reminderDate);
-          fetchReminders();
-          schedulePushNotification();
-        }
-        console.log(time[a])
-      } 
-    })
-    
+  function printDate(){
+    let dateNowYeah = new Date();
+    const startDate = getFormatedDate(
+      dateNowYeah.setDate(dateNowYeah.getDate()),
+      "YYYY/MM/DD"
+    );
+  //  console.log(startDate);
   }
 
-  sendReminder()
+
+//  setInterval(sendReminder(), 900000);
+//  function printMe(){
+//   console.log("10 seconds had passed")
+//  }
+//  setInterval(printMe, 10000);
 
 
   function fetchEvents(){
@@ -284,7 +258,7 @@ const Reminders = ({item, onPress, height, width, color, backgroundColor,onTouch
         setProfilePicPlaceholder(data.userPic);
         setLastPeriodPlaceholder(data.lastPeriod);
       },[]);
-      console.log("Fetched user data")
+      //console.log("Fetched user data")
     } catch (error) {
       alert(error);
     }
@@ -1311,11 +1285,11 @@ const Reminders = ({item, onPress, height, width, color, backgroundColor,onTouch
           }
         </TouchableOpacity>
         <View style={{width:'100%',height:document.length>0?250:420,marginBottom:'5%'}}>
-         <View style={{width:'94%',height:70,marginTop:'5%',backgroundColor:'#E3EBF5',borderColor:'blue',flexDirection:'column',alignSelf:'center',}}>
+         <View style={{width:'94%',height:70,marginTop:'5%',backgroundColor:'skyblue',flexDirection:'column',alignSelf:'center',}}>
           <TouchableOpacity onPress={()=> showTimeline(true)} style={{ flexDirection:'row',margin:10,justifyContent:'space-around', alignItems:'center', marginLeft:20}}>
             <View style={{width:'30%'}}>
               <View style={{width:50, height:50, backgroundColor:'skyblue',borderRadius:25,alignItems:'center',justifyContent:'center'}}>
-                <FontAwesomeIcon icon={faCalendar} size={20} color="white"/>
+                <FontAwesomeIcon icon={faCalendar} size={30} color="white"/>
               </View>
             </View>
             <View  style={{width:'70%'}}>
@@ -1363,7 +1337,7 @@ const Reminders = ({item, onPress, height, width, color, backgroundColor,onTouch
   async function schedulePushNotification() {
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: "Drink medicine ",
+        title: "Maternity Care App Notification",
         body: reminderNote,
         data: { data: 'dont forget~' },
       },

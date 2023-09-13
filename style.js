@@ -95,6 +95,13 @@ export const lotties = {
     FatherandChild2:require("./assets/animation_lm1njo0y.json"),
     FatherandChild3:require("./assets/animation_lm1nlrdp.json"),
 
+//Suspended
+
+    Suspended:require("./assets/animation_lmdbc0uw.json"),
+
+//Not found
+
+    Error404:require("./assets/animation_lmdbedeh.json"),
 
 //Deleted
 

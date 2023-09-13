@@ -4,7 +4,7 @@ import {View, Image, Text, StyleSheet, TouchableOpacity, Modal } from 'react-nat
 import { authentication } from '../../config/firebase';
 import { database } from '../../config/firebase';
 //import firebase firestore functions
-import { doc, setDoc, collection, addDoc } from 'firebase/firestore';
+import { doc, setDoc, collection, addDoc, onSnapshot } from 'firebase/firestore';
 //import lottie files
 import { lotties } from '../../style';
 import AnimatedLottieView from 'lottie-react-native';
@@ -24,6 +24,7 @@ import { faUser } from '@fortawesome/free-regular-svg-icons';
 import { faUserAlt, faUserGraduate } from '@fortawesome/free-solid-svg-icons';
 
 const Registerchild = () => {
+  const uid = authentication.currentUser.uid;
   const [openStartDatePicker, setOpenStartDatePicker] = useState(false);
   const today = new Date();
   const startDate = getFormatedDate(
@@ -70,7 +71,26 @@ const Registerchild = () => {
   const [step2, setStep2] = useState(false);
   const [step3, setStep3] = useState(false);
   const [step4, setStep4] = useState(false);
-  const nav= useNavigation()
+  const [mother, setMother] = useState();
+  const nav= useNavigation();
+
+  
+  function fetchEvents(){
+    try {
+      const docRef = doc(database, "userData", uid);
+      onSnapshot(docRef, (doc) => {
+        setMother(doc.data().userFname + " " + doc.data().userLname)
+      },[]);
+      //console.log("Fetched user data")
+    } catch (error) {
+      alert(error);
+    }
+  }
+ 
+  useEffect(()=>{
+    fetchEvents();
+  },[])
+  console.log(mother);
 
   const id = authentication.currentUser.uid;
   //Firebase backend here
@@ -90,6 +110,7 @@ const Registerchild = () => {
         addDoc(collection(database,'child'),{
           //Child's data
             Motheruid: id,
+            mother: mother,
             dateRegistered: startDate,
             timeRegistered: time,
             childFname: fname,
@@ -178,7 +199,9 @@ const Registerchild = () => {
             disabilityScreening5: "",//Developmental Milestones Delay and Disability Screening
             growthMonitoring: "",//Growth Monitoring and Promotion (Plot at Growth chart)
             monthly: "",//Monthly for infants 0-24 months
-            twice: ""//Twice a year for 24-59 months (>2years to <5 years old)
+            twice: "",//Twice a year for 24-59 months (>2years to <5 years old)
+            status: "pending",
+            vaccinationStatus: "ongoing"
          });
         setSelectedStartDate('')
         setChildAdded(true);
