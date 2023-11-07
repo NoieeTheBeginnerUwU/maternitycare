@@ -20,8 +20,8 @@ const GetStarted = () => {
     <View style={{width: '100%', height: 400, 
       alignSelf: 'center',  
       backgroundColor: '#F9B1A6', borderBottomRightRadius:100, borderBottomLeftRadius:100}}>
-        <View style={{width: 270, height: 270, backgroundColor: 'white', alignSelf: 'center', marginTop:'70%', borderRadius: 270/2}}>
-            <Image source={require("../../assets/logo2.png")} style={{marginTop:'0%', alignSelf: 'center'}}/>
+        <View style={{width: 200, height: 200, backgroundColor: 'white', alignSelf: 'center', marginTop:'70%', borderRadius: 270/2}}>
+            <Image source={require("../../assets/MCare.png")} style={{marginTop:'0%',width:200,height:200, alignSelf: 'center'}}/>
         </View>
         <View style={{alignSelf: 'center', marginTop: 40}}>
         </View>

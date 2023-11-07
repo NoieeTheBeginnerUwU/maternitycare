@@ -18,6 +18,7 @@ import { addDoc,
   setDoc,
   collection,
   getDoc,
+  where,
   query,
   DocumentSnapshot,
   updateDoc}
@@ -62,7 +63,7 @@ const Login = () => {
   const attemptInvisibleVerification = false;
   const [exists, setExists] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false); 
-
+  const [docId, setDocId] = useState("");
 
 
 
@@ -73,10 +74,8 @@ const Login = () => {
             phoneNumber,
             recaptchaVerifier.current
         ); // get the verification id
-        updateDoc(collection(database, "userData"),where("userNumber","==",phoneNumber),{
-            status:"approved"
-        })
-        setVerificationID(verificationId); // set the verification id
+        setVerificationID(verificationId)
+         // set the verification id
         setInfo('Success : Verification code has been sent to your phone'); // If Ok, show message.
     }catch(error){
         setInfo(`Error : ${error.message}`); // show the error
@@ -95,18 +94,21 @@ const Login = () => {
 
     const handleNumberExists = async () => {
         let userData = [];
-        const queryCollection = await getDocs(query(collection(database, "userData"),where("userNumber","==",phoneNumber)));
+        const queryCollection = await getDocs(query(collection(database,"userData"),where("userNumber","==",phoneNumber)))
         queryCollection.forEach((doc)=>{
             userData.push(doc.data)
+            setDocId(doc.id)
         })
         if(userData!==""){
-            setExists(true).then(handleSendVerificationCode())
+            setExists(true)
+            handleSendVerificationCode()
         }else{
             alert("The mobile number is not registered")
         }
 
     }
 
+    console.log("ID: "+docId)
   const signInUser = () => {
     signInWithEmailAndPassword(authentication, email, password)
     .then((re) =>{
@@ -142,6 +144,7 @@ const Login = () => {
 
             <FirebaseRecaptchaVerifierModal 
                 ref={recaptchaVerifier}
+                attemptInvisibleVerification={true}
                 firebaseConfig={firebaseConfig}
             />
 
@@ -212,10 +215,11 @@ export default Login
 
 const styles = StyleSheet.create({
     text:{
-        color: "white",
+        color: "red",
         textAlign:'center',
         margin:'5%',
-        fontSize:20
+        fontSize:13,
+        fontWeight:"bold"
     },
     container:{
         flex: 1,

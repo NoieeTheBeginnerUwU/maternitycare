@@ -2,13 +2,14 @@ import React, { useState, useEffect, useRef } from "react";
 import { View, Text, TouchableOpacity, ScrollView, Image } from "react-native";
 import { authentication } from "../config/firebase";
 import { database } from "../config/firebase";
-import { collection, getDocs, onSnapshot, addDoc, query, orderBy, doc, where } from "firebase/firestore";
+import { collection, getDocs, onSnapshot, addDoc, query, orderBy, doc, where, updateDoc } from "firebase/firestore";
 import moment from "moment";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faMessage, faPaperPlane, faPlane, faPlaneUp, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { TextInput } from "react-native-gesture-handler";
 //Expo notifations';
 import * as Notifications from 'expo-notifications';
+//sound
 
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
@@ -35,6 +36,7 @@ const Messages = () => {
   const [receiver, setReceiver] = useState("");
   const [prof, setPic] = useState("")
   const scrll = useRef();
+  const [nameOfUser, setNameOfUser] = useState("");
 
   useEffect(() => {
     authentication.onAuthStateChanged((user) => {
@@ -54,6 +56,7 @@ const Messages = () => {
     const querySnapshot = await getDocs(query(collection(database, 'userData'),where("userNumber","==",id)));
     querySnapshot.forEach((doc)=>{
       setPic(doc.data().userPic)
+      setNameOfUser(doc.data().userFname+ " " + doc.data().userMname+ " " +doc.data().userLname)
       setUid(doc.id);
     })
   }
@@ -62,8 +65,26 @@ const Messages = () => {
     fetchUser();
     let appointments = [];
     const unsubscribe = onSnapshot(query(collection(database, "messages"),orderBy("createdAt","asc")), (snapshot) => {
+      snapshot.forEach((doc)=>{
+        if(doc.data().receiverId===uid&&doc.data().status==="unread"){
+          handleRead(doc.id)
+        }
+      })
       setMessages(snapshot.docs)
     });
+
+
+    const handleRead = async(id) => {
+      try {
+          updateDoc(doc(database,"messages",id),{
+            status:"read"
+          }).then(console.log("updated"))
+      } catch (error) {
+        alert(error)
+        console.log(error)
+      }
+    }
+  
 
     return () => {
       unsubscribe();
@@ -89,6 +110,16 @@ const Messages = () => {
       status: "unread",
       readAt: null
     });
+    await addDoc(collection(database, "onlineAppointments"),{
+      dateMade:moment(new Date()).format("MMMM DD, YYYY hh:mm a"),
+      name: nameOfUser,
+      status:'pending',
+      time: moment(new Date()).format("hh:mm aa"),
+      uid: uid,
+      purpose:"messaged you",
+      read:false,
+      appointmentDate:moment(new Date()).format("MMMM DD, YYYY hh:mm a")
+    })
     moveTo
     setMessage("");
   };

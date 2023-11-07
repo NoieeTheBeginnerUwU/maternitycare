@@ -14,6 +14,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
   faAngleLeft,
   faAngleRight,
+  faCross,
   faDoorOpen,
   faDroplet,
   faGear,
@@ -107,10 +108,10 @@ const Profile = () => {
       setFnamePlaceholder(doc.data().userFname);
       setMnamePlaceholder(doc.data().userMname);
       setLnamePlaceholder(doc.data().userLname);
-      setEmailPlaceholder(doc.data().userEmail);
-      setDobPlaceholder(doc.data().userBirthdate);
+      setEmailPlaceholder(doc.data().userReligion);
+      setDobPlaceholder(doc.data().userDob);
       setNumberPlaceholder(doc.data().userNumber);
-      setAddressPlaceholder(doc.data().userAddress);
+      setAddressPlaceholder("Purok "+doc.data().userPurok+","+ doc.data().userBarangay+", "+doc.data().userTown+", "+doc.data().userProvince);
       setProfilePicPlaceholder(doc.data().userPic);
       setBloodPressurePlaceholder(doc.data().bloodPressure);
       setHeightPlaceholder(doc.data().height);
@@ -210,15 +211,15 @@ const Profile = () => {
         <ScrollView>
           <View style={{ backgroundColor: "white", height: 700,alignItems:'center',justifyContent:'start' }}>
             <View style={{width:'96%',height:150,flexDirection:'row',justifyContent:'center',alignItems:'center',borderTopRadius:80,backgroundColor:"navy",marginTop:'4%',borderTopLeftRadius:70,borderBottomLeftRadius:70}}>
-            <TouchableOpacity onPress={()=> pickImage()}  style={{width:120,height:120,borderRadius:140}}>
+            <TouchableOpacity onPress={()=> pickImage()}  style={{width:100,height:100,borderRadius:140}}>
                 {
                   !profilePicPlaceholder?
                   <Image
-                  style={{width:130,height:130,borderRadius:140}}
+                  style={{width:110,height:110,borderRadius:140}}
                   source={require('../../assets/usertemplate.png')}/>
                 :
                 <Image
-                style={{width:130,height:130,borderRadius:140}}
+                style={{width:110,height:110,borderRadius:140}}
                 source={{uri:profilePicPlaceholder}}/>
                 }
               </TouchableOpacity>
@@ -233,7 +234,7 @@ const Profile = () => {
                   }}
                 >
                 <Text
-                  style={{ color: "white", fontSize: 24, fontWeight: 800 }}
+                  style={{ color: "white", fontSize: 22, fontWeight: 800 }}
                 >
                   {fnamePlaceholder} {mnamePlaceholder} {lnamePlaceholder}
                 </Text>
@@ -282,7 +283,7 @@ const Profile = () => {
                     }}
                   >
                     <FontAwesomeIcon
-                      icon={faMailBulk}
+                      icon={faCross}
                       size={20}
                       color="pink"
                     />
@@ -294,7 +295,7 @@ const Profile = () => {
                         marginLeft: 10,
                       }}
                     >
-                      Email
+                      Religion
                     </Text>
                   </View>
                   <Text
@@ -430,9 +431,9 @@ const Profile = () => {
                   <Text
                     style={{
                       color: "black",
-                      fontSize: 16,
+                      fontSize: 10,
                       marginLeft: 10,
-                      marginTop: "2%",
+                      marginTop: "4%",
                       textDecorationLine: "underline",
                     }}
                   >

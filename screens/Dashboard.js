@@ -43,7 +43,7 @@ import { faHome } from '@fortawesome/free-solid-svg-icons/faHome';
 import { useNavigation } from '@react-navigation/native';
 import LoggingIn from './animations/LoggingIn';
 //import firebase
-import { getDocs, collection, getDoc, doc, where, query, onSnapshot, orderBy } from 'firebase/firestore';
+import { getDocs, collection, getDoc, doc, where, query, onSnapshot, orderBy, updateDoc } from 'firebase/firestore';
 import { authentication } from '../config/firebase';
 import { database } from '../config/firebase';
 //animation
@@ -75,7 +75,7 @@ Notifications.setNotificationHandler({
 });
 PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
 const Dashboard = () => {
-  const id = authentication.currentUser.uid;
+  const id = authentication.currentUser.phoneNumber;
   const navigation = useNavigation();
   const [active, setActive] = useState("");
   const [signIn, setSignIn] = useState(false);
@@ -123,17 +123,15 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchUser();
-    const unsubscribe = onSnapshot(query(collection(database, "messages")),orderBy("createdAt","asc"), (snapshot) => {
+    onSnapshot(query(collection(database, "messages"),where("receiverId","==",uid),where("status","==","unread")),(snapshot)=>{
       snapshot.docs.forEach((doc)=>{
-        if(doc.data().receiverId===uid){
-          setMessage(doc.data().message)
-        }
+          if(doc.data().receiverId===uid&&doc.data().status==="unread"){
+            sendNotifNow()
+          playSound()
+          }
       })
     });
 
-    return () => {
-      unsubscribe();
-    };
   }, [uid]);
 
   async function schedulePushNotificationNow() {
@@ -179,25 +177,19 @@ const Dashboard = () => {
   }
 
 
+  async function fetchUser(){
+    const userData = [];
+    const querySnapshot = await getDocs(query(collection(database, 'userData'),where("userNumber","==",id)));
+    querySnapshot.forEach((doc)=>{
+      setUid(doc.id);
+      setUserPic(doc.data().userPic);
+    })
+  }
+
   useEffect(()=>{
 
-    async function fetchUser(){
-      const userData = [];
-      const querySnapshot = await getDocs(query(collection(database, 'userData'),where("userNumber","==",id)));
-      querySnapshot.forEach((doc)=>{
-        setUid(doc.id);
-        setUserPic(doc.data().userPic);
-      })
-    }
     fetchUser();
-    const messagesCollection = query(collection(database, "messages"),where("receiverId","==",uid));
-    const unsubscribe = onSnapshot(messagesCollection, (snapshot) => {
-      schedulePushNotificationNow(); 
-    });
     
-    return () => {
-      unsubscribe();
-    };
   }, []);
 
   useEffect(() => {
@@ -259,7 +251,7 @@ const Dashboard = () => {
                     useEffect(()=>{
                       const messagesCollection = query(collection(database, "messages"),where("receiverId","==",uid));
                       const unsubscribe = onSnapshot(messagesCollection, (snapshot) => {
-                        schedulePushNotificationNow(); 
+                        schedulePushNotificationNow().then(playSound())
                       });
                       return unsubscribe
                     },[])
@@ -399,7 +391,12 @@ const Dashboard = () => {
 
   return (
               <>
-              <StatusBar animated={true} backgroundColor="black"/>
+                {
+                  signIn===true?
+                  <LoggingIn/>
+                  :
+                  <>
+                                  <StatusBar animated={true} backgroundColor="black"/>
                 <Stack.Navigator screenOptions={{headerTitleAlign: 'center', headerShown:false,headerLeftLabelVisible:false,headerTintColor: 'white',headerStyle:{backgroundColor: 'navy',}}}>  
                   <Stack.Screen name='Home' component={Home}/>
                   <Stack.Screen name='Appointment' component={Appointment}/>
@@ -469,14 +466,16 @@ const Dashboard = () => {
                   </TouchableOpacity>
                 </View>
                 </View>
-                </>
+                  </>
+                }
+              </>
 
   )
 
   async function schedulePushNotificationNow() {
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: "You have a new message from Health center.",
+        title: "You have a new message from Daet RHU Birthing Center.",
         body: message,
       },
       trigger: { seconds: 1 },

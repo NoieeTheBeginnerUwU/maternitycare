@@ -4,10 +4,10 @@ export default {
     "slug": "maternitycare",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/logo2.png",
+    "icon": "./assets/MCare.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/logo2.png",
+      "image": "./assets/MCare.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff",
     },
@@ -21,12 +21,12 @@ export default {
       "package": "com.maternitycareapp2.app",
       "googleServicesFile": "./google-services.json", 
       "adaptiveIcon": {
-        "foregroundImage": "./assets/logo2.png",
+        "foregroundImage": "./assets/MCare.png",
         "backgroundColor": "#ffffff"
       }
     },
     "web": {
-      "favicon": "./assets/logo2.png"
+      "favicon": "./assets/Mcare.png"
     },
     
     "extra": {

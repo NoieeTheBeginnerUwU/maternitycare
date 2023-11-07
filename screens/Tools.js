@@ -20,7 +20,7 @@ const Tools = () => {
       <View style={{width: '100%', flexDirection: 'row',height: '100%', marginTop: '5%', justifyContent: 'space-around', 
       alignItems:'center',flexWrap: 'wrap',
       backgroundColor: 'transparent', borderRadius:20}}>
-        <View style={styles.box1}>
+        <View style={[styles.box1,{}]}>
           <TouchableOpacity style={styles.boxPress} onPress={()=> nav.navigate("Child")}>
           <View style={{width: 60, height: 60, borderRadius: 30,justifyContent: 'center',alignSelf: 'center', alignItems:'center',backgroundColor: 'white'}}>
               <FontAwesomeIcon icon={faBaby} size={28} color='skyblue'/>

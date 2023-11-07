@@ -20,6 +20,8 @@ import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { Audio } from 'expo-av';
 import moment from "moment";
+//marked all as read
+import MarkedAllAsRead from './animations/MarkedAllAsRead';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -60,6 +62,7 @@ const Notification = () => {
   const [status, setStatus] = useState("");
   const [body, setBody] = useState("");
   const [noData, setNoData] = useState(false);
+  const [ids, setIds] = useState([])
 
  
     async function fetchData(){
@@ -68,38 +71,51 @@ const Notification = () => {
         setUid(doc.id)
       })
 
-      const querySnapshot = await getDocs(query(collection(database, 'notifications'),where("uid","==",uid)),orderBy("dateMade",'desc'));
-      const userData = [];
-      const data = querySnapshot.forEach(doc=>{
-       if(doc.data().uid===id){
-        userData.push({id:doc.id,body:doc.data().body,dateMade:doc.data().dateMade,status:doc.data().status,title:doc.data().title,timeMade:doc.data().timeMade });//pakibago nalang kapag may collection na ng notifications
-      }
-      })
-      setDocuments(userData);
-      if(userData.length<=0){
-        setNoData(true)
-      }
-      var i = 1;
-      console.log("Fetched ", i++, " times")
     };
+
+    console.log("Data"+ documents)
 
   useEffect(() => {
     fetchData();
-    const messagesCollection = query(collection(database, "notifications"),where("uid","==",id));
-    const unsubscribe = onSnapshot(messagesCollection, (snapshot) => {
-      schedulePushNotification()
+    let userData = [];
+    let IDS = [];
+    onSnapshot(query(collection(database, 'notifications'),where("uid","==",uid)),orderBy("dateMade",'desc'),(snapshot)=>{
+      snapshot.forEach((doc)=>{
+        userData.push({id:doc.id,body:doc.data().body,dateMade:doc.data().dateMade,status:doc.data().status,title:doc.data().title, dateMade:doc.data().dataMade});//pakibago nalang kapag may collection na ng notifications
+        if(doc.data().status==="unread"){
+          schedulePushNotification()
+          playSound()
+        }
+        IDS.push(doc.id)
+      })
+      setDocuments(userData)
+      setIds(IDS)
     });
-
-    return () => {
-      unsubscribe();
-    };
-  }, [user]);
+  }, [uid]);
 
   const handleRead = async (id) => {
     const querySnapshot = await updateDoc(doc(database,"notifications",id),{
       status: "read"
     });
   }
+
+  const [read, setRead] = useState(false)
+
+  const handleMarkAllAsRead = async() => {
+  
+      ids.forEach((docs)=>{
+        updateDoc(doc(database,"notifications",docs),{
+          status:'read'
+        })
+        setRead(true)
+        setTimeout(()=>{
+          setRead(false);
+        },3000)
+      })
+    
+  }
+
+
 
   const markAllAsRead = async (id) => {
     try{
@@ -153,8 +169,13 @@ const Notification = () => {
   
   return (
     <View style={style.content}>
-        <View style={style.contentUpper}>
-          <TouchableOpacity onPress={()=> markAllAsRead(id)}>
+      {
+        read===true?
+        <MarkedAllAsRead/>
+        :
+        <>
+          <View style={style.contentUpper}>
+          <TouchableOpacity onPress={()=> handleMarkAllAsRead()}>
             <Text>Mark all as read</Text>
           </TouchableOpacity>
           <FontAwesomeIcon icon={ faGear } style={{marginLeft: '2%'}} />
@@ -166,24 +187,24 @@ const Notification = () => {
         }}
           />
           <View style={{width:'100%',height:'100%'}}>
-            {
-              documents!==""?
               <View style={{width:'100%',height:600,marginBottom:20}}>
-                <ScrollView style={{width:'100%',height:"100%",marginBottom:'2%'}}>
-                  <FlatList 
-                  data={documents}
-                  renderItem={renderItem}
-                  keyExtractor={item=> item.id} // Use index as key for demo purposes
-                />
-                </ScrollView>
+                <View style={{width:'100%',height:"100%",marginBottom:'2%',overflow:'scroll'}}>
+                  {
+                    documents.map((doc)=>(
+                      <TouchableOpacity onPress={()=> [setActive(doc.id),handleRead(doc.id)] }>
+                        <View style={{width:'96%',height:80,backgroundColor:doc.status==="unread"?'navy':"grey",alignSelf:'center',flexDirection:'column',marginTop:'3%'}}>
+                          <Text style={{color:'white',marginLeft:10,fontSize:18}}>{doc.title}</Text>
+                          <Text style={{color:'white',marginLeft:10,fontSize:12}}>{doc.body}</Text>
+                          <Text style={{color:'white',marginLeft:10,fontSize:12}}>{doc.dateMade}</Text>
+                        </View>
+                      </TouchableOpacity>
+                    ))
+                  }
+                </View>
               </View>
-            :
-            <View>
-              <FontAwesomeIcon icon={ faCircleExclamation } size={100} color='skyblue' style={style.none}/>
-              <Text style={{fontSize: 15, fontWeight: 300, alignSelf: 'center', marginTop: '6%'}}>No Notifications Yet</Text>
-            </View>
-            }
           </View>
+        </>
+      }
     </View>
   )
 

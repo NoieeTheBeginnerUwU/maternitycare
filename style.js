@@ -113,12 +113,17 @@ export const lotties = {
 
 //Doctor calling
 
-    DoctorCalling:require("./assets/animation_lluvcty1.json")
+    DoctorCalling:require("./assets/animation_lluvcty1.json"),
+
+//Marked All as Read
+
+    markedAllAsRead:require("./assets/1699289814940.json"),
 
 }
 
 export const images = {
     imageTemp:require("./assets/usertemplate.png"),
+    tetanus:require("./assets/vaccines/TT1.jpg")
 }
 
 export const style = StyleSheet.create({
