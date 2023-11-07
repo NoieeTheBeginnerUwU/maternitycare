@@ -24,7 +24,6 @@ import { faUser } from '@fortawesome/free-regular-svg-icons';
 import { faUserAlt, faUserGraduate } from '@fortawesome/free-solid-svg-icons';
 
 const Registerchild = () => {
-  const uid = authentication.currentUser.uid;
   const [openStartDatePicker, setOpenStartDatePicker] = useState(false);
   const today = new Date();
   const startDate = getFormatedDate(
@@ -74,25 +73,23 @@ const Registerchild = () => {
   const [mother, setMother] = useState();
   const nav= useNavigation();
 
-  
-  function fetchEvents(){
-    try {
-      const docRef = doc(database, "userData", uid);
-      onSnapshot(docRef, (doc) => {
+  const id = authentication.currentUser.phoneNumber;
+  const [uid, setUid] = useState("");
+    async function fetchUser(){
+      const user = [];
+      const querySnapshot = await getDocs(query(collection(database,"userData"),where("userNumber","==",id)))
+      querySnapshot.forEach((doc)=>{
+        setUid(doc.id);
         setMother(doc.data().userFname + " " + doc.data().userLname)
-      },[]);
-      //console.log("Fetched user data")
-    } catch (error) {
-      alert(error);
+      })
     }
-  }
- 
+
+
   useEffect(()=>{
-    fetchEvents();
+    fetchUser();
   },[])
   console.log(mother);
 
-  const id = authentication.currentUser.uid;
   //Firebase backend here
   function sendData(){
     var time = moment().utcOffset('+08:00').format('hh:mm a');
@@ -146,57 +143,57 @@ const Registerchild = () => {
             newbornScreening1: "",//(24 hours after birth) || Date Administered
             newbornScreening2: "",//(24 hours after birth up to 3 mos old) || Date Administered
            //Immunization proper
-            bcg1: "",
-            bcg2: "",
-            bcg3: "",
-            hepatitisB1: "",
-            hepatitisB2: "",
-            hepatitisB3: "",
-            pentavalentB1: "",
-            pentavalentB2: "",
-            pentavalentB3: "",
-            oralPolio1: "", //Oral Polio Vaccine 1 (OPV)
-            oralPolio2: "", //Oral Polio Vaccine 2 (OPV)
-            oralPolio3: "", //Oral Polio Vaccine 3 (OPV)
-            inactivePolio1: "",//Inactive Polio Vaccince 1 (IPV)
-            inactivePolio2: "",//Inactive Polio Vaccince 2 (IPV)
-            inactivePolio3: "",//Inactive Polio Vaccince 3 (IPV)
-            pneumococcal1: "",//Pneumococcal conjugate vaccine 1 (PCV) (6, 10, 14 weeks)
-            pneumococcal2: "",//Pneumococcal conjugate vaccine 2 (PCV) (6, 10, 14 weeks)
-            pneumococcal3: "",//Pneumococcal conjugate vaccine 3 (PCV) (6, 10, 14 weeks)
-            measlesRubella1: "", //Measles-Rubella 1 (MR) Measles-Rubella 1 (MMR) Vaccine (12-15 mos)
-            measlesRubella2: "", //Measles-Rubella 2 (MR) Measles-Rubella 2 (MMR) Vaccine (12-15 mos)
-            measlesRubella3: "", //Measles-Rubella 3 (MR) Measles-Rubella 3 (MMR) Vaccine (12-15 mos)
+            bcg1: false,
+            bcg2: false,
+            bcg3: false,
+            hepatitisB1: false,
+            hepatitisB2: false,
+            hepatitisB3: false,
+            pentavalentB1: false,
+            pentavalentB2: false,
+            pentavalentB3: false,
+            oralPolio1: false, //Oral Polio Vaccine 1 (OPV)
+            oralPolio2: false, //Oral Polio Vaccine 2 (OPV)
+            oralPolio3: false, //Oral Polio Vaccine 3 (OPV)
+            inactivePolio1: false,//Inactive Polio Vaccince 1 (IPV)
+            inactivePolio2: false,//Inactive Polio Vaccince 2 (IPV)
+            inactivePolio3: false,//Inactive Polio Vaccince 3 (IPV)
+            pneumococcal1: false,//Pneumococcal conjugate vaccine 1 (PCV) (6, 10, 14 weeks)
+            pneumococcal2: false,//Pneumococcal conjugate vaccine 2 (PCV) (6, 10, 14 weeks)
+            pneumococcal3: false,//Pneumococcal conjugate vaccine 3 (PCV) (6, 10, 14 weeks)
+            measlesRubella1: false, //Measles-Rubella 1 (MR) Measles-Rubella 1 (MMR) Vaccine (12-15 mos)
+            measlesRubella2: false, //Measles-Rubella 2 (MR) Measles-Rubella 2 (MMR) Vaccine (12-15 mos)
+            measlesRubella3: false, //Measles-Rubella 3 (MR) Measles-Rubella 3 (MMR) Vaccine (12-15 mos)
           //Micronutrient Supplementation
-            vitAcap1_1: "",//Vit. A cap. –One dose 100,000 international units (6 mos-1y/o)
-            vitAcap1_2: "",//Vit. A cap. –One dose 100,000 international units (6 mos-1y/o)
-            vitA2_1: "",//Vit. A cap. –One dose 200,000 international units (1-2 yrs old)
-            vitA2_2: "",//Vit. A cap. –One dose 200,000 international units (1-2 yrs old)
-            deworming1: "",//Deworming (at 1 year old and then every 6 mos thereafter)
-            deworming2: "",//Deworming (at 1 year old and then every 6 mos thereafter)
-            deworming3: "",//Deworming (at 1 year old and then every 6 mos thereafter)
-            deworming4: "",//Deworming (at 1 year old and then every 6 mos thereafter)
+            vitAcap1_1: false,//Vit. A cap. –One dose 100,000 international units (6 mos-1y/o)
+            vitAcap1_2: false,//Vit. A cap. –One dose 100,000 international units (6 mos-1y/o)
+            vitA2_1: false,//Vit. A cap. –One dose 200,000 international units (1-2 yrs old)
+            vitA2_2: false,//Vit. A cap. –One dose 200,000 international units (1-2 yrs old)
+            deworming1: false,//Deworming (at 1 year old and then every 6 mos thereafter)
+            deworming2: false,//Deworming (at 1 year old and then every 6 mos thereafter)
+            deworming3: false,//Deworming (at 1 year old and then every 6 mos thereafter)
+            deworming4: false,//Deworming (at 1 year old and then every 6 mos thereafter)
           //Counselling
-            exclusiveBreast1: "",//Exclusive breast (no water, no formula, no vitamins)
-            exclusiveBreast2: "",//Exclusive breast (no water, no formula, no vitamins)
-            exclusiveBreast3: "",//Exclusive breast (no water, no formula, no vitamins)
-            exclusiveBreast4: "",//Exclusive breast (no water, no formula, no vitamins)
-            exclusiveBreast5: "",//Exclusive breast (no water, no formula, no vitamins)
-            complementaryFeeding1: "",//Complementary feeding with continued breastfeeding (6 mos onwards)
-            complementaryFeeding2: "",//Complementary feeding with continued breastfeeding (6 mos onwards)
-            complementaryFeeding3: "",//Complementary feeding with continued breastfeeding (6 mos onwards)
-            complementaryFeeding4: "",//Complementary feeding with continued breastfeeding (6 mos onwards)
-            complementaryFeeding5: "",//Complementary feeding with continued breastfeeding (6 mos onwards)
-            oralHealth1: "",//Oral Health/Dental Check-up (starting at 6 mos-1 yr old
-            oralHealth2: "",//Oral Health/Dental Check-up (starting at 6 mos-1 yr old
-            oralHealth3: "",//Oral Health/Dental Check-up (starting at 6 mos-1 yr old
-            oralHealth4: "",//Oral Health/Dental Check-up (starting at 6 mos-1 yr old
-            oralHealth5: "",//Oral Health/Dental Check-up (starting at 6 mos-1 yr old
-            disabilityScreening1: "",//Developmental Milestones Delay and Disability  Screening
-            disabilityScreening2: "",//Developmental Milestones Delay and Disability Screening
-            disabilityScreening3: "",//Developmental Milestones Delay and Disability Screening
-            disabilityScreening4: "",//Developmental Milestones Delay and Disability Screening
-            disabilityScreening5: "",//Developmental Milestones Delay and Disability Screening
+            exclusiveBreast1: false,//Exclusive breast (no water, no formula, no vitamins)
+            exclusiveBreast2: false,//Exclusive breast (no water, no formula, no vitamins)
+            exclusiveBreast3: false,//Exclusive breast (no water, no formula, no vitamins)
+            exclusiveBreast4: false,//Exclusive breast (no water, no formula, no vitamins)
+            exclusiveBreast5: false,//Exclusive breast (no water, no formula, no vitamins)
+            complementaryFeeding1: false,//Complementary feeding with continued breastfeeding (6 mos onwards)
+            complementaryFeeding2: false,//Complementary feeding with continued breastfeeding (6 mos onwards)
+            complementaryFeeding3: false,//Complementary feeding with continued breastfeeding (6 mos onwards)
+            complementaryFeeding4: false,//Complementary feeding with continued breastfeeding (6 mos onwards)
+            complementaryFeeding5: false,//Complementary feeding with continued breastfeeding (6 mos onwards)
+            oralHealth1: false,//Oral Health/Dental Check-up (starting at 6 mos-1 yr old
+            oralHealth2: false,//Oral Health/Dental Check-up (starting at 6 mos-1 yr old
+            oralHealth3: false,//Oral Health/Dental Check-up (starting at 6 mos-1 yr old
+            oralHealth4: false,//Oral Health/Dental Check-up (starting at 6 mos-1 yr old
+            oralHealth5: false,//Oral Health/Dental Check-up (starting at 6 mos-1 yr old
+            disabilityScreening1: false,//Developmental Milestones Delay and Disability  Screening
+            disabilityScreening2: false,//Developmental Milestones Delay and Disability Screening
+            disabilityScreening3: false,//Developmental Milestones Delay and Disability Screening
+            disabilityScreening4: false,//Developmental Milestones Delay and Disability Screening
+            disabilityScreening5: false,//Developmental Milestones Delay and Disability Screening
             growthMonitoring: "",//Growth Monitoring and Promotion (Plot at Growth chart)
             monthly: "",//Monthly for infants 0-24 months
             twice: "",//Twice a year for 24-59 months (>2years to <5 years old)

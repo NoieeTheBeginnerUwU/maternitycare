@@ -22,6 +22,7 @@ import {
   addDoc,
   doc,
   setDoc,
+  where
  }
   from 'firebase/firestore';
 import { getDocs, query } from "firebase/firestore";
@@ -47,7 +48,7 @@ const data = [
   { label: 'Checkup', value: 'Checkup' },
   { label: 'Lab test', value: 'Lab test' },
   { label: 'Inquiry', value: 'Inquiry' },
-  { label: 'Labor', value: 'Labor' },
+  { label: 'Lying-in', value: 'Lying-in' },
 ];
 
 
@@ -77,6 +78,7 @@ export default function Appointment() {
   //Indicator
   const [success, setSuccess] = useState(false);
   const [failed, setFailed] = useState(false)
+  const [uid, setUid] = useState("");
   useEffect(()=>{
     setLoading(true);
     setTimeout(()=> {
@@ -176,15 +178,27 @@ export default function Appointment() {
     }
     return null;
   };
-  const id = authentication.currentUser.uid;
+  const id = authentication.currentUser.phoneNumber;
   const docRef = doc(database, 'userData', id);
+
+  useEffect(()=>{
+    async function fetchUser(){
+      const user = [];
+      const querySnapshot = await getDocs(query(collection(database,"userData"),where("userNumber","==",id)))
+      querySnapshot.forEach((doc)=>{
+        setUid(doc.id)
+        setName(doc.data().userFname)
+        setSurname(doc.data().userLname)
+      })
+    }
+    fetchUser();
+  },[])
+
   const [name,setName] = useState('');
   const [surname, setSurname] = useState('');
   useEffect(()=> {
     onSnapshot(docRef, (doc) =>{
       const data = doc.data();
-      setName(data.userFname);
-      setSurname(data.userLname);
     })
   })
   //Firebase backend here
@@ -195,16 +209,16 @@ export default function Appointment() {
         alert("please fill all the necessary data, thank you.")
       }else{
         addDoc(collection(database,'log'),{
-          uid: id,
-          type: "appointment",
+          uid: uid,
+          type: "online appointment",
           timeMade: time,
           dateMade: dateNow,
-          activity: "booked an appointment"
+          activity: "booked an online appointment"
         })
         addDoc(collection(database,'events'),{
-          uid: id,
+          uid: uid,
           name: name + " " + surname,
-          type: "appointment",
+          type: "online appointment",
           dateMade: dateNow,
           timeMade: time,
           date: selectedStartDate,
@@ -212,15 +226,16 @@ export default function Appointment() {
           purpose: value,
           status: "pending"
         })
-        addDoc(collection(database,'appointments'),{
-          uid: id,
+        addDoc(collection(database,'onlineAppointments'),{
+          uid: uid,
           name: name + " " + surname,
           dateMade: dateNow,
           timeMade: time,
           appointmentDate: selectedStartDate,
           time: timePicked,
           purpose: value,
-          status: "pending"
+          status: "pending",
+          read: false
         }).then(
           setSuccess(true)
         );

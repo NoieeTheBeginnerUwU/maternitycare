@@ -14,6 +14,8 @@ import Signup from './onboarding/Signup';
 import PrivacyPolicy from './onboarding/PrivacyPolicy';
 import TermsConditions from './onboarding/TermsConditions';
 //Main pages inside Dashboard
+import NetInfo from "@react-native-community/netinfo";
+import Nointernet from './animations/Nointernet';
 
 const Stack = createStackNavigator();
 
@@ -21,6 +23,7 @@ export default function App() {
 
   // Initialize Firebase with your config
   const [user, setUser] = useState(null);
+  let connection = false;
   const [document, setDocument] = useState([]);
   let id = "";
 
@@ -29,7 +32,6 @@ export default function App() {
     useEffect(() => {
       const unsubscribe = authentication.onAuthStateChanged((authenticatedUser) => {
         setUser(authenticatedUser);
-        id = authentication.currentUser.uid;
       });
   
       // Unsubscribe when component unmounts
@@ -40,24 +42,26 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer screenOptions={{headerShown: false}}> 
-      <Stack.Navigator screenOptions={{headerShown: false}}>
-      {user ? (
-          <>
-            <Stack.Screen name="Dashboard" component={Dashboard} />
-          </>
-         ) : (
-          <>
-            <Stack.Screen name='GetStarted' component={GetStarted}/>
-            <Stack.Screen name="OnBoarding" component={OnBoarding} />
-            <Stack.Screen name="Login" component={Login} /> 
-            <Stack.Screen name="Signup" component={Signup} /> 
-            <Stack.Screen name="Privacy and Policy" component={PrivacyPolicy} /> 
-            <Stack.Screen name="Terms and Conditions" component={TermsConditions} /> 
-          </>
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
+    <>
+        <NavigationContainer screenOptions={{headerShown: false}}> 
+          <Stack.Navigator screenOptions={{headerShown: false}}>
+          {user ? (
+              <>
+                <Stack.Screen name="Dashboard" component={Dashboard} />
+              </>
+            ) : (
+              <>
+                <Stack.Screen name='GetStarted' component={GetStarted}/>
+                <Stack.Screen name="OnBoarding" component={OnBoarding} />
+                <Stack.Screen name="Login" component={Login} /> 
+                <Stack.Screen name="Signup" component={Signup} /> 
+                <Stack.Screen name="Privacy and Policy" component={PrivacyPolicy} /> 
+                <Stack.Screen name="Terms and Conditions" component={TermsConditions} /> 
+              </>
+            )}
+          </Stack.Navigator>
+        </NavigationContainer>
+    </>
   );
 }
 

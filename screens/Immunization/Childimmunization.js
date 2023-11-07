@@ -19,9 +19,12 @@ import { images } from "../../style";
 //FontAwesome icon
 import { faCalendar, faWeightScale, faRuler, faTransgender } from "@fortawesome/free-solid-svg-icons";
 //Import moment js
+import Nodata from "../animations/Nodata";
 
 export default Childimmunization = () => {
   const id = authentication.currentUser.uid;
+  const uid = authentication.currentUser.phoneNumber;
+  const [motherId, setMotherId] = useState("");
   const nav = useNavigation();
   const [active, setActive] = useState(false);
   const [documents, setDocuments] = useState([]);
@@ -36,8 +39,21 @@ export default Childimmunization = () => {
     var currentDate = date.format('YYYY/MM/DD');
     const today1 = moment(currentDate,"YYYY/MM/DD");
 
+    const [userID, setUserID] = useState("");
+    useEffect(()=>{
+      async function fetchUser(){
+        let arr = [];
+        const queryUser = await getDocs(query(collection(database,"userData"),where("userNumber","==",id)))
+        queryUser.forEach((doc)=>{
+          setUserID(doc.id)
+        })
+      }
+      fetchUser();
+    },[])
+
+    const [noData, setNoData] = useState(false);
   async function fetchData(){
-    const querySnapshot = await getDocs(query(collection(database, 'child'),where("Motheruid", "==", id)));
+    const querySnapshot = await getDocs(query(collection(database, 'child'),where("Motheruid", "==", userID)));
     const userData = [];
     var child  = 1;
     const data = querySnapshot.forEach(doc=>{
@@ -45,7 +61,8 @@ export default Childimmunization = () => {
       const monthsDifference = today1.diff(today2, "months");
       const weeksDifference = today1.diff(today2, "weeks");
       const daysDifference = today1.diff(today2, "days");
-      userData.push({childNo: child++, id:doc.id, height:doc.data().height,weight:doc.data().weight,Motheruid:doc.data().Motheruid, age:weeksDifference,dateRegistered:doc.data().dateRegistered, childAddress:doc.data().childAddress, childDob:doc.data().childDob, childFname:doc.data().childFname, childLname:doc.data().childLname,childGender:doc.data().childGender,childPlaceOfBirth:doc.data().childPlaceOfBirth,father:doc.data().father});
+      userData.push({childNo: child, id:doc.id, height:doc.data().height,weight:doc.data().weight,Motheruid:doc.data().Motheruid, mother:doc.data().mother, age:weeksDifference,dateRegistered:doc.data().dateRegistered, childAddress:doc.data().childAddress, childDob:doc.data().childDob, childFname:doc.data().childFname, childLname:doc.data().childLname,childGender:doc.data().childGender,childPlaceOfBirth:doc.data().childPlaceOfBirth,father:doc.data().father,height:doc.data().height,weight:doc.data().weight,clinic:doc.data().clinic,barangay:doc.data().barangay,purok:doc.data().purok,address:doc.data().address,mothersducationalLevel:doc.data().mothersducationalLevel,mothersOccupation:doc.data().mothersOccupation,fathersEducationalLevel:doc.data().fathersEducationalLevel,fathersOccupation:doc.data().fathersOccupation,childNo:doc.data().childNo,familyNo:doc.data().familyNo,noOfPregnancies:doc.data().noOfPregnancies,gestationalAgeAtBirth:doc.data().gestationalAgeAtBirth,typeOfBirth:doc.data().typeOfBirth,placeOfDelivery:doc.data().placeOfDelivery,birthLength:doc.data().birthLength,dateOfBirthRegistration:doc.data().dateOfBirthRegistration,birthAttendant:doc.data().birthAttendant,newbornScreening1:doc.data().newbornScreening1,newbornScreening2:doc.data().newbornScreening2,bcg1:doc.data().bcg1,bcg2:doc.data().bcg2,bcg3:doc.data().bcg3,hepatitisB1:doc.data().hepatitisB1,hepatitisB2:doc.data().hepatitisB2,hepatitisB3:doc.data().hepatitisB3,pentavalentB1:doc.data().pentavalentB1,pentavalentB2:doc.data().pentavalentB2,pentavalentB3:doc.data().pentavalentB3,oralPolio1:doc.data().oralPolio1,oralPolio2:doc.data().oralPolio2,oralPolio3:doc.data().oralPolio3,inactivePolio1:doc.data().inactivePolio1,inactivePolio2:doc.data().inactivePolio2,inactivePolio3:doc.data().inactivePolio3,pneumococcal1:doc.data().pneumococcal1,pneumococcal2:doc.data().pneumococcal2,pneumococcal3:doc.data.pneumococcal3,measlesRubella1:doc.data().measlesRubella1,measlesRubella2:doc.data().measlesRubella2,measlesRubella3:doc.data().measlesRubella3,vitAcap1_1:doc.data().vitAcap1_1,vitAcap1_2:doc.data().vitAcap1_2,vitAcap2_1:doc.data().vitAcap2_1,vitAcap2_2:doc.data().vitAcap2_2,deworming1:doc.data().deworming1,deworming2:doc.data().deworming2,deworming3:doc.data().deworming3,deworming4:doc.data().deworming4,exclusiveBreast1:doc.data().exclusiveBreast1,exclusiveBreast2:doc.data().exclusiveBreast2,exclusiveBreast3:doc.data().exclusiveBreast3,exclusiveBreast4:doc.data().exclusiveBreast4,exclusiveBreast5:doc.data().exclusiveBreast5,complementaryFeeding1:doc.data().complementaryFeeding1,complementaryFeeding2:doc.data().complementaryFeeding2,complementaryFeeding3:doc.data().complementaryFeeding3,complementaryFeeding4:doc.data().complementaryFeeding4,complementaryFeeding5:doc.data().complementaryFeeding5,oralHealth1:doc.data().oralHealth1,oralHealth2:doc.data().oralHealth2,oralHealth3:doc.data().oralHealth3,oralHealth4:doc.data().oralHealth4,oralHealth5:doc.data().oralHealth5,disabilityScreening1:doc.data().disabilityScreening1,disabilityScreening2:doc.data().disabilityScreening2,disabilityScreening3:doc.data().disabilityScreening3,disabilityScreening4:doc.data().disabilityScreening4,disabilityScreening5:doc.data().disabilityScreening5,growthMonitoring:doc.data().growthMonitoring,monthly:doc.data().monthly,twice:doc.data().twice,status:doc.data().status,vaccinationStatus:doc.data().vaccinationStatus});
+      child++;
     })
     setDocuments(userData);
     if(userData.length<=0){
@@ -691,30 +708,29 @@ export default Childimmunization = () => {
       loading?
       <Loading/>
       :
-      <View style={styles.container}>
+      <>
         {
-          toggled?
-          <View style={{width:'100%',height:10, backgroundColor:'transparent',alignItems:'center',justifyContent:'center'}}>
-          </View>
+          documents.length<1?
+          <Nodata/>
           :
-          <View style={{width:'100%',height:60, backgroundColor:'transparent',alignItems:'center',justifyContent:'center'}}>
-            <TouchableOpacity onPress={()=> nav.navigate("Registerchild")} style={{width:160,height:40,flexDirection:'row',alignSelf:'flex-start',alignItems:'center',justifyContent:'center',marginLeft:20,borderRadius:10,backgroundColor:"navy"}}>
-              <FontAwesomeIcon icon={faPlusCircle} size={24} color="white"/>
-              <Text style={{color:'white',marginLeft:10}}>register child</Text>
-            </TouchableOpacity>
-          </View>
-        }
-        <ScrollView style={{width:'90%',height:'80%',alignSelf:'center',marginTop:0}}>
+          <View style={styles.container}>
               <FlatList
                 data={documents}
                 renderItem={renderItem}
                 keyExtractor={item=> item.id} // Use index as key for demo purposes
               />
-        </ScrollView>
-      </View>
+        </View>
+        }
+      </>
     }
     </>
   );
+
+  function bcg1(childId, motherId, bcg1){
+
+  }
+
+
 };
 
 const styles = StyleSheet.create({

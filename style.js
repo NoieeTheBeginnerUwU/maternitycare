@@ -136,10 +136,10 @@ export const style = StyleSheet.create({
         width: '90%',
         fontSize: 20,
         alignSelf: 'center',
-        borderColor: 'black',
-        borderWidth: 2,
+        borderColor: 'lightpink',
+        borderWidth: 1,
         padding: 10,
-        marginTop: '2.5%',
+        margin: '4.5%',
         flexDirection:'row'
     },
     buttonBack: {

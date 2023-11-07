@@ -11,6 +11,7 @@ import { doc, docs, getDocs, collection, where, query } from 'firebase/firestore
 //Import pages
 import Childimmunization from '../Immunization/Childimmunization';
 import Nochild from '../Immunization/Nochild';
+import Registerchild from '../Immunization/Registerchild';
 
 const Child = () => {
   const id = authentication.currentUser.uid;

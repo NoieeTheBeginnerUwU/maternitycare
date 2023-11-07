@@ -1,7 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TextInput, Button, Modal, KeyboardAvoidingView } from 'react-native';
-import { registerIndieID } from 'native-notify';
-import axios from 'axios';
 //Firebase 
 import { authentication } from '../../config/firebase';
 //Navigation
@@ -84,6 +82,7 @@ const Signup = () => {
   const [num, setNumber] = useState('');
   const [confirm, setConfirm] = useState('');
   const [password, setPassword] = useState('');
+  const [link, setLink] = useState('');
   const [image, setImage] = useState(null);
   const [profilePictureURL, setProfilePictureURL] = useState(null);
   const profilePictureRef = ref(storage, 'images');
@@ -110,35 +109,10 @@ const Signup = () => {
         alert("password does not match")
       }else{
         setStep4(true);
-        async function uploadImageAsync (uri) {
-          const blob = await new Promise((resolve, reject)=>{
-            const xhr = new XMLHttpRequest();
-            xhr.onload = function(){
-              resolve(xhr.response);
-            };
-            xhr.onerror = function(e){
-              console.log(e);
-              reject(new TypeError("Network request failed."))
-            };
-            xhr.responseType = "blob";
-            xhr.open("GET", uri, true);
-            xhr.send(null);
-          });
-    
-          try{
-            const storageRef = ref(storage, id);
-            const result = await uploadBytes(storageRef, blob);
-            return await getDownloadURL(storageRef);
-            blob.close();
-          }catch(e){
-            
-          }
-        }
         createUserWithEmailAndPassword(authentication, email, password)
         .then((re) =>{
           uploadImageAsync (image);
           const id = authentication.currentUser.uid;
-          registerIndieID(id, 10244, 'MRmNGe8fHmswLJsrtYA7H3');
           setDoc(doc(database, "userData",id),{
               userFname: fname,
               userMname: mname,
@@ -153,7 +127,7 @@ const Signup = () => {
               question3: question3,
               question4: question4,
               question5: question5,
-              dateCreated: date,
+              dateCreated: made,
               bloodPressure: '',
               lastPeriod: '',
               otherInfo: '',
@@ -172,120 +146,51 @@ const Signup = () => {
     }
   }
 
-   //camera
-   const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      let url = result.assets[0].uri;
-     //const uploadURL = await uploadImageAsync(result.assets[0].uri);
-     setImage(url);
-     console.log(image);
-    }else{
-      //do nothing
-    }
-    //firebase start 
-
-    //firebase end
-
-  };
-
- 
-//change profile picture
-// const pickImage = async () => {
-//   // No permissions request is necessary for launching the image library
-//   let result = await ImagePicker.launchImageLibraryAsync({
-//     mediaTypes: ImagePicker.MediaTypeOptions.All,
-//     allowsEditing: true,
-//     aspect: [4, 3],
-//     quality: 1,
-//   });
-
-//   console.log(result);
-
-//   if (!result.canceled) {
-//     setImage(result.uri);
-//   }
-// };
-
-// function saveImage(){
-//   const uploadImage = async () => {
-//     const blobImage = await new Promise((resolve, reject) => {
-//       const xhr = new XMLHttpRequest();
-//       xhr.onload = function () {
-//         resolve(xhr.response);
-//       };
-//       xhr.onerror = function () {
-//         reject(new TypeError("Network request failed."));
-//       };
-//       xhr.responseType = "blob";
-//       xhr.open("GET", image, true);
-//       xhr.send(null);
-//     });
-//     // Create file metadata including the content type
-//     /** @type {any} */
-//     const metadata = {
-//       contentType: "image/jpeg",
-//     };
-
-//     // Upload file and metadata to the object 'images/mountains.jpg'
-//     const storageRef = ref(storage, "profiles/" + id);
-//     const uploadTask = uploadBytesResumable(storageRef, blobImage, metadata);
-
-//     // Listen for state changes, errors, and completion of the upload.
-//     uploadTask.on(
-//       "state_changed",
-//       (snapshot) => {
-//         // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-//         const progress =
-//           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-//         console.log("Upload is " + progress + "% done");
-//         switch (snapshot.state) {
-//           case "paused":
-//             console.log("Upload is paused");
-//             break;
-//           case "running":
-//             console.log("Upload is running");
-//             break;
-//         }
-//       },
-//       (error) => {
-//         // A full list of error codes is available at
-//         // https://firebase.google.com/docs/storage/web/handle-errors
-//         switch (error.code) {
-//           case "storage/unauthorized":
-//             // User doesn't have permission to access the object
-//             break;
-//           case "storage/canceled":
-//             // User canceled the upload
-//             break;
-
-//           // ...
-
-//           case "storage/unknown":
-//             // Unknown error occurred, inspect error.serverResponse
-//             break;
-//         }
-//       },
-//       () => {
-//         // Upload completed successfully, now we can get the download URL
-//         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-//           console.log("File available at", downloadURL);
-//         });
-//       }
-//     );
-//   };
-//   if (image != null) {
-//     uploadImage();
-//     setImage(null);
-//   }
-// }
+    //camera
+    const pickImage = async () => {
+      // No permissions request is necessary for launching the image library
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+  
+      if (!result.canceled) {
+       const uploadURL = await uploadImageAsync(result.assets[0].uri);
+       setImage(uploadURL);
+      }else{
+        //do nothing
+      }
+      //firebase start 
+      async function uploadImageAsync (uri) {
+        const blob = await new Promise((resolve, reject)=>{
+          const xhr = new XMLHttpRequest();
+          xhr.onload = function(){
+            resolve(xhr.response);
+          };
+          xhr.onerror = function(e){
+            console.log(e);
+            reject(new TypeError("Network request failed."))
+          };
+          xhr.responseType = "blob";
+          xhr.open("GET", uri, true);
+          xhr.send(null);
+        });
+  
+        try{
+          const storageRef = ref(storage, id);
+          const result = await uploadBytes(storageRef, blob);
+          return await getDownloadURL(storageRef);
+          blob.close();
+        }catch(e){
+          
+        }
+  
+      }
+      //firebase end
+  
+    };
 
 //console.log(fname, mname, lname,email, selectedStartDate, num, image )
 

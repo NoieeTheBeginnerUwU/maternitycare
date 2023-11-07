@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { FlatList } from 'react-native-gesture-handler';
@@ -28,14 +28,13 @@ import { and } from 'firebase/firestore';
 import Loading from '../animations/Loading';
 import Nodata from '../animations/Nodata';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
+import { faAngleLeft, faAngleRight, faCalendar, faHospitalSymbol, faX } from '@fortawesome/free-solid-svg-icons';
 import { TouchableOpacity } from 'react-native';
 
 const History = () => {
-
+  const [active, setActive] = useState("");
+  const [activeUid, setActiveUid] = useState('');
   const [documents, setDocuments] = useState([]);
-  const id = authentication.currentUser.uid;
-  const uid = id.toString();
   const [appointmentDate, setAppointmentDate] = useState();
   const [dateMade, setDateMade] = useState();
   const [purpose, setPurpose] = useState();
@@ -43,42 +42,54 @@ const History = () => {
   const [time, setTime] = useState();
   const [docUserId, setDocUserId] = useState();
   const [noData, setNoData] = useState(false);
+  const scrl = useRef();
+
+  const id = authentication.currentUser.phoneNumber;
+  const [uid, setUid] = useState("");
+    async function fetchUser(){
+      const user = [];
+      const querySnapshot = await getDocs(query(collection(database,"userData"),where("userNumber","==",id)))
+      querySnapshot.forEach((doc)=>{
+        setUid(doc.id);
+      })
+    }
+
+    
+    async function fetchData(){
+      fetchUser();
+      const querySnapshot = await getDocs(query(collection(database,"appointments"),where("uid","==",uid)))
+      const userData = [];
+      let i = 1;
+      const data = querySnapshot.forEach((doc)=>{
+        if(doc.data().uid===uid){
+          userData.push({count: i, id:doc.id, appointmentDate:doc.data().appointmentDate,bmi:doc.data().bmi,day:doc.data().day, month:doc.data().month,larger:doc.data().larger,lower:doc.data().lower, year:doc.data().year, height:doc.data().height, weight:doc.data().weight, name:doc.data().name, purpose:doc.data().purpose, remarks:doc.data().remarks});
+        }
+        i++;
+      })
+      setDocuments(userData);
+      console.log(documents.length)
+      if(userData.length<=0){
+        setNoData(true)
+      }
+    };
 
     useEffect(()=> {
-      async function fetchData(){
-        const querySnapshot = await getDocs(query(collection(database, 'appointments'),where("uid","==",id)),orderBy("dateMade","desc"));
-        const userData = [];
-        let i = 1;
-        const data = querySnapshot.forEach(doc=>{
-          if(doc.data().uid===id){
-            userData.push({count: i, id:doc.id, DateApp:doc.data().appointmentDate, status:doc.data().status,purpose:doc.data().purpose,time:doc.data().time,made:doc.data().dateMade});
-          }
-          i++;
-        })
-        setDocuments(userData);
-        console.log(documents.length)
-        if(userData.length<=0){
-          setNoData(true)
-        }
-      };
       setLoading(true);
       fetchData();
-    },[]);
+    },[uid]);
 
   const renderItem = ({ item }) => (
-    <View style={{width:'90%',height:100,flexDirection:'row',alignContent:'center',alignSelf:'center',justifyContent:'center',backgroundColor:item.status==="pending"&& "grey" ||item.status==="approved"&& "green"|| item.status==="denied"&&"red",marginBottom:'1%'}}>
-      <View style={{width:'10%',height:'100%',alignItems:'center',justifyContent:'center'}}>
-        <Text style={{color:'white',fontSize:24}}>{item.count}</Text>
+    <TouchableOpacity key={item.id} onPress={()=> setActive(item.id)}>
+      <View style={{width:'96%',height:70,flexDirection:'row',alignItems:'center',alignSelf:'center',justifyContent:'space-evenly',backgroundColor:'lightgrey', margin:'2%' }}>
+        <View style={{width:'50%',height:70,flexDirection:'row',alignItems:'center',alignSelf:'center',justifyContent:'space-evenly',backgroundColor:'lightgrey', }}>
+          <FontAwesomeIcon icon={faCalendar} size={18} color="black"/>
+          <Text style={{fontSize:12,color:'black'}}>{item.appointmentDate}</Text>
+        </View>
+        <View style={{width:'50%',height:70,flexDirection:'row',alignItems:'center',alignSelf:'center',justifyContent:'space-evenly',backgroundColor:'lightgrey', }}>
+          <Text style={{fontSize:12,color:'black'}}>{item.purpose}</Text>
+        </View>
       </View>
-      <View style={{alignItems:'start',justifyContent:'center'}}>
-        <Text style={{color:'white',fontSize:12,marginLeft:'4%'}}>Appointment ID: {item.id}</Text>
-        <Text style={{color:'white',fontSize:10,marginLeft:'4%'}}>Date of Appointment: {item.DateApp}</Text>
-        <Text style={{color:'white',fontSize:10,marginLeft:'4%'}}>Time of Appointment: {item.time}</Text>
-        <Text style={{color:'white',fontSize:10,marginLeft:'4%'}}>purpose: {item.purpose}</Text>
-        <Text style={{color:'white',fontSize:10,marginLeft:'4%'}}>Date Made: {item.made}</Text>
-        <Text style={{color:'white',fontSize:10,marginLeft:'4%',fontWeight:'bold'}}>status: {item.status}</Text>
-      </View>
-    </View>
+    </TouchableOpacity>
   );
 
   const [loading, setLoading] = useState(false);
@@ -92,38 +103,73 @@ const History = () => {
 
   return (
     <View style={styles.container}> 
+    <View style={{width:'100%',height:60,backgroundColor:'navy',marginBottom:10,flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+      <Text style={{color:'white',fontWeight:700,fontSize:18}}>Check-up history</Text>
+    </View>
       {
         loading?
         <Loading/>
         :
-        <View>
+        <>
+
           {
-            noData?
-            <Nodata/>
-            :
+            active===""?
             <View>
-              <View style={{width:'100%',height:20, backgroundColor:'white',alignItems:'center',justifyContent:'center'}}>
-                <Text style={{color:'navy',fontSize:18,fontWeight:400,alignSelf:'center',}}>Here is the list of your appointments</Text>
+            {
+              noData?
+              <Nodata/>
+              :
+              <View>
+                <View style={{width:'100%',height:'96%'}}>
+                    <FlatList //if index<5 || ! ORRRRRRRRRRRRR if toggled {display (n)} else {5}
+                      data={documents} //sabi ni sir ayusin design nito
+                      renderItem={renderItem}
+                      keyExtractor={item=> item.id} // Use index as key for demo purposes
+                    />
+                </View>
               </View>
-              <View style={{width:'40%',height:30,backgroundColor:'white',flexDirection:'row',alignItems:'center',justifyContent:'space-evenly'}}>
-               <TouchableOpacity onPress={()=> setSortBy(sortBy-1)}>
-                <FontAwesomeIcon icon={faAngleLeft} size={24}/>
-               </TouchableOpacity>
-                <Text>Sort By: {sortBy}</Text>
-               <TouchableOpacity onPress={()=> setSortBy(sortBy+1)}>
-                <FontAwesomeIcon icon={faAngleRight} size={24}/>
-               </TouchableOpacity>
-              </View>
-              <View style={{width:'100%',height:'96%'}}>
-                  <FlatList //if index<5 || ! ORRRRRRRRRRRRR if toggled {display (n)} else {5}
-                    data={documents} //sabi ni sir ayusin design nito
-                    renderItem={renderItem}
-                    keyExtractor={item=> item.id} // Use index as key for demo purposes
-                  />
-              </View>
-            </View>
+            }
+          </View>
+          :
+          <>
+          
+          <View style={{width:'100%',height:'100%',alignItems:'center',justifyContent:'center'}}>
+            {
+              documents.map((doc)=>(
+                  <>
+                    {
+                      active===doc.id&&
+                      <View style={{width:'100%',height:'100%',backgroundColor:'navy'}}>
+                        <View style={{width:'100%',height:'20%',flexDirection:'row',alignItems:'end',justifyContent:'end'}}>
+                          <TouchableOpacity onPress={()=> setActive("")} style={{width:40,height:40,borderRadius:10,backgroundColor:'transparent'}}>
+                            <FontAwesomeIcon icon={faX} color="white" size={20}/>
+                          </TouchableOpacity>
+                          <Text style={{color:'white'}}>date of check-up{doc.appointmentDate}</Text>
+                        </View>
+                        <View style={{width:'94%',height:'40%',borderWidth:1,borderColor:'white'}}>
+                          <Text style={{color:'white'}}>Height: {doc.height}</Text>
+                          <Text style={{color:'white'}}>Weight: {doc.weight}</Text>
+                          <Text style={{color:'white'}}>BMI: {doc.bmi}</Text>
+                        </View>
+                        <View style={{width:'94%',height:'20%',borderWidth:1,borderColor:'white'}}>
+                          <Text style={{color:'white'}}>Purpose: {doc.purpose}</Text>
+                          <Text style={{color:'white'}}>Blood Pressure: {doc.larger}/{doc.lower}</Text>
+                        </View>
+                        <View style={{width:'94%',height:'20%',borderWidth:1,borderColor:'white'}}>
+                          <Text style={{color:'white'}}>Remarks: {doc.remarks}</Text>
+                        </View>
+                      </View>
+                    }
+                  </>
+
+              ))
+            }
+          </View>
+          
+          </>
           }
-        </View>
+        
+        </>
       }
     </View>
   )

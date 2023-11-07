@@ -38,7 +38,7 @@ const Nochild = () => {
           <View>
             <Text style={{width:'92%',alignSelf:'center'}}>Embracing the power of immunization is a shared responsibility, empowering our children with a healthier and brighter future.</Text>
           </View>
-          <TouchableOpacity style={{width:'90%', height:60, backgroundColor:'orange',alignSelf:'center',marginTop:40,borderRadius:30,justifyContent:'center'}} onPress={()=> nav.navigate("Registerchild")}>
+          <TouchableOpacity style={{width:'90%', height:60, backgroundColor:'orange',alignSelf:'center',marginTop:40,borderRadius:30,justifyContent:'center'}} onPress={()=> nav.navigate("Childimmunization")}>
             <Text style={{alignSelf:'center',textAlign:'center',color:'white',fontSize:23}}>Get Started</Text>
           </TouchableOpacity>
         </View>

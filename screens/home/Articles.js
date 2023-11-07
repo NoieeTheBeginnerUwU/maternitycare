@@ -58,7 +58,6 @@ const Articles = () => {
         <View style={{width:"100%",height:50,alignSelf:'center',borderColor:'#2E417E', borderTopWidth:4}}>
           <Text style={{textAlign:'center',color:'#2E417E',fontSize:16,marginTop:10,fontWeight:600}}>LATEST ARTICLES</Text>
         </View>
-          <ScrollView style={{width:'100%',height:'100%'}}>
             <Text style={{margin:'2%'}}>Click the article to read</Text>
             <FlatList
               data={document}
@@ -66,7 +65,6 @@ const Articles = () => {
               keyExtractor={item => item.id}
               extraData={selectedId}
             />
-          </ScrollView>
         </View>
         <View style={{width:'90%',height:4,backgroundColor:'navy',marginBottom:'5%',alignSelf:'center'}}/>
     </View>

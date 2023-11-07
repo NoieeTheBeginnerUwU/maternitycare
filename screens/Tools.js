@@ -4,9 +4,9 @@ import { View, Text, StyleSheet, Image } from 'react-native';
 //Fontawesome
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { faRedRiver } from '@fortawesome/free-brands-svg-icons';
-import { faBaby, faCalendarTimes, faChild, faClockRotateLeft, faPersonPregnant, faSyringe, faUserNurse, faWarning } from '@fortawesome/free-solid-svg-icons';
-import { faCalendar } from '@fortawesome/free-regular-svg-icons';
+import { faRedRiver, faYoutube } from '@fortawesome/free-brands-svg-icons';
+import { faBaby, faCalculator, faCalendarTimes, faChild, faClockRotateLeft, faPersonPregnant, faProcedures, faRoadCircleCheck, faSyringe, faUserNurse, faWarning } from '@fortawesome/free-solid-svg-icons';
+import { faCalendar, faFlag } from '@fortawesome/free-regular-svg-icons';
 //Navigation
 import { createStackNavigator } from '@react-navigation/stack';
 const Stack = createStackNavigator();
@@ -16,9 +16,8 @@ const Tools = () => {
   const nav = useNavigation();
   return (
     <>
-    <View style={{width: '100%', height: 1000,backgroundColor:'white'}}>
-      <View style={{width: '100%', flexDirection: 'row',height: '100%', 
-      alignSelf: 'center', marginTop: '4%', justifyContent: 'space-around', 
+    <View style={{width: '100%', height: '100%',backgroundColor:'white'}}>
+      <View style={{width: '100%', flexDirection: 'row',height: '100%', marginTop: '5%', justifyContent: 'space-around', 
       alignItems:'center',flexWrap: 'wrap',
       backgroundColor: 'transparent', borderRadius:20}}>
         <View style={styles.box1}>
@@ -27,8 +26,8 @@ const Tools = () => {
               <FontAwesomeIcon icon={faBaby} size={28} color='skyblue'/>
             </View>
             <View style={{alignItems: 'center', width: '100%', heigh: '50%'}}>
-              <Text style={{alignSelf: 'center',color:'black',fontWeight:600,fontSize:18}}>Child</Text>
-              <Text style={{color:'black',fontSize:12,fontWeight:600}}>Immunization</Text>
+              <Text style={{alignSelf: 'center',color:'white',fontWeight:600,fontSize:18}}>Child</Text>
+              <Text style={{color:'white',fontSize:12,fontWeight:600}}>Immunization</Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -38,51 +37,52 @@ const Tools = () => {
               <FontAwesomeIcon icon={faClockRotateLeft} size={28} color='skyblue'/>
             </View>
             <View style={{alignItems: 'center', width: '100%', heigh: '50%'}}>
-              <Text style={{alignSelf: 'center',color:'black',fontWeight:600,fontSize:18}}>Appointment</Text>
-              <Text style={{color:'black',fontSize:12,fontWeight:600}}>History</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.box1}>
-          <TouchableOpacity style={styles.boxPress} onPress={()=> nav.navigate("Staff")}>
-          <View style={{width: 60, height: 60,borderRadius: 30, backgroundColor: 'white', justifyContent: 'center',alignSelf: 'center', alignItems:'center'}}>
-              <FontAwesomeIcon icon={faUserNurse} size={28} color='skyblue'/>
-            </View>
-            <View style={{alignItems: 'center', width: '100%', heigh: '50%'}}>
-              <Text style={{alignSelf: 'center',color:'black',fontWeight:600,fontSize:18}}>Staff</Text>
-              <Text style={{color:'black',fontSize:12,fontWeight:600}}>Profiles</Text>
+              <Text style={{alignSelf: 'center',color:'white',fontWeight:600,fontSize:18}}>Appointment</Text>
+              <Text style={{color:'white',fontSize:12,fontWeight:600}}>History</Text>
             </View>
           </TouchableOpacity>
         </View>
         <View style={styles.box2}>
           <TouchableOpacity style={styles.boxPress}  onPress={()=> nav.navigate("Milestone")}>
           <View style={{width: 60, height: 60,borderRadius: 30, backgroundColor: 'white', justifyContent: 'center',alignSelf: 'center', alignItems:'center'}}>
-              <FontAwesomeIcon icon={faPersonPregnant} size={28} color='skyblue'/>
+              <FontAwesomeIcon icon={faRoadCircleCheck} size={28} color='skyblue'/>
             </View>
             <View style={{alignItems: 'center', width: '100%', heigh: '50%'}}>
-              <Text style={{alignSelf: 'center',color:'black',fontWeight:600,fontSize:18}}>Pregnancy</Text>
-              <Text style={{color:'black',fontSize:12,fontWeight:600}}>Milestone</Text>
+              <Text style={{alignSelf: 'center',color:'white',fontWeight:600,fontSize:18}}>Pregnancy</Text>
+              <Text style={{color:'white',fontSize:12,fontWeight:600}}>Milestone</Text>
             </View>
           </TouchableOpacity>
         </View>
-        <View style={styles.box1}>
-          <TouchableOpacity style={styles.boxPress} onPress={()=> nav.navigate("Reminder")}>
+        <View style={[styles.box2,]}>
+          <TouchableOpacity style={styles.boxPress} onPress={()=> nav.navigate("Watch")}>
           <View style={{width: 60, height: 60,borderRadius: 30, backgroundColor: 'white', justifyContent: 'center',alignSelf: 'center', alignItems:'center'}}>
-              <FontAwesomeIcon icon={faCalendarTimes} size={28} color='skyblue'/>
+              <FontAwesomeIcon icon={faYoutube} size={28} color='red'/>
             </View>
             <View style={{alignItems: 'center', width: '100%', heigh: '50%'}}>
-              <Text style={{alignSelf: 'center',color:'black',fontWeight:600,fontSize:18}}>Reminders</Text>
+              <Text style={{alignSelf: 'center',color:'white',fontWeight:600,fontSize:18}}>Watch</Text>
+              <Text style={{color:'white',fontSize:12,fontWeight:600}}>Videos</Text>
             </View>
           </TouchableOpacity>
         </View>
         <View style={styles.box2}>
-          <TouchableOpacity style={styles.boxPress} onPress={()=> nav.navigate("Events")}>
+          <TouchableOpacity style={styles.boxPress} onPress={()=> nav.navigate("EDD Calculator")}>
           <View style={{width: 60, height: 60,borderRadius: 30, backgroundColor: 'white', justifyContent: 'center',alignSelf: 'center', alignItems:'center'}}>
-              <FontAwesomeIcon icon={faCalendar} size={28} color='skyblue'/>
+              <FontAwesomeIcon icon={faCalculator} size={28} color='skyblue'/>
             </View>
             <View style={{alignItems: 'center', width: '100%', heigh: '50%'}}>
-              <Text style={{alignSelf: 'center',color:'black',fontWeight:600,fontSize:18}}>Calendar and</Text>
-              <Text style={{color:'black',fontSize:12,fontWeight:600}}>Events</Text>
+              <Text style={{alignSelf: 'center',color:'white',fontWeight:600,fontSize:18}}>EDD</Text>
+              <Text style={{color:'white',fontSize:12,fontWeight:600}}>Calculator</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+                <View style={styles.box2}>
+          <TouchableOpacity style={styles.boxPress} onPress={()=> nav.navigate("BMI Calculator")}>
+          <View style={{width: 60, height: 60,borderRadius: 30, backgroundColor: 'white', justifyContent: 'center',alignSelf: 'center', alignItems:'center'}}>
+              <FontAwesomeIcon icon={faCalculator} size={28} color='skyblue'/>
+            </View>
+            <View style={{alignItems: 'center', width: '100%', heigh: '50%'}}>
+              <Text style={{alignSelf: 'center',color:'white',fontWeight:600,fontSize:18}}>BMI</Text>
+              <Text style={{color:'white',fontSize:12,fontWeight:600}}>Calculator</Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -96,12 +96,12 @@ export default Tools
 
 const styles = StyleSheet.create({
   box1: {
-    width: '45%', margin: '2%',height: 150,backgroundColor:'pink',borderRadius: 20, marginTop: '-100%',
+    width: '45%', margin: '2%',height: 200,alignItems:'center',justifyContent:'center',backgroundColor:'navy',borderRadius: 10, 
   },
   box2: {
-    width: '45%', margin: '1%',height: 150,backgroundColor:'pink',borderRadius: 20, marginTop: '10%',
+    width: '45%', margin: '1%',height: 200,alignItems:'center',justifyContent:'center',backgroundColor:'navy',borderRadius: 10, 
   },
   boxPress: {
-    width:'100%',height:'90%',flexDirection: 'column', marginTop: '10%', borderRadius: 20,
+    width:'100%',height:'90%',flexDirection: 'column', borderRadius: 20,alignItems:'center',justifyContent:'center'
   }
 })

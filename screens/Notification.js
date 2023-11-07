@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import { View, Text, StyleSheet, FlatList, ScrollView } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -10,39 +10,90 @@ import { useNavigation } from "@react-navigation/native";
 //import firebase
 import { authentication } from '../config/firebase';
 import { database } from '../config/firebase';
-import { addDoc,getDocs,query,collection,where, doc, updateDoc, orderBy } from "firebase/firestore";
+import { addDoc,getDocs,query,collection,where, doc, updateDoc, orderBy, onSnapshot } from "firebase/firestore";
 //Pages
 import Allnotif from '../Notification/Allnotif';
 import Monthnotif from '../Notification/Monthnotif';
 import Notifsettings from '../Notification/Notifsettings';
+//play sound notification
+import * as Device from 'expo-device';
+import * as Notifications from 'expo-notifications';
+import { Audio } from 'expo-av';
+import moment from "moment";
 
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
 const Notification = () => {
 
-  const id = authentication.currentUser.uid;
+  const [sound, setSound] = useState();
+  async function playSound() {
+    console.log('Loading Sound');
+    const { sound } = await Audio.Sound.createAsync(require('../assets/notif2.wav')
+    );
+    setSound(sound);
+    console.log('Playing Sound');
+    await sound.playAsync();
+  }
+
+  useEffect(() => {
+    return sound
+      ? () => {
+          console.log('Unloading Sound');
+          sound.unloadAsync();
+          ;
+        }
+      : undefined;
+  }, [sound]);
+
+  const id = authentication.currentUser.phoneNumber;
+  const [uid, setUid] = useState("");
+  const [user, setUser] = useState(null)
   const [byDate, setByDate] = useState("");
   const [documents, setDocuments] = useState([]);
   const [active, setActive] = useState("");
+  const [status, setStatus] = useState("");
+  const [body, setBody] = useState("");
+  const [noData, setNoData] = useState(false);
 
-  useEffect(()=>{
+ 
     async function fetchData(){
-      const querySnapshot = await getDocs(query(collection(database, 'notifications'),orderBy("dateMade",'desc')));
+      const queryUser = await getDocs(query(collection(database, "userData"),where("userNumber","==",id)));
+      queryUser.forEach((doc)=>{
+        setUid(doc.id)
+      })
+
+      const querySnapshot = await getDocs(query(collection(database, 'notifications'),where("uid","==",uid)),orderBy("dateMade",'desc'));
       const userData = [];
       const data = querySnapshot.forEach(doc=>{
        if(doc.data().uid===id){
         userData.push({id:doc.id,body:doc.data().body,dateMade:doc.data().dateMade,status:doc.data().status,title:doc.data().title,timeMade:doc.data().timeMade });//pakibago nalang kapag may collection na ng notifications
-       }
-      })//malamangn sa malamang di pa nagagawa sa admin side yon
-      setDocuments(userData);//pakigawa nalang
-      console.log(documents)
+      }
+      })
+      setDocuments(userData);
       if(userData.length<=0){
         setNoData(true)
       }
       var i = 1;
       console.log("Fetched ", i++, " times")
     };
+
+  useEffect(() => {
     fetchData();
-  },[])
+    const messagesCollection = query(collection(database, "notifications"),where("uid","==",id));
+    const unsubscribe = onSnapshot(messagesCollection, (snapshot) => {
+      schedulePushNotification()
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [user]);
 
   const handleRead = async (id) => {
     const querySnapshot = await updateDoc(doc(database,"notifications",id),{
@@ -60,6 +111,28 @@ const Notification = () => {
       console.log(e);
     }
   }
+
+   //Notifications
+   const [expoPushToken, setExpoPushToken] = useState('');
+   const [notification, setNotification] = useState(false);
+   const notificationListener = useRef();
+   const responseListener = useRef();
+   useEffect(() => {
+     registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
+ 
+     notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+       setNotification(notification);
+     });
+ 
+     responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+       console.log(response);
+     });
+ 
+     return () => {
+       Notifications.removeNotificationSubscription(notificationListener.current);
+       Notifications.removeNotificationSubscription(responseListener.current);
+     };
+   }, []);
  
     const renderItem = ({ item }) => (
       <TouchableOpacity onPress={()=> [setActive(item.id),handleRead(item.id)] }>
@@ -113,6 +186,52 @@ const Notification = () => {
           </View>
     </View>
   )
+
+  async function schedulePushNotification() {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Maternity Care App",
+        body: "You have 1 new notification.",
+      },
+      trigger: { seconds: 1 },
+    });
+  }
+
+
+  async function registerForPushNotificationsAsync() {
+    let token;
+  
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync('default', {
+        name: 'default',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#FF231F7C',
+      });
+    }
+  
+    if (Device.isDevice) {
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (finalStatus !== 'granted') {
+        alert('Failed to get push token for push notification!');
+        return;
+      }
+      token = (await Notifications.getExpoPushTokenAsync()).data;
+      console.log(token);
+    } else {
+      alert('Must use physical device for Push Notifications');
+    }
+  
+    return token;
+  }
+
+
+
 }
 
 export default Notification

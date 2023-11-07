@@ -27,6 +27,10 @@ import {
   faSignOut,
   faWeightScale,
 } from "@fortawesome/free-solid-svg-icons";
+//import storage
+import { storage } from "../../config/firebase";
+import { uploadBytesResumable, ref, getDownloadURL } from "firebase/storage";
+
 //firebase authentication
 import { authentication } from "../../config/firebase";
 import { signOut } from "firebase/auth";
@@ -44,6 +48,7 @@ import {
   collection,
   getDoc,
   query,
+  where,
   DocumentSnapshot,
   updateDoc,
 } from "firebase/firestore";
@@ -51,9 +56,13 @@ import { onSnapshot } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
 //import loading screen
 import Loading from "../animations/Loading";
+//image picker
+import * as ImagePicker from 'expo-image-picker';
+
+
 const Profile = () => {
   const [isSelected, setSelection] = useState(false);
-  const id = authentication.currentUser.uid;
+  const id = authentication.currentUser.phoneNumber;
   //useRefs
   const [fname, setFname] = useState("");
   const [mname, setMname] = useState("");
@@ -63,6 +72,7 @@ const Profile = () => {
   const [dob, setDob] = useState("");
   const [address, setAddress] = useState("");
   const [profilePic, setProfilePic] = useState();
+  const [image, setImage] = useState(null);
   //
   const [fnamePlaceholder, setFnamePlaceholder] = useState("");
   const [mnamePlaceholder, setMnamePlaceholder] = useState("");
@@ -77,7 +87,7 @@ const Profile = () => {
   const [dateModifiedPlaceholder, setDateModifiedPlacehlder] = useState("");
   const [profilePicPlaceholder, setProfilePicPlaceholder] = useState("");
   const [bmi, setBmi] = useState()
-  const uid = id.toString;
+  const [uid, setUid] = useState("");
   const [userdata, setuserdata] = useState([]);
 
   const [loading, setLoading] = useState(false);
@@ -88,35 +98,41 @@ const Profile = () => {
     },2500);
   }, []);
 
-  function User() {
-    const uid = id.toString();
-    //
-    const ref = doc(database, "userData", id);
-      try {
-        const docRef = doc(database, "userData", uid);
-        onSnapshot(docRef, (doc) => {
-          const data = doc.data();
-          setFnamePlaceholder(data.userFname);
-          setMnamePlaceholder(data.userMname);
-          setLnamePlaceholder(data.userLname);
-          setEmailPlaceholder(data.userEmail);
-          setDobPlaceholder(data.userBirthdate);
-          setNumberPlaceholder(data.userNumber);
-          setAddressPlaceholder(data.userAddress);
-          setProfilePicPlaceholder(data.userPic);
-          setBloodPressurePlaceholder(data.bloodPressure);
-          setHeightPlaceholder(data.height);
-          setWeightPlaceholder(data.weight);
-          setDateModifiedPlacehlder(data.dateUpdated);
-        });
-      } catch (error) {
-        alert(error);
-      }
+
+  async function fetchUser(){
+    const userData = [];
+    const  queryData = await getDocs(query(collection(database,"userData"),where("userNumber","==",id)))
+    queryData.forEach((doc)=>{
+      setUid(doc.id);      
+      setFnamePlaceholder(doc.data().userFname);
+      setMnamePlaceholder(doc.data().userMname);
+      setLnamePlaceholder(doc.data().userLname);
+      setEmailPlaceholder(doc.data().userEmail);
+      setDobPlaceholder(doc.data().userBirthdate);
+      setNumberPlaceholder(doc.data().userNumber);
+      setAddressPlaceholder(doc.data().userAddress);
+      setProfilePicPlaceholder(doc.data().userPic);
+      setBloodPressurePlaceholder(doc.data().bloodPressure);
+      setHeightPlaceholder(doc.data().height);
+      setWeightPlaceholder(doc.data().weight);
+      setDateModifiedPlacehlder(doc.data().dateUpdated);
+    })
   }
 
  useEffect(()=>{
-  User();
+  fetchUser();
  },[])
+
+ async function updatePic(){
+  try{
+    updateDoc(doc(database, "userData", uid), {
+      userPic: image
+    }).then(alert("Changes successful."));
+  }catch(e){
+    console.log(e)
+  }
+ }
+
 
   function logout() {
     authentication
@@ -135,6 +151,57 @@ const Profile = () => {
 
     //camera
 
+        //camera
+        const pickImage = async () => {
+          // No permissions request is necessary for launching the image library
+          let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
+          });
+      
+          if (!result.canceled) {
+            console.log(result.assets[0].uri)
+           const uploadURL = await uploadImageAsync(result.assets[0].uri);
+           setImage(result.assets[0].uri);
+           console.log(image)
+           updateDoc(doc(database, "userData", uid), {
+            userPic: image
+          }).then(alert("Changes successful."));
+          }else{
+            //do nothing
+          }
+          //firebase start 
+          async function uploadImageAsync (uri) {
+            const blob = await new Promise((resolve, reject)=>{
+              const xhr = new XMLHttpRequest();
+              xhr.onload = function(){
+                resolve(xhr.response);
+              };
+              xhr.onerror = function(e){
+                console.log(e);
+                reject(new TypeError("Network request failed."))
+              };
+              xhr.responseType = "blob";
+              xhr.open("GET", uri, true);
+              xhr.send(null);
+            });
+      
+            try{
+              const storageRef = ref(storage, uid);
+              const result = await uploadBytes(storageRef, blob);
+              return await getDownloadURL(storageRef);
+              blob.close();
+            }catch(e){
+              
+            }
+      
+          }
+          //firebase end
+      
+        };
+
   return (
     <>
       {loading ? (
@@ -142,16 +209,16 @@ const Profile = () => {
       ) : (
         <ScrollView>
           <View style={{ backgroundColor: "white", height: 700,alignItems:'center',justifyContent:'start' }}>
-            <View style={{width:'96%',height:134,flexDirection:'row',justifyContent:'center',alignItems:'center',borderTopRadius:70,backgroundColor:"pink",margin:'4%',borderTopLeftRadius:65,borderBottomLeftRadius:65}}>
-            <TouchableOpacity  style={{width:120,height:120,borderRadius:140}}>
+            <View style={{width:'96%',height:150,flexDirection:'row',justifyContent:'center',alignItems:'center',borderTopRadius:80,backgroundColor:"navy",marginTop:'4%',borderTopLeftRadius:70,borderBottomLeftRadius:70}}>
+            <TouchableOpacity onPress={()=> pickImage()}  style={{width:120,height:120,borderRadius:140}}>
                 {
                   !profilePicPlaceholder?
                   <Image
-                  style={style.pic}
+                  style={{width:130,height:130,borderRadius:140}}
                   source={require('../../assets/usertemplate.png')}/>
                 :
                 <Image
-                style={{width:120,height:120,borderRadius:140}}
+                style={{width:130,height:130,borderRadius:140}}
                 source={{uri:profilePicPlaceholder}}/>
                 }
               </TouchableOpacity>
@@ -166,44 +233,13 @@ const Profile = () => {
                   }}
                 >
                 <Text
-                  style={{ color: "white", fontSize: 20, fontWeight: 800 }}
+                  style={{ color: "white", fontSize: 24, fontWeight: 800 }}
                 >
                   {fnamePlaceholder} {mnamePlaceholder} {lnamePlaceholder}
                 </Text>
               </View>
             </View>
             <View style={style.container}>
-              <View style={{width:'96%',height:60,alignSelf:'center',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                <View style={{width:'25%',height:'100%',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                  <FontAwesomeIcon icon={faPersonPregnant} size={22} color="pink"/>
-                  <View style={{width:'70%',height:'100%',alignItems:'center',justifyContent:'center'}}>
-                    <Text style={{}}>BMI</Text>
-                    <Text style={{}}>{bm}</Text>
-                  </View>
-                </View>
-                <View style={{width:'25%',height:'100%',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                <FontAwesomeIcon icon={faWeightScale} size={22} color="orange"/>
-                  <View style={{width:'70%',height:'100%',alignItems:'center',justifyContent:'center'}}>
-                    <Text style={{}}>Weight</Text>
-                    <Text style={{}}>{weightPlaceholder}</Text>
-                  </View>
-                </View>
-                <View style={{width:'25%',height:'100%',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                <FontAwesomeIcon icon={faRuler} size={22} color="yellow"/>
-                  <View style={{width:'70%',height:'100%',alignItems:'center',justifyContent:'center'}}>
-                    <Text style={{}}>Height</Text>
-                    <Text style={{}}>{heightPlaceholder}</Text>
-                  </View>
-                </View>
-                <View style={{width:'25%',height:'100%',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                <FontAwesomeIcon icon={faDroplet} size={22} color="red"/>
-                  <View style={{width:'70%',height:'100%',alignItems:'center',justifyContent:'center'}}>
-                    <Text style={{}}>BP</Text>
-                    <Text style={{}}>{bloodPressurePlaceholder}</Text>
-                  </View>
-                </View>
-              </View>
-              <Text style={{marginLeft:20,fontWeight:300,marginBottom:-10}}>Last modified: {dateModifiedPlaceholder}</Text>
               <Text
                 style={{
                   color: "#2E417E",
@@ -418,19 +454,6 @@ const Profile = () => {
                   marginTop: 10,
                 }}
               >
-                <TouchableOpacity
-                  onPress={() => nav.navigate("Password")}
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                    width: "90%",
-                    margin: "2%",
-                  }}
-                >
-                  <FontAwesomeIcon icon={faKey} size={20} color="skyblue" />
-                  <Text>Change Password</Text>
-                  <FontAwesomeIcon icon={faAngleRight} size={20} color="skyblue" />
-                </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => nav.navigate("Settings")}
                   style={{

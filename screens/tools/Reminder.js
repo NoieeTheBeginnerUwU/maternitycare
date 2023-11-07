@@ -185,10 +185,6 @@ export default Reminder = () => {
           </View>
           :
           <View style={styles.container}>
-            <TouchableOpacity onPress={()=> nav.navigate('AddReminder')} style={{alignSelf:'center',width:'90%',height:50,marginTop:'5%',backgroundColor:'red',flexDirection:'row',justifyContent:'center',alignItems:'center'}}>
-              <FontAwesomeIcon icon={faPlusCircle} size={24} style={{marginRight:10}} color="white"/>
-              <Text style={{color:'white'}}>Add a reminder</Text>
-            </TouchableOpacity>
             <View style={{width:'90%',height:'80%',alignSelf:'center',marginTop:40}}>
                   <FlatList
                     data={documents}
